@@ -15,7 +15,8 @@
 
   <style>
     /************************************************************
-     * check.html เฉพาะฟอร์มตรวจ
+     * check.html
+     * ฟอร์มบันทึกตรวจประตูหนีไฟ + หมายเลขซีล
      ************************************************************/
 
     .check-layout {
@@ -37,8 +38,37 @@
       gap: 12px;
     }
 
-    .form-grid .field.full {
+    .field.full {
       grid-column: 1 / -1;
+    }
+
+    .seal-box {
+      border: 1px solid rgba(15, 118, 110, 0.3);
+      background: linear-gradient(90deg, var(--primary-soft), #fff 68%);
+      border-radius: 16px;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .seal-box .field span {
+      color: var(--primary-dark);
+      font-weight: 900;
+    }
+
+    .seal-box input {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      color: var(--primary-dark);
+      text-align: center;
+    }
+
+    .seal-help {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
     }
 
     .door-info-box {
@@ -172,7 +202,7 @@
       z-index: 10;
       display: grid;
       gap: 8px;
-      background: rgba(244, 247, 251, 0.88);
+      background: rgba(244, 247, 251, 0.9);
       backdrop-filter: blur(10px);
       padding: 10px;
       border-radius: 18px;
@@ -228,6 +258,16 @@
         gap: 8px;
       }
 
+      .seal-box {
+        padding: 10px;
+        border-radius: 14px;
+      }
+
+      .seal-box input {
+        font-size: 18px;
+        min-height: 44px;
+      }
+
       .check-item {
         padding: 10px;
         border-radius: 14px;
@@ -278,6 +318,10 @@
       .save-row {
         grid-template-columns: 1fr;
       }
+
+      .quick-nav {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -306,7 +350,7 @@
         <div class="section-title-row">
           <div>
             <h2>ข้อมูลการตรวจ</h2>
-            <p>เลือกชื่อผู้บันทึกและประตูที่ต้องการตรวจ</p>
+            <p>เลือกผู้บันทึก ประตู และกรอกหมายเลขซีลปัจจุบัน</p>
           </div>
         </div>
 
@@ -329,6 +373,24 @@
             <span>จุดติดตั้ง</span>
             <input id="locationInput" type="text" readonly />
           </label>
+
+          <div class="seal-box full">
+            <label class="field">
+              <span>หมายเลขซีล</span>
+              <input
+                id="sealNoInput"
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                autocomplete="off"
+                maxlength="30"
+                placeholder="กรอกหมายเลขซีลเป็นตัวเลข"
+              />
+            </label>
+            <div class="seal-help">
+              กรณีเปลี่ยนซีล ให้กรอกหมายเลขซีลใหม่ก่อนบันทึก
+            </div>
+          </div>
         </div>
 
         <div id="doorInfoBox" class="door-info-box" style="display:none;">
@@ -408,6 +470,7 @@
       inspectorSelect: document.getElementById('inspectorSelect'),
       doorSelect: document.getElementById('doorSelect'),
       locationInput: document.getElementById('locationInput'),
+      sealNoInput: document.getElementById('sealNoInput'),
 
       doorInfoBox: document.getElementById('doorInfoBox'),
       doorInfoId: document.getElementById('doorInfoId'),
@@ -441,6 +504,10 @@
     function bindEvents() {
       el.doorSelect.addEventListener('change', () => {
         selectDoor(el.doorSelect.value);
+      });
+
+      el.sealNoInput.addEventListener('input', () => {
+        el.sealNoInput.value = el.sealNoInput.value.replace(/\D/g, '');
       });
 
       el.btnSetAllNormal.addEventListener('click', setAllNormal);
@@ -659,13 +726,15 @@
       Swal.fire({
         icon: 'question',
         title: 'ล้างฟอร์ม?',
-        text: 'ต้องการล้างค่ารายการตรวจทั้งหมดหรือไม่',
+        text: 'ต้องการล้างค่ารายการตรวจและหมายเลขซีลหรือไม่',
         showCancelButton: true,
         confirmButtonText: 'ล้างฟอร์ม',
         cancelButtonText: 'ยกเลิก',
         reverseButtons: true
       }).then(result => {
         if (!result.isConfirmed) return;
+
+        el.sealNoInput.value = '';
 
         state.items.forEach(item => {
           item.value = '';
@@ -681,6 +750,7 @@
     async function saveInspection() {
       const inspector = el.inspectorSelect.value.trim();
       const doorId = el.doorSelect.value.trim();
+      const sealNo = el.sealNoInput.value.trim();
       const door = state.doors.find(d => d.doorId === doorId);
       const location = door ? door.location : el.locationInput.value.trim();
 
@@ -691,6 +761,18 @@
 
       if (!doorId) {
         showWarn('กรุณาเลือกหมายเลขประตูหนีไฟ');
+        return;
+      }
+
+      if (!sealNo) {
+        showWarn('กรุณากรอกหมายเลขซีล');
+        el.sealNoInput.focus();
+        return;
+      }
+
+      if (!/^[0-9]+$/.test(sealNo)) {
+        showWarn('หมายเลขซีลต้องเป็นตัวเลขเท่านั้น');
+        el.sealNoInput.focus();
         return;
       }
 
@@ -709,6 +791,7 @@
           <div><b>ผู้บันทึก:</b> ${escapeHtml(inspector)}</div>
           <div><b>ประตู:</b> ${escapeHtml(doorId)}</div>
           <div><b>จุดติดตั้ง:</b> ${escapeHtml(location || '-')}</div>
+          <div><b>หมายเลขซีล:</b> ${escapeHtml(sealNo)}</div>
           <div><b>ผลรวม:</b> ${abnormalCount ? '<span style="color:#b91c1c;font-weight:bold">ผิดปกติ</span>' : '<span style="color:#15803d;font-weight:bold">ปกติ</span>'}</div>
           <div><b>รายการผิดปกติ:</b> ${abnormalCount} รายการ</div>
         </div>
@@ -729,6 +812,7 @@
       const payload = {
         doorId,
         location,
+        sealNo,
         inspector,
         device: detectDevice(),
         items: state.items.map(item => ({
@@ -753,6 +837,8 @@
             <div style="text-align:left">
               <div><b>เวลา:</b> ${escapeHtml(data.timestamp || '-')}</div>
               <div><b>ประตู:</b> ${escapeHtml(data.doorId || doorId)}</div>
+              <div><b>จุดติดตั้ง:</b> ${escapeHtml(data.location || location || '-')}</div>
+              <div><b>หมายเลขซีล:</b> ${escapeHtml(data.sealNo || sealNo)}</div>
               <div><b>ผลรวม:</b> ${escapeHtml(data.result || '-')}</div>
             </div>
           `,
@@ -832,6 +918,9 @@
       el.btnSave.disabled = isSaving;
       el.btnReset.disabled = isSaving;
       el.btnSetAllNormal.disabled = isSaving;
+      el.inspectorSelect.disabled = isSaving;
+      el.doorSelect.disabled = isSaving;
+      el.sealNoInput.disabled = isSaving;
 
       if (isSaving) {
         el.btnSave.textContent = 'กำลังบันทึก...';
@@ -843,6 +932,8 @@
     function setFormDisabled(disabled) {
       el.inspectorSelect.disabled = disabled;
       el.doorSelect.disabled = disabled;
+      el.locationInput.disabled = disabled;
+      el.sealNoInput.disabled = disabled;
       el.btnSave.disabled = disabled;
       el.btnReset.disabled = disabled;
       el.btnSetAllNormal.disabled = disabled;
