@@ -14,10 +14,6 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
-    /************************************************************
-     * view.html เฉพาะหน้าแสดงผลรายประตู
-     ************************************************************/
-
     .view-layout {
       display: grid;
       gap: 14px;
@@ -104,7 +100,6 @@
       grid-template-columns: auto minmax(0, 1fr);
       gap: 8px;
       align-items: center;
-      border: 1px solid rgba(255, 255, 255, 0.35);
     }
 
     .seal-hero span {
@@ -536,7 +531,7 @@
         <div class="section-title-row">
           <div>
             <h2>ประวัติการตรวจย้อนหลัง</h2>
-            <p>แสดงรายการล่าสุดไม่เกิน 20 ครั้ง พร้อมหมายเลขซีลแต่ละครั้ง</p>
+            <p>แสดงรายการล่าสุดไม่เกิน 20 ครั้ง</p>
           </div>
         </div>
 
@@ -562,6 +557,10 @@
   <script>
     /************************************************************
      * view.html app
+     * สำคัญ:
+     * - หน้าเว็บไม่แปลงวันที่เอง
+     * - แสดง timestamp ตรงจาก Backend เท่านั้น
+     * - Backend ต้องส่งรูปแบบ dd/MM/yyyy HH:mm:ss
      ************************************************************/
 
     const CONFIG = window.APP_CONFIG;
@@ -693,7 +692,7 @@
       el.latestResult.textContent = latest.result || '-';
       el.latestResult.className = latest.result === 'ผิดปกติ' ? 'result-abnormal' : 'result-normal';
 
-      el.latestTime.textContent = latest.timestamp || '-';
+      el.latestTime.textContent = normalizeTimestampDisplay(latest.timestamp);
       el.latestInspector.textContent = latest.inspector || '-';
       el.latestDevice.textContent = latest.device || '-';
 
@@ -757,7 +756,7 @@
         return `
           <div class="history-row">
             <div class="history-main">
-              <strong>${escapeHtml(item.timestamp || '-')}</strong>
+              <strong>${escapeHtml(normalizeTimestampDisplay(item.timestamp))}</strong>
               <small class="history-seal">หมายเลขซีล: ${escapeHtml(item.sealNo || '-')}</small>
               <small>ผู้ตรวจ: ${escapeHtml(item.inspector || '-')} | อุปกรณ์: ${escapeHtml(item.device || '-')}</small>
               <small>จุดติดตั้ง: ${escapeHtml(item.location || '-')}</small>
@@ -804,7 +803,7 @@
         title: `ผลตรวจ ${escapeHtml(record.doorId || state.doorId)}`,
         html: `
           <div style="text-align:left;font-size:14px;">
-            <div><b>วันที่/เวลา:</b> ${escapeHtml(record.timestamp || '-')}</div>
+            <div><b>วันที่/เวลา:</b> ${escapeHtml(normalizeTimestampDisplay(record.timestamp))}</div>
             <div><b>หมายเลขซีล:</b> ${escapeHtml(record.sealNo || '-')}</div>
             <div><b>ผู้ตรวจ:</b> ${escapeHtml(record.inspector || '-')}</div>
             <div><b>จุดติดตั้ง:</b> ${escapeHtml(record.location || '-')}</div>
@@ -828,6 +827,34 @@
         `,
         confirmButtonText: 'ปิด'
       });
+    }
+
+    function normalizeTimestampDisplay(value) {
+      const s = String(value ?? '').trim();
+
+      if (!s) return '-';
+
+      // ใช้รูปแบบที่ถูกต้องจาก Backend เท่านั้น
+      if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/.test(s)) {
+        return s;
+      }
+
+      // ถ้า Backend ส่ง yyyy-MM-dd HH:mm:ss มา แปลงแบบไม่ใช้ Date()
+      if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(s)) {
+        const y = s.substring(0, 4);
+        const m = s.substring(5, 7);
+        const d = s.substring(8, 10);
+        const t = s.substring(11, 19);
+        return `${d}/${m}/${y} ${t}`;
+      }
+
+      // ถ้ายังเป็น Date string แบบเก่า ให้แสดงเตือนใน console แต่ไม่พยายามเดา
+      if (s.includes('GMT') || s.includes('เวลา')) {
+        console.warn('Timestamp ยังไม่ถูก format จาก Backend:', s);
+        return s;
+      }
+
+      return s;
     }
 
     function setLoading(isLoading) {
