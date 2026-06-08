@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>รายงานตรวจประตูหนีไฟรายเดือน</title>
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="config.js"></script>
+  <script src="api.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    /************************************************************
+     * report.html
+     * รายงานตรวจประตูหนีไฟรายเดือน
+     ************************************************************/
+
+    .report-layout {
+      display: grid;
+      gap: 14px;
+    }
+
+    .report-control {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .report-control-grid {
+      display: grid;
+      grid-template-columns: 180px minmax(220px, 1fr) auto auto auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .report-view-wrap {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      overflow: auto;
+    }
+
+    .report-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .report-toolbar h2 {
+      margin: 0;
+      font-size: 19px;
+    }
+
+    .report-toolbar p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /************************************************************
+     * Report Paper
+     ************************************************************/
+
+    .report-paper {
+      width: 29.7cm;
+      min-height: 21cm;
+      background: #fff;
+      color: #000;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.12);
+      padding: 0.8cm;
+      margin: 0 auto;
+      font-family: Arial, Tahoma, sans-serif;
+    }
+
+    .report-head {
+      display: grid;
+      grid-template-columns: 3.2cm 1fr 5.2cm;
+      border: 1px solid #000;
+      border-bottom: 0;
+      min-height: 2.2cm;
+    }
+
+    .report-logo-box {
+      border-right: 1px solid #000;
+      display: grid;
+      place-items: center;
+      padding: 0.15cm;
+    }
+
+    .report-logo-box img {
+      max-width: 2.6cm;
+      max-height: 1.8cm;
+      object-fit: contain;
+    }
+
+    .report-title-box {
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 0.15cm;
+      border-right: 1px solid #000;
+    }
+
+    .report-title-box h1 {
+      margin: 0;
+      font-size: 17pt;
+      line-height: 1.2;
+      font-weight: 900;
+    }
+
+    .report-title-box span {
+      display: block;
+      margin-top: 0.08cm;
+      font-size: 9pt;
+      font-weight: 700;
+    }
+
+    .report-meta-box {
+      display: grid;
+      grid-template-rows: repeat(3, 1fr);
+      font-size: 9pt;
+    }
+
+    .report-meta-row {
+      display: grid;
+      grid-template-columns: 1.25cm 1fr;
+      border-bottom: 1px solid #000;
+    }
+
+    .report-meta-row:last-child {
+      border-bottom: 0;
+    }
+
+    .report-meta-label {
+      border-right: 1px solid #000;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      background: #f3f4f6;
+    }
+
+    .report-meta-value {
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 0.06cm;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .report-table-wrap {
+      overflow: visible;
+    }
+
+    .monthly-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 7.2pt;
+      color: #000;
+    }
+
+    .monthly-table th,
+    .monthly-table td {
+      border: 1px solid #000;
+      padding: 0.05cm;
+      text-align: center;
+      vertical-align: middle;
+      height: 0.72cm;
+      line-height: 1.15;
+      word-break: break-word;
+    }
+
+    .monthly-table th:first-child,
+    .monthly-table td:first-child {
+      width: 5.5cm;
+      text-align: left;
+      font-weight: 800;
+      padding-left: 0.12cm;
+    }
+
+    .monthly-table thead th {
+      background: #d9ead3;
+      font-weight: 900;
+    }
+
+    .monthly-table .seal-row td {
+      background: #eaf4ff;
+      font-weight: 900;
+    }
+
+    .monthly-table .inspector-row td {
+      background: #fff2cc;
+      font-weight: 900;
+    }
+
+    .normal-cell {
+      color: #000;
+      font-weight: 700;
+    }
+
+    .abnormal-cell {
+      color: #b91c1c;
+      font-weight: 900;
+      background: #fee2e2;
+    }
+
+    .empty-cell {
+      color: #9ca3af;
+      font-weight: 400;
+    }
+
+    .abnormal-section {
+      margin-top: 0.35cm;
+      border: 1px solid #000;
+    }
+
+    .abnormal-title {
+      background: #fce5cd;
+      border-bottom: 1px solid #000;
+      text-align: center;
+      font-weight: 900;
+      padding: 0.12cm;
+      font-size: 9pt;
+    }
+
+    .abnormal-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8pt;
+      table-layout: fixed;
+    }
+
+    .abnormal-table th,
+    .abnormal-table td {
+      border: 1px solid #000;
+      padding: 0.1cm;
+      vertical-align: top;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .abnormal-table th {
+      background: #d9ead3;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .abnormal-table th:nth-child(1),
+    .abnormal-table td:nth-child(1) {
+      width: 3.7cm;
+      text-align: center;
+    }
+
+    .abnormal-table th:nth-child(2),
+    .abnormal-table td:nth-child(2) {
+      width: 2.8cm;
+      text-align: center;
+    }
+
+    .abnormal-table th:nth-child(3),
+    .abnormal-table td:nth-child(3) {
+      width: 3.2cm;
+      text-align: center;
+    }
+
+    .report-note {
+      margin-top: 0.25cm;
+      font-size: 7.3pt;
+      color: #111827;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .report-note b {
+      font-weight: 900;
+    }
+
+    .door-mini-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .door-mini-nav button {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: 999px;
+      min-height: 32px;
+      padding: 6px 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .door-mini-nav button.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    @media (max-width: 960px) {
+      .report-control-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .report-view-wrap {
+        padding: 10px;
+      }
+
+      .report-paper {
+        margin: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .report-control {
+        padding: 12px;
+        border-radius: 16px;
+      }
+
+      .report-control-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .report-toolbar {
+        flex-direction: column;
+      }
+
+      .report-toolbar h2 {
+        font-size: 16px;
+      }
+
+      .report-toolbar p {
+        font-size: 12px;
+      }
+
+      .btn {
+        font-size: 13px;
+      }
+    }
+
+    /************************************************************
+     * Print
+     ************************************************************/
+
+    @page {
+      size: A4 landscape;
+      margin: 0.4cm;
+    }
+
+    @media print {
+      html,
+      body {
+        background: #fff !important;
+      }
+
+      .app-header,
+      .report-control,
+      .report-toolbar,
+      .door-mini-nav,
+      .app-footer {
+        display: none !important;
+      }
+
+      .app-shell,
+      .main-content,
+      .report-layout,
+      .report-view-wrap {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        display: block;
+        border: 0;
+        box-shadow: none;
+        background: #fff;
+        overflow: visible;
+      }
+
+      .report-paper {
+        width: 28.9cm;
+        min-height: auto;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        box-shadow: none;
+        page-break-after: always;
+        break-after: page;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .report-paper:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      .monthly-table {
+        font-size: 6.8pt;
+      }
+
+      .monthly-table th,
+      .monthly-table td {
+        height: 0.65cm;
+      }
+
+      .abnormal-table {
+        font-size: 7.5pt;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <header class="app-header">
+      <div class="brand">
+        <img id="appLogo" class="brand-logo" alt="Logo" />
+        <div class="brand-text">
+          <h1>รายงานตรวจประตูหนีไฟรายเดือน</h1>
+          <p>Monthly Fire Exit Door Inspection Report</p>
+        </div>
+      </div>
+
+      <div class="header-status">
+        <span id="apiStatusDot" class="status-dot pending"></span>
+        <span id="apiStatusText">กำลังโหลดข้อมูล...</span>
+      </div>
+    </header>
+
+    <main class="main-content report-layout">
+
+      <section class="report-control">
+        <div class="section-title-row">
+          <div>
+            <h2>เลือกข้อมูลรายงาน</h2>
+            <p>เลือกเดือนและประตูเพื่อแสดงรายงานแบบรายเดือน</p>
+          </div>
+        </div>
+
+        <div class="report-control-grid">
+          <label class="field">
+            <span>เดือนรายงาน</span>
+            <input id="monthInput" type="month" />
+          </label>
+
+          <label class="field">
+            <span>ประตูหนีไฟ</span>
+            <select id="doorSelect">
+              <option value="">กำลังโหลด...</option>
+            </select>
+          </label>
+
+          <button id="btnLoadReport" class="btn primary" type="button">
+            แสดงรายงาน
+          </button>
+
+          <button id="btnPrint" class="btn success" type="button">
+            พิมพ์รายงาน
+          </button>
+
+          <button id="btnExportExcel" class="btn warning" type="button">
+            Export Excel
+          </button>
+        </div>
+
+        <div id="doorMiniNav" class="door-mini-nav"></div>
+      </section>
+
+      <section class="report-view-wrap">
+        <div class="report-toolbar">
+          <div>
+            <h2>ตัวอย่างรายงาน</h2>
+            <p>เลื่อนซ้าย-ขวาได้บนมือถือ และสามารถพิมพ์เป็น A4 แนวนอน</p>
+          </div>
+
+          <button id="btnRefresh" class="btn small" type="button">
+            รีเฟรช
+          </button>
+        </div>
+
+        <div id="reportContainer">
+          <div class="empty-state">
+            กรุณาเลือกเดือนและประตู แล้วกด “แสดงรายงาน”
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="app-footer">
+      <span>Fire Exit Door Inspection System</span>
+      <span id="footerTime"></span>
+    </footer>
+  </div>
+
+  <script>
+    /************************************************************
+     * report.html app
+     ************************************************************/
+
+    const CONFIG = window.APP_CONFIG;
+    const API = window.FireExitAPI;
+
+    const state = {
+      doors: [],
+      report: null,
+      selectedDoorId: '',
+      selectedMonth: ''
+    };
+
+    const el = {
+      appLogo: document.getElementById('appLogo'),
+      apiStatusDot: document.getElementById('apiStatusDot'),
+      apiStatusText: document.getElementById('apiStatusText'),
+
+      monthInput: document.getElementById('monthInput'),
+      doorSelect: document.getElementById('doorSelect'),
+
+      btnLoadReport: document.getElementById('btnLoadReport'),
+      btnPrint: document.getElementById('btnPrint'),
+      btnExportExcel: document.getElementById('btnExportExcel'),
+      btnRefresh: document.getElementById('btnRefresh'),
+
+      doorMiniNav: document.getElementById('doorMiniNav'),
+      reportContainer: document.getElementById('reportContainer'),
+      footerTime: document.getElementById('footerTime')
+    };
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    async function init() {
+      el.appLogo.src = CONFIG.LOGO_URL;
+      updateFooterTime();
+
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = String(today.getMonth() + 1).padStart(2, '0');
+
+      const params = new URLSearchParams(window.location.search);
+      state.selectedMonth = params.get('month') || `${y}-${m}`;
+      state.selectedDoorId = params.get('doorId') || params.get('door') || '';
+
+      el.monthInput.value = state.selectedMonth;
+
+      bindEvents();
+
+      await loadOptions();
+
+      if (state.selectedDoorId) {
+        el.doorSelect.value = state.selectedDoorId;
+      } else if (state.doors.length) {
+        state.selectedDoorId = state.doors[0].doorId;
+        el.doorSelect.value = state.selectedDoorId;
+      }
+
+      if (state.selectedDoorId) {
+        await loadReport();
+      }
+    }
+
+    function bindEvents() {
+      el.btnLoadReport.addEventListener('click', loadReport);
+      el.btnRefresh.addEventListener('click', loadReport);
+
+      el.btnPrint.addEventListener('click', () => {
+        if (!state.report) {
+          showWarn('กรุณาแสดงรายงานก่อนพิมพ์');
+          return;
+        }
+        window.print();
+      });
+
+      el.btnExportExcel.addEventListener('click', () => {
+        const month = el.monthInput.value;
+        if (!month) {
+          showWarn('กรุณาเลือกเดือน');
+          return;
+        }
+
+        Swal.fire({
+          icon: 'question',
+          title: 'Export Excel',
+          html: `ต้องการส่งออก Excel ทุกประตูของเดือน <b>${escapeHtml(month)}</b> ใช่หรือไม่`,
+          showCancelButton: true,
+          confirmButtonText: 'Export',
+          cancelButtonText: 'ยกเลิก',
+          reverseButtons: true
+        }).then(result => {
+          if (result.isConfirmed) {
+            API.exportExcel(month);
+          }
+        });
+      });
+
+      el.monthInput.addEventListener('change', () => {
+        state.selectedMonth = el.monthInput.value;
+      });
+
+      el.doorSelect.addEventListener('change', () => {
+        state.selectedDoorId = el.doorSelect.value;
+        setActiveMiniDoor();
+        loadReport();
+      });
+    }
+
+    async function loadOptions() {
+      try {
+        setApiStatus('pending', 'กำลังโหลดตัวเลือก...');
+        setControlsDisabled(true);
+
+        const data = await API.getOptions();
+
+        state.doors = Array.isArray(data.doors) ? data.doors : [];
+        renderDoorOptions();
+        renderDoorMiniNav();
+
+        setApiStatus('ok', 'พร้อมใช้งาน');
+        setControlsDisabled(false);
+
+      } catch (err) {
+        console.error(err);
+        setApiStatus('danger', 'โหลดตัวเลือกไม่สำเร็จ');
+        showError(err.message || 'โหลดตัวเลือกไม่สำเร็จ');
+      }
+    }
+
+    function renderDoorOptions() {
+      if (!state.doors.length) {
+        el.doorSelect.innerHTML = '<option value="">ไม่พบข้อมูลประตู</option>';
+        return;
+      }
+
+      el.doorSelect.innerHTML = state.doors.map(door => {
+        const text = `${door.doorId} | ${door.location || '-'}`;
+        return `<option value="${escapeAttr(door.doorId)}">${escapeHtml(text)}</option>`;
+      }).join('');
+    }
+
+    function renderDoorMiniNav() {
+      if (!state.doors.length) {
+        el.doorMiniNav.innerHTML = '';
+        return;
+      }
+
+      el.doorMiniNav.innerHTML = state.doors.map(door => {
+        return `
+          <button type="button" data-door-id="${escapeAttr(door.doorId)}">
+            ${escapeHtml(door.doorId)}
+          </button>
+        `;
+      }).join('');
+
+      el.doorMiniNav.querySelectorAll('button[data-door-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.selectedDoorId = btn.dataset.doorId;
+          el.doorSelect.value = state.selectedDoorId;
+          setActiveMiniDoor();
+          loadReport();
+        });
+      });
+
+      setActiveMiniDoor();
+    }
+
+    function setActiveMiniDoor() {
+      el.doorMiniNav.querySelectorAll('button[data-door-id]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.doorId === state.selectedDoorId);
+      });
+    }
+
+    async function loadReport() {
+      const month = el.monthInput.value;
+      const doorId = el.doorSelect.value;
+
+      if (!month) {
+        showWarn('กรุณาเลือกเดือนรายงาน');
+        return;
+      }
+
+      if (!doorId) {
+        showWarn('กรุณาเลือกประตูหนีไฟ');
+        return;
+      }
+
+      try {
+        setControlsDisabled(true);
+        setApiStatus('pending', 'กำลังโหลดรายงาน...');
+
+        state.selectedMonth = month;
+        state.selectedDoorId = doorId;
+
+        const data = await API.getMonthlyReport(doorId, month);
+
+        state.report = data;
+
+        renderReport(data);
+        setActiveMiniDoor();
+        setApiStatus('ok', 'โหลดรายงานสำเร็จ');
+
+      } catch (err) {
+        console.error(err);
+        setApiStatus('danger', 'โหลดรายงานไม่สำเร็จ');
+        showError(err.message || 'โหลดรายงานไม่สำเร็จ');
+      } finally {
+        setControlsDisabled(false);
+      }
+    }
+
+    function renderReport(report) {
+      if (!report || !report.ok) {
+        el.reportContainer.innerHTML = `
+          <div class="empty-state">
+            ไม่พบข้อมูลรายงาน
+          </div>
+        `;
+        return;
+      }
+
+      const days = Number(report.days || 31);
+      const dayHeaders = [];
+
+      for (let d = 1; d <= days; d++) {
+        dayHeaders.push(String(d).padStart(2, '0'));
+      }
+
+      const checklistRows = (report.checklist || []).map(item => {
+        const cells = dayHeaders.map(day => {
+          const daily = report.dailyMap && report.dailyMap[day] ? report.dailyMap[day] : null;
+          const value = daily && daily.items ? normalizeTrueText(daily.items[item.title] || '') : '';
+          const isAbnormal = isAbnormalValue(value);
+
+          return `
+            <td class="${value ? (isAbnormal ? 'abnormal-cell' : 'normal-cell') : 'empty-cell'}">
+              ${escapeHtml(value || '-')}
+            </td>
+          `;
+        }).join('');
+
+        return `
+          <tr>
+            <td>${escapeHtml(item.title || '-')}</td>
+            ${cells}
+          </tr>
+        `;
+      }).join('');
+
+      const sealRow = dayHeaders.map(day => {
+        const daily = report.dailyMap && report.dailyMap[day] ? report.dailyMap[day] : null;
+        return `<td>${escapeHtml(daily && daily.sealNo ? daily.sealNo : '-')}</td>`;
+      }).join('');
+
+      const inspectorRow = dayHeaders.map(day => {
+        const daily = report.dailyMap && report.dailyMap[day] ? report.dailyMap[day] : null;
+        return `<td>${escapeHtml(daily && daily.inspector ? daily.inspector : '-')}</td>`;
+      }).join('');
+
+      const abnormalRows = buildAbnormalRows(report, dayHeaders);
+
+      el.reportContainer.innerHTML = `
+        <article class="report-paper">
+          <section class="report-head">
+            <div class="report-logo-box">
+              <img src="${escapeAttr(CONFIG.LOGO_URL)}" alt="Logo" />
+            </div>
+
+            <div class="report-title-box">
+              <div>
+                <h1>แบบตรวจประตูหนีไฟ</h1>
+                <span>Fire Exit Door Inspection Form</span>
+              </div>
+            </div>
+
+            <div class="report-meta-box">
+              <div class="report-meta-row">
+                <div class="report-meta-label">ประตู</div>
+                <div class="report-meta-value">${escapeHtml(report.door.doorId || '-')}</div>
+              </div>
+              <div class="report-meta-row">
+                <div class="report-meta-label">เดือน</div>
+                <div class="report-meta-value">${escapeHtml(report.monthName || '-')}</div>
+              </div>
+              <div class="report-meta-row">
+                <div class="report-meta-label">พ.ศ.</div>
+                <div class="report-meta-value">${escapeHtml(report.thaiYear || '-')}</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="report-table-wrap">
+            <table class="monthly-table">
+              <thead>
+                <tr>
+                  <th>หัวข้อตรวจสอบ / จุดติดตั้ง: ${escapeHtml(report.door.location || '-')}</th>
+                  ${dayHeaders.map(day => `<th>${day}</th>`).join('')}
+                </tr>
+              </thead>
+
+              <tbody>
+                ${checklistRows}
+
+                <tr class="seal-row">
+                  <td>หมายเลขซีล</td>
+                  ${sealRow}
+                </tr>
+
+                <tr class="inspector-row">
+                  <td>ลงชื่อผู้ตรวจ</td>
+                  ${inspectorRow}
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          <section class="abnormal-section">
+            <div class="abnormal-title">ดำเนินการกรณีพบสิ่งผิดปกติ</div>
+
+            <table class="abnormal-table">
+              <thead>
+                <tr>
+                  <th>วันที่/เวลา</th>
+                  <th>หมายเลขซีล</th>
+                  <th>ผู้ตรวจ</th>
+                  <th>รายละเอียด</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${abnormalRows}
+              </tbody>
+            </table>
+          </section>
+
+          <section class="report-note">
+            <div><b>หมายเหตุ:</b> TRUE ในข้อมูลระบบจะแสดงเป็นเครื่องหมาย ✓</div>
+            <div>สร้างรายงาน: ${escapeHtml(new Date().toLocaleString('th-TH'))}</div>
+          </section>
+        </article>
+      `;
+    }
+
+    function buildAbnormalRows(report, dayHeaders) {
+      const rows = [];
+
+      dayHeaders.forEach(day => {
+        const daily = report.dailyMap && report.dailyMap[day] ? report.dailyMap[day] : null;
+
+        if (!daily) return;
+        if (daily.result !== 'ผิดปกติ') return;
+
+        rows.push(`
+          <tr>
+            <td>${escapeHtml(daily.timestamp || '-')}</td>
+            <td>${escapeHtml(daily.sealNo || '-')}</td>
+            <td>${escapeHtml(daily.inspector || '-')}</td>
+            <td>${escapeHtml(normalizeTrueText(daily.abnormalDetails || '-')).replace(/\n/g, '<br>')}</td>
+          </tr>
+        `);
+      });
+
+      if (!rows.length) {
+        rows.push(`
+          <tr>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>ไม่พบสิ่งผิดปกติ</td>
+          </tr>
+        `);
+      }
+
+      return rows.join('');
+    }
+
+    function isAbnormalValue(value) {
+      const s = String(value || '').trim();
+
+      if (!s || s === '-') return false;
+
+      return (
+        s.includes('ผิดปกติ') ||
+        s.includes('ไฟดับ') ||
+        s.includes('ไม่สะอาด') ||
+        s.includes('ชำรุด') ||
+        s.includes('สูญหาย') ||
+        s.includes('มี -') ||
+        s === 'มี'
+      );
+    }
+
+    function setControlsDisabled(disabled) {
+      el.monthInput.disabled = disabled;
+      el.doorSelect.disabled = disabled;
+      el.btnLoadReport.disabled = disabled;
+      el.btnRefresh.disabled = disabled;
+      el.btnPrint.disabled = disabled;
+      el.btnExportExcel.disabled = disabled;
+    }
+
+    function setApiStatus(type, text) {
+      el.apiStatusDot.className = `status-dot ${type}`;
+      el.apiStatusText.textContent = text;
+    }
+
+    function showWarn(message) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'แจ้งเตือน',
+        text: message,
+        confirmButtonText: 'ตกลง'
+      });
+    }
+
+    function showError(message) {
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: message,
+        confirmButtonText: 'ตกลง'
+      });
+    }
+
+    function normalizeTrueText(value) {
+      const s = String(value ?? '').trim();
+
+      if (s.toUpperCase() === 'TRUE') return '✓';
+      if (s.toUpperCase() === 'FALSE') return '';
+
+      return s;
+    }
+
+    function updateFooterTime() {
+      const now = new Date();
+      el.footerTime.textContent = now.toLocaleString('th-TH', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, '&#096;');
+    }
+  </script>
+</body>
+</html>
