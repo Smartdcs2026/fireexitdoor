@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>ระบบตรวจประตูหนีไฟประจำวัน</title>
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="config.js"></script>
+  <script src="api.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <header class="app-header">
+      <div class="brand">
+        <img id="appLogo" class="brand-logo" alt="Logo" />
+        <div class="brand-text">
+          <h1>ระบบตรวจประตูหนีไฟประจำวัน</h1>
+          <p>Daily Fire Exit Door Inspection</p>
+        </div>
+      </div>
+
+      <div class="header-status">
+        <span id="apiStatusDot" class="status-dot pending"></span>
+        <span id="apiStatusText">กำลังตรวจสอบระบบ...</span>
+      </div>
+    </header>
+
+    <main class="main-content">
+
+      <section class="panel control-panel">
+        <div class="section-title-row">
+          <div>
+            <h2>ตรวจสอบสถานะประจำวัน</h2>
+            <p>เลือกวันที่เพื่อตรวจสอบว่าตรวจครบทุกประตูหรือไม่</p>
+          </div>
+        </div>
+
+        <div class="filter-grid">
+          <label class="field">
+            <span>วันที่ตรวจสอบ</span>
+            <input id="statusDate" type="date" />
+          </label>
+
+          <label class="field">
+            <span>เดือนสำหรับ Export</span>
+            <input id="exportMonth" type="month" />
+          </label>
+        </div>
+
+        <div class="action-grid">
+          <button id="btnLoadStatus" class="btn primary" type="button">
+            ตรวจสอบสถานะ
+          </button>
+
+          <button id="btnCheckForm" class="btn" type="button">
+            เปิดฟอร์มตรวจ
+          </button>
+
+          <button id="btnReport" class="btn" type="button">
+            รายงานรายเดือน
+          </button>
+
+          <button id="btnQrCode" class="btn" type="button">
+            พิมพ์ QR Code
+          </button>
+
+          <button id="btnExportExcel" class="btn success" type="button">
+            Export Excel
+          </button>
+
+          <button id="btnExportCsv" class="btn warning" type="button">
+            Export CSV
+          </button>
+        </div>
+      </section>
+
+      <section class="summary-grid">
+        <article class="stat-card">
+          <span class="stat-label">ประตูทั้งหมด</span>
+          <strong id="totalDoors">-</strong>
+          <small>จุด</small>
+        </article>
+
+        <article class="stat-card ok">
+          <span class="stat-label">ตรวจแล้ว</span>
+          <strong id="checkedCount">-</strong>
+          <small>จุด</small>
+        </article>
+
+        <article class="stat-card danger">
+          <span class="stat-label">ยังไม่ตรวจ</span>
+          <strong id="missingCount">-</strong>
+          <small>จุด</small>
+        </article>
+
+        <article class="stat-card status">
+          <span class="stat-label">สถานะ</span>
+          <strong id="completeStatus">-</strong>
+          <small id="statusDateLabel">-</small>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="section-title-row">
+          <div>
+            <h2>รายการประตูที่ยังไม่ตรวจ</h2>
+            <p id="missingHint">ระบบจะแสดงเฉพาะประตูที่ยังไม่มีผลตรวจในวันที่เลือก</p>
+          </div>
+
+          <button id="btnRefreshSmall" class="btn small" type="button">
+            รีเฟรช
+          </button>
+        </div>
+
+        <div id="missingList" class="door-list empty">
+          <div class="empty-state">
+            กรุณากด “ตรวจสอบสถานะ”
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-title-row">
+          <div>
+            <h2>รายการประตูที่ตรวจแล้ว</h2>
+            <p>แสดงข้อมูลล่าสุดของแต่ละประตูในวันที่เลือก</p>
+          </div>
+        </div>
+
+        <div id="checkedList" class="door-list empty">
+          <div class="empty-state">
+            ยังไม่มีข้อมูล
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="app-footer">
+      <span>Fire Exit Door Inspection System</span>
+      <span id="footerTime"></span>
+    </footer>
+  </div>
+
+  <script>
+    /************************************************************
+     * index.html inline app
+     ************************************************************/
+
+    const CONFIG = window.APP_CONFIG;
+    const API = window.FireExitAPI;
+
+    const el = {
+      appLogo: document.getElementById('appLogo'),
+      apiStatusDot: document.getElementById('apiStatusDot'),
+      apiStatusText: document.getElementById('apiStatusText'),
+
+      statusDate: document.getElementById('statusDate'),
+      exportMonth: document.getElementById('exportMonth'),
+
+      btnLoadStatus: document.getElementById('btnLoadStatus'),
+      btnCheckForm: document.getElementById('btnCheckForm'),
+      btnReport: document.getElementById('btnReport'),
+      btnQrCode: document.getElementById('btnQrCode'),
+      btnExportExcel: document.getElementById('btnExportExcel'),
+      btnExportCsv: document.getElementById('btnExportCsv'),
+      btnRefreshSmall: document.getElementById('btnRefreshSmall'),
+
+      totalDoors: document.getElementById('totalDoors'),
+      checkedCount: document.getElementById('checkedCount'),
+      missingCount: document.getElementById('missingCount'),
+      completeStatus: document.getElementById('completeStatus'),
+      statusDateLabel: document.getElementById('statusDateLabel'),
+
+      missingList: document.getElementById('missingList'),
+      checkedList: document.getElementById('checkedList'),
+      missingHint: document.getElementById('missingHint'),
+
+      footerTime: document.getElementById('footerTime')
+    };
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    async function init() {
+      el.appLogo.src = CONFIG.LOGO_URL;
+
+      const today = getTodayYMD();
+      el.statusDate.value = today;
+      el.exportMonth.value = today.slice(0, 7);
+
+      bindEvents();
+      updateFooterTime();
+
+      await checkApiHealth();
+      await loadDailyStatus();
+    }
+
+    function bindEvents() {
+      el.btnLoadStatus.addEventListener('click', loadDailyStatus);
+      el.btnRefreshSmall.addEventListener('click', loadDailyStatus);
+
+      el.statusDate.addEventListener('change', () => {
+        loadDailyStatus();
+      });
+
+      el.btnCheckForm.addEventListener('click', () => {
+        window.location.href = CONFIG.ROUTES.CHECK;
+      });
+
+      el.btnReport.addEventListener('click', () => {
+        const month = el.exportMonth.value || getTodayYMD().slice(0, 7);
+        window.location.href = `${CONFIG.ROUTES.REPORT}?month=${encodeURIComponent(month)}`;
+      });
+
+      el.btnQrCode.addEventListener('click', () => {
+        window.location.href = CONFIG.ROUTES.QRCODE;
+      });
+
+      el.btnExportExcel.addEventListener('click', () => {
+        const month = el.exportMonth.value;
+        if (!month) {
+          showWarn('กรุณาเลือกเดือนสำหรับ Export');
+          return;
+        }
+
+        confirmExport('Excel', month, () => API.exportExcel(month));
+      });
+
+      el.btnExportCsv.addEventListener('click', () => {
+        const month = el.exportMonth.value;
+        if (!month) {
+          showWarn('กรุณาเลือกเดือนสำหรับ Export');
+          return;
+        }
+
+        confirmExport('CSV', month, () => API.exportCsv(month));
+      });
+    }
+
+    async function checkApiHealth() {
+      try {
+        setApiStatus('pending', 'กำลังตรวจสอบระบบ...');
+
+        const data = await API.getHealth();
+
+        if (data.ok) {
+          setApiStatus('ok', 'ระบบพร้อมใช้งาน');
+        } else {
+          setApiStatus('danger', 'ระบบมีปัญหา');
+        }
+
+      } catch (err) {
+        setApiStatus('danger', 'เชื่อมต่อ API ไม่ได้');
+        console.error(err);
+      }
+    }
+
+    async function loadDailyStatus() {
+      const date = el.statusDate.value;
+
+      if (!date) {
+        showWarn('กรุณาเลือกวันที่ตรวจสอบ');
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const data = await API.getDailyStatus(date);
+        renderDailyStatus(data);
+
+      } catch (err) {
+        console.error(err);
+        showError(err.message || 'โหลดข้อมูลไม่สำเร็จ');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function renderDailyStatus(data) {
+      el.totalDoors.textContent = numberText(data.totalDoors);
+      el.checkedCount.textContent = numberText(data.checkedCount);
+      el.missingCount.textContent = numberText(data.missingCount);
+      el.statusDateLabel.textContent = data.date || '-';
+
+      if (data.isComplete) {
+        el.completeStatus.textContent = 'ครบ';
+        el.completeStatus.className = 'complete-ok';
+        el.missingHint.textContent = 'ตรวจครบทุกประตูในวันที่เลือกแล้ว';
+      } else {
+        el.completeStatus.textContent = 'ไม่ครบ';
+        el.completeStatus.className = 'complete-bad';
+        el.missingHint.textContent = `ยังไม่ตรวจ ${data.missingCount || 0} ประตู`;
+      }
+
+      renderMissingDoors(data.missingDoors || []);
+      renderCheckedDoors(data.checkedDoors || []);
+    }
+
+    function renderMissingDoors(list) {
+      el.missingList.className = 'door-list';
+
+      if (!list.length) {
+        el.missingList.classList.add('empty');
+        el.missingList.innerHTML = `
+          <div class="empty-state success-state">
+            ✓ ตรวจครบทุกประตูแล้ว
+          </div>
+        `;
+        return;
+      }
+
+      el.missingList.innerHTML = list.map((door) => {
+        const checkUrl = `${CONFIG.ROUTES.CHECK}?doorId=${encodeURIComponent(door.doorId)}`;
+
+        return `
+          <div class="door-row missing">
+            <div class="door-main">
+              <strong>${escapeHtml(door.doorId)}</strong>
+              <span>${escapeHtml(door.location || '-')}</span>
+            </div>
+            <div class="door-actions">
+              <a class="mini-link" href="${checkUrl}">ตรวจประตูนี้</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderCheckedDoors(list) {
+      el.checkedList.className = 'door-list';
+
+      if (!list.length) {
+        el.checkedList.classList.add('empty');
+        el.checkedList.innerHTML = `
+          <div class="empty-state">
+            ยังไม่มีประตูที่ตรวจแล้วในวันที่เลือก
+          </div>
+        `;
+        return;
+      }
+
+      el.checkedList.innerHTML = list.map((door) => {
+        const viewUrl = `${CONFIG.ROUTES.VIEW}?doorId=${encodeURIComponent(door.doorId)}`;
+        const resultClass = door.result === 'ผิดปกติ' ? 'badge bad' : 'badge good';
+
+        return `
+          <div class="door-row checked">
+            <div class="door-main">
+              <strong>${escapeHtml(door.doorId)}</strong>
+              <span>${escapeHtml(door.location || '-')}</span>
+            </div>
+
+            <div class="door-meta">
+              <span class="${resultClass}">${escapeHtml(door.result || '-')}</span>
+              <small>${escapeHtml(door.inspector || '-')}</small>
+              <small>${escapeHtml(door.timestamp || '-')}</small>
+            </div>
+
+            <div class="door-actions">
+              <a class="mini-link" href="${viewUrl}">ดูผล</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function confirmExport(type, month, callback) {
+      Swal.fire({
+        icon: 'question',
+        title: `Export ${type}`,
+        html: `ต้องการส่งออกไฟล์เดือน <b>${escapeHtml(month)}</b> ใช่หรือไม่`,
+        showCancelButton: true,
+        confirmButtonText: 'Export',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          callback();
+        }
+      });
+    }
+
+    function setLoading(isLoading) {
+      const buttons = [
+        el.btnLoadStatus,
+        el.btnRefreshSmall,
+        el.btnExportExcel,
+        el.btnExportCsv
+      ];
+
+      buttons.forEach((btn) => {
+        btn.disabled = isLoading;
+      });
+
+      if (isLoading) {
+        el.btnLoadStatus.textContent = 'กำลังโหลด...';
+      } else {
+        el.btnLoadStatus.textContent = 'ตรวจสอบสถานะ';
+      }
+    }
+
+    function setApiStatus(type, text) {
+      el.apiStatusDot.className = `status-dot ${type}`;
+      el.apiStatusText.textContent = text;
+    }
+
+    function showWarn(message) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'แจ้งเตือน',
+        text: message,
+        confirmButtonText: 'ตกลง'
+      });
+    }
+
+    function showError(message) {
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: message,
+        confirmButtonText: 'ตกลง'
+      });
+    }
+
+    function getTodayYMD() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function updateFooterTime() {
+      const now = new Date();
+      el.footerTime.textContent = now.toLocaleString('th-TH', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      });
+    }
+
+    function numberText(value) {
+      const n = Number(value || 0);
+      return n.toLocaleString('th-TH');
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
