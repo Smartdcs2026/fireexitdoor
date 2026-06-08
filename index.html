@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>ระบบตรวจประตูหนีไฟประจำวัน</title>
+  <title>บันทึกตรวจประตูหนีไฟ</title>
 
   <link rel="stylesheet" href="styles.css" />
 
@@ -12,6 +12,286 @@
   <script src="api.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    /************************************************************
+     * check.html เฉพาะฟอร์มตรวจ
+     ************************************************************/
+
+    .check-layout {
+      display: grid;
+      gap: 14px;
+    }
+
+    .form-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .form-grid .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .seal-field input {
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      color: var(--primary-dark);
+    }
+
+    .seal-help {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: -2px;
+    }
+
+    .door-info-box {
+      border: 1px solid rgba(15, 118, 110, 0.25);
+      background: var(--primary-soft);
+      border-radius: 16px;
+      padding: 12px;
+      display: grid;
+      gap: 4px;
+      margin-top: 12px;
+    }
+
+    .door-info-box strong {
+      font-size: 18px;
+      color: var(--primary-dark);
+    }
+
+    .door-info-box span {
+      color: #334155;
+      font-size: 14px;
+    }
+
+    .checklist-wrap {
+      display: grid;
+      gap: 10px;
+    }
+
+    .check-item {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 16px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .check-item.abnormal {
+      border-color: rgba(185, 28, 28, 0.35);
+      background: linear-gradient(90deg, var(--danger-soft), #fff 42%);
+    }
+
+    .check-title-row {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+
+    .check-no {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: var(--primary);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .check-title {
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .check-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .choice-btn {
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: #0f172a;
+      min-height: 44px;
+      border-radius: 14px;
+      padding: 9px 10px;
+      font-weight: 900;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .choice-btn.normal.active {
+      background: var(--success);
+      border-color: var(--success);
+      color: #fff;
+    }
+
+    .choice-btn.abnormal.active {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: #fff;
+    }
+
+    .detail-box {
+      display: none;
+    }
+
+    .check-item.abnormal .detail-box {
+      display: grid;
+      gap: 6px;
+    }
+
+    .detail-box label {
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .detail-box textarea {
+      width: 100%;
+      min-height: 78px;
+      resize: vertical;
+      border: 1px solid rgba(185, 28, 28, 0.35);
+      border-radius: 14px;
+      padding: 10px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .detail-box textarea:focus {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.12);
+    }
+
+    .sticky-save {
+      position: sticky;
+      bottom: 8px;
+      z-index: 10;
+      display: grid;
+      gap: 8px;
+      background: rgba(244, 247, 251, 0.88);
+      backdrop-filter: blur(10px);
+      padding: 10px;
+      border-radius: 18px;
+      border: 1px solid rgba(217, 226, 236, 0.8);
+      box-shadow: var(--shadow);
+    }
+
+    .save-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .progress-line {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .quick-nav {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .page-link-btn {
+      min-height: 38px;
+      border-radius: 12px;
+      background: #e2e8f0;
+      color: #0f172a;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 8px;
+    }
+
+    @media (max-width: 640px) {
+      .check-layout {
+        gap: 10px;
+      }
+
+      .form-card {
+        padding: 12px;
+        border-radius: 16px;
+      }
+
+      .form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .check-item {
+        padding: 10px;
+        border-radius: 14px;
+        gap: 8px;
+      }
+
+      .check-title-row {
+        grid-template-columns: 32px minmax(0, 1fr);
+        gap: 7px;
+      }
+
+      .check-no {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+      }
+
+      .check-title {
+        font-size: 14px;
+      }
+
+      .choice-btn {
+        min-height: 40px;
+        border-radius: 12px;
+        font-size: 13px;
+        padding: 8px;
+      }
+
+      .detail-box textarea {
+        min-height: 68px;
+        font-size: 14px;
+      }
+
+      .quick-nav {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .page-link-btn {
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .save-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -21,123 +301,104 @@
       <div class="brand">
         <img id="appLogo" class="brand-logo" alt="Logo" />
         <div class="brand-text">
-          <h1>ระบบตรวจประตูหนีไฟประจำวัน</h1>
-          <p>Daily Fire Exit Door Inspection</p>
+          <h1>บันทึกตรวจประตูหนีไฟ</h1>
+          <p>Daily Fire Exit Door Inspection Form</p>
         </div>
       </div>
 
       <div class="header-status">
         <span id="apiStatusDot" class="status-dot pending"></span>
-        <span id="apiStatusText">กำลังตรวจสอบระบบ...</span>
+        <span id="apiStatusText">กำลังโหลดข้อมูล...</span>
       </div>
     </header>
 
-    <main class="main-content">
+    <main class="main-content check-layout">
 
-      <section class="panel control-panel">
+      <section class="form-card">
         <div class="section-title-row">
           <div>
-            <h2>ตรวจสอบสถานะประจำวัน</h2>
-            <p>เลือกวันที่เพื่อตรวจสอบว่าตรวจครบทุกประตูหรือไม่</p>
+            <h2>ข้อมูลการตรวจ</h2>
+            <p>เลือกชื่อผู้บันทึก ประตู และกรอกหมายเลขซีลปัจจุบัน</p>
           </div>
         </div>
 
-        <div class="filter-grid">
+        <div class="form-grid">
           <label class="field">
-            <span>วันที่ตรวจสอบ</span>
-            <input id="statusDate" type="date" />
+            <span>ชื่อผู้บันทึก</span>
+            <select id="inspectorSelect">
+              <option value="">กำลังโหลด...</option>
+            </select>
           </label>
 
           <label class="field">
-            <span>เดือนสำหรับ Export</span>
-            <input id="exportMonth" type="month" />
+            <span>หมายเลขประตูหนีไฟ</span>
+            <select id="doorSelect">
+              <option value="">กำลังโหลด...</option>
+            </select>
+          </label>
+
+          <label class="field seal-field">
+            <span>หมายเลขซีล</span>
+            <input
+              id="sealNoInput"
+              type="text"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              autocomplete="off"
+              placeholder="กรอกเฉพาะตัวเลข"
+              maxlength="30"
+            />
+            <small class="seal-help">กรณีเปลี่ยนซีล ให้กรอกหมายเลขซีลใหม่</small>
+          </label>
+
+          <label class="field">
+            <span>จุดติดตั้ง</span>
+            <input id="locationInput" type="text" readonly />
           </label>
         </div>
 
-        <div class="action-grid">
-          <button id="btnLoadStatus" class="btn primary" type="button">
-            ตรวจสอบสถานะ
-          </button>
-
-          <button id="btnCheckForm" class="btn" type="button">
-            เปิดฟอร์มตรวจ
-          </button>
-
-          <button id="btnReport" class="btn" type="button">
-            รายงานรายเดือน
-          </button>
-
-          <button id="btnQrCode" class="btn" type="button">
-            พิมพ์ QR Code
-          </button>
-
-          <button id="btnExportExcel" class="btn success" type="button">
-            Export Excel
-          </button>
-
-          <button id="btnExportCsv" class="btn warning" type="button">
-            Export CSV
-          </button>
+        <div id="doorInfoBox" class="door-info-box" style="display:none;">
+          <strong id="doorInfoId">-</strong>
+          <span id="doorInfoLocation">-</span>
         </div>
       </section>
 
-      <section class="summary-grid">
-        <article class="stat-card">
-          <span class="stat-label">ประตูทั้งหมด</span>
-          <strong id="totalDoors">-</strong>
-          <small>จุด</small>
-        </article>
-
-        <article class="stat-card ok">
-          <span class="stat-label">ตรวจแล้ว</span>
-          <strong id="checkedCount">-</strong>
-          <small>จุด</small>
-        </article>
-
-        <article class="stat-card danger">
-          <span class="stat-label">ยังไม่ตรวจ</span>
-          <strong id="missingCount">-</strong>
-          <small>จุด</small>
-        </article>
-
-        <article class="stat-card status">
-          <span class="stat-label">สถานะ</span>
-          <strong id="completeStatus">-</strong>
-          <small id="statusDateLabel">-</small>
-        </article>
-      </section>
-
-      <section class="panel">
+      <section class="form-card">
         <div class="section-title-row">
           <div>
-            <h2>รายการประตูที่ยังไม่ตรวจ</h2>
-            <p id="missingHint">ระบบจะแสดงเฉพาะประตูที่ยังไม่มีผลตรวจในวันที่เลือก</p>
+            <h2>รายการตรวจสอบ</h2>
+            <p>หากพบผิดปกติ ต้องกรอกรายละเอียดก่อนบันทึก</p>
           </div>
 
-          <button id="btnRefreshSmall" class="btn small" type="button">
-            รีเฟรช
+          <button id="btnSetAllNormal" class="btn small" type="button">
+            ตั้งค่าปกติทั้งหมด
           </button>
         </div>
 
-        <div id="missingList" class="door-list empty">
-          <div class="empty-state">
-            กรุณากด “ตรวจสอบสถานะ”
-          </div>
+        <div id="checklistWrap" class="checklist-wrap">
+          <div class="empty-state">กำลังโหลดรายการตรวจ...</div>
         </div>
       </section>
 
-      <section class="panel">
-        <div class="section-title-row">
-          <div>
-            <h2>รายการประตูที่ตรวจแล้ว</h2>
-            <p>แสดงข้อมูลล่าสุดของแต่ละประตูในวันที่เลือก</p>
-          </div>
+      <section class="sticky-save">
+        <div id="progressLine" class="progress-line">
+          ยังไม่ได้เลือกรายการตรวจ
         </div>
 
-        <div id="checkedList" class="door-list empty">
-          <div class="empty-state">
-            ยังไม่มีข้อมูล
-          </div>
+        <div class="save-row">
+          <button id="btnSave" class="btn primary" type="button">
+            บันทึกผลตรวจ
+          </button>
+
+          <button id="btnReset" class="btn" type="button">
+            ล้างฟอร์ม
+          </button>
+        </div>
+
+        <div class="quick-nav">
+          <a class="page-link-btn" href="index.html">หน้าหลัก</a>
+          <a id="viewDoorLink" class="page-link-btn" href="view.html">ดูผลประตู</a>
+          <a class="page-link-btn" href="report.html">รายงาน</a>
         </div>
       </section>
 
@@ -151,37 +412,42 @@
 
   <script>
     /************************************************************
-     * index.html inline app
+     * check.html app
      ************************************************************/
 
     const CONFIG = window.APP_CONFIG;
     const API = window.FireExitAPI;
+
+    const state = {
+      names: [],
+      doors: [],
+      checklist: [],
+      selectedDoorId: '',
+      items: []
+    };
 
     const el = {
       appLogo: document.getElementById('appLogo'),
       apiStatusDot: document.getElementById('apiStatusDot'),
       apiStatusText: document.getElementById('apiStatusText'),
 
-      statusDate: document.getElementById('statusDate'),
-      exportMonth: document.getElementById('exportMonth'),
+      inspectorSelect: document.getElementById('inspectorSelect'),
+      doorSelect: document.getElementById('doorSelect'),
+      sealNoInput: document.getElementById('sealNoInput'),
+      locationInput: document.getElementById('locationInput'),
 
-      btnLoadStatus: document.getElementById('btnLoadStatus'),
-      btnCheckForm: document.getElementById('btnCheckForm'),
-      btnReport: document.getElementById('btnReport'),
-      btnQrCode: document.getElementById('btnQrCode'),
-      btnExportExcel: document.getElementById('btnExportExcel'),
-      btnExportCsv: document.getElementById('btnExportCsv'),
-      btnRefreshSmall: document.getElementById('btnRefreshSmall'),
+      doorInfoBox: document.getElementById('doorInfoBox'),
+      doorInfoId: document.getElementById('doorInfoId'),
+      doorInfoLocation: document.getElementById('doorInfoLocation'),
 
-      totalDoors: document.getElementById('totalDoors'),
-      checkedCount: document.getElementById('checkedCount'),
-      missingCount: document.getElementById('missingCount'),
-      completeStatus: document.getElementById('completeStatus'),
-      statusDateLabel: document.getElementById('statusDateLabel'),
+      checklistWrap: document.getElementById('checklistWrap'),
 
-      missingList: document.getElementById('missingList'),
-      checkedList: document.getElementById('checkedList'),
-      missingHint: document.getElementById('missingHint'),
+      btnSetAllNormal: document.getElementById('btnSetAllNormal'),
+      btnSave: document.getElementById('btnSave'),
+      btnReset: document.getElementById('btnReset'),
+
+      progressLine: document.getElementById('progressLine'),
+      viewDoorLink: document.getElementById('viewDoorLink'),
 
       footerTime: document.getElementById('footerTime')
     };
@@ -190,226 +456,478 @@
 
     async function init() {
       el.appLogo.src = CONFIG.LOGO_URL;
-
-      const today = getTodayYMD();
-      el.statusDate.value = today;
-      el.exportMonth.value = today.slice(0, 7);
-
-      bindEvents();
       updateFooterTime();
+      bindEvents();
 
-      await checkApiHealth();
-      await loadDailyStatus();
+      const params = new URLSearchParams(window.location.search);
+      state.selectedDoorId = params.get('doorId') || params.get('door') || '';
+
+      await loadOptions();
     }
 
     function bindEvents() {
-      el.btnLoadStatus.addEventListener('click', loadDailyStatus);
-      el.btnRefreshSmall.addEventListener('click', loadDailyStatus);
-
-      el.statusDate.addEventListener('change', () => {
-        loadDailyStatus();
+      el.doorSelect.addEventListener('change', () => {
+        selectDoor(el.doorSelect.value);
       });
 
-      el.btnCheckForm.addEventListener('click', () => {
-        window.location.href = CONFIG.ROUTES.CHECK;
+      el.sealNoInput.addEventListener('input', () => {
+        el.sealNoInput.value = el.sealNoInput.value.replace(/\D/g, '');
       });
 
-      el.btnReport.addEventListener('click', () => {
-        const month = el.exportMonth.value || getTodayYMD().slice(0, 7);
-        window.location.href = `${CONFIG.ROUTES.REPORT}?month=${encodeURIComponent(month)}`;
-      });
-
-      el.btnQrCode.addEventListener('click', () => {
-        window.location.href = CONFIG.ROUTES.QRCODE;
-      });
-
-      el.btnExportExcel.addEventListener('click', () => {
-        const month = el.exportMonth.value;
-        if (!month) {
-          showWarn('กรุณาเลือกเดือนสำหรับ Export');
-          return;
-        }
-
-        confirmExport('Excel', month, () => API.exportExcel(month));
-      });
-
-      el.btnExportCsv.addEventListener('click', () => {
-        const month = el.exportMonth.value;
-        if (!month) {
-          showWarn('กรุณาเลือกเดือนสำหรับ Export');
-          return;
-        }
-
-        confirmExport('CSV', month, () => API.exportCsv(month));
-      });
+      el.btnSetAllNormal.addEventListener('click', setAllNormal);
+      el.btnSave.addEventListener('click', saveInspection);
+      el.btnReset.addEventListener('click', resetForm);
     }
 
-    async function checkApiHealth() {
+    async function loadOptions() {
       try {
-        setApiStatus('pending', 'กำลังตรวจสอบระบบ...');
+        setApiStatus('pending', 'กำลังโหลดข้อมูล...');
+        setFormDisabled(true);
 
-        const data = await API.getHealth();
+        const data = await API.getOptions();
 
-        if (data.ok) {
-          setApiStatus('ok', 'ระบบพร้อมใช้งาน');
-        } else {
-          setApiStatus('danger', 'ระบบมีปัญหา');
+        state.names = Array.isArray(data.names) ? data.names : [];
+        state.doors = Array.isArray(data.doors) ? data.doors : [];
+        state.checklist = Array.isArray(data.checklist) ? data.checklist : [];
+
+        renderNames();
+        renderDoors();
+        renderChecklist();
+
+        if (state.selectedDoorId) {
+          const found = state.doors.find(d => d.doorId === state.selectedDoorId);
+          if (found) {
+            el.doorSelect.value = state.selectedDoorId;
+            selectDoor(state.selectedDoorId);
+          }
         }
 
-      } catch (err) {
-        setApiStatus('danger', 'เชื่อมต่อ API ไม่ได้');
-        console.error(err);
-      }
-    }
-
-    async function loadDailyStatus() {
-      const date = el.statusDate.value;
-
-      if (!date) {
-        showWarn('กรุณาเลือกวันที่ตรวจสอบ');
-        return;
-      }
-
-      setLoading(true);
-
-      try {
-        const data = await API.getDailyStatus(date);
-        renderDailyStatus(data);
+        setApiStatus('ok', 'พร้อมบันทึกข้อมูล');
+        setFormDisabled(false);
 
       } catch (err) {
         console.error(err);
+        setApiStatus('danger', 'โหลดข้อมูลไม่สำเร็จ');
         showError(err.message || 'โหลดข้อมูลไม่สำเร็จ');
-      } finally {
-        setLoading(false);
       }
     }
 
-    function renderDailyStatus(data) {
-      el.totalDoors.textContent = numberText(data.totalDoors);
-      el.checkedCount.textContent = numberText(data.checkedCount);
-      el.missingCount.textContent = numberText(data.missingCount);
-      el.statusDateLabel.textContent = data.date || '-';
+    function renderNames() {
+      if (!state.names.length) {
+        el.inspectorSelect.innerHTML = '<option value="">ไม่พบรายชื่อในชีท Name</option>';
+        return;
+      }
 
-      if (data.isComplete) {
-        el.completeStatus.textContent = 'ครบ';
-        el.completeStatus.className = 'complete-ok';
-        el.missingHint.textContent = 'ตรวจครบทุกประตูในวันที่เลือกแล้ว';
+      el.inspectorSelect.innerHTML = [
+        '<option value="">เลือกชื่อผู้บันทึก</option>',
+        ...state.names.map(name => `<option value="${escapeAttr(name)}">${escapeHtml(name)}</option>`)
+      ].join('');
+    }
+
+    function renderDoors() {
+      if (!state.doors.length) {
+        el.doorSelect.innerHTML = '<option value="">ไม่พบข้อมูลประตูใน Sheet1</option>';
+        return;
+      }
+
+      el.doorSelect.innerHTML = [
+        '<option value="">เลือกประตูหนีไฟ</option>',
+        ...state.doors.map(door => {
+          const text = `${door.doorId} | ${door.location || '-'}`;
+          return `<option value="${escapeAttr(door.doorId)}">${escapeHtml(text)}</option>`;
+        })
+      ].join('');
+    }
+
+    function renderChecklist() {
+      if (!state.checklist.length) {
+        el.checklistWrap.innerHTML = '<div class="empty-state">ไม่พบรายการตรวจในชีท Checklist</div>';
+        return;
+      }
+
+      state.items = state.checklist.map(item => ({
+        no: item.no,
+        title: item.title,
+        normalValue: item.normalValue || 'ปกติ',
+        abnormalValue: item.abnormalValue || 'ผิดปกติ',
+        requireDetail: item.requireDetail !== false,
+        value: '',
+        detail: '',
+        finalText: '',
+        isAbnormal: false
+      }));
+
+      el.checklistWrap.innerHTML = state.items.map((item, index) => {
+        return `
+          <div class="check-item" data-index="${index}">
+            <div class="check-title-row">
+              <span class="check-no">${escapeHtml(item.no || index + 1)}</span>
+              <div class="check-title">${escapeHtml(item.title)}</div>
+            </div>
+
+            <div class="check-actions">
+              <button class="choice-btn normal" type="button" data-type="normal" data-index="${index}">
+                ${escapeHtml(item.normalValue)}
+              </button>
+
+              <button class="choice-btn abnormal" type="button" data-type="abnormal" data-index="${index}">
+                ${escapeHtml(item.abnormalValue)}
+              </button>
+            </div>
+
+            <div class="detail-box">
+              <label>รายละเอียดกรณีผิดปกติ</label>
+              <textarea data-detail-index="${index}" placeholder="ระบุรายละเอียด เช่น มีสิ่งกีดขวาง / ไฟดับ / ชำรุด"></textarea>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      el.checklistWrap.querySelectorAll('.choice-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const index = Number(btn.dataset.index);
+          const type = btn.dataset.type;
+          setItemValue(index, type);
+        });
+      });
+
+      el.checklistWrap.querySelectorAll('textarea[data-detail-index]').forEach(textarea => {
+        textarea.addEventListener('input', () => {
+          const index = Number(textarea.dataset.detailIndex);
+          state.items[index].detail = textarea.value.trim();
+          updateItemFinalText(index);
+          updateProgress();
+        });
+      });
+
+      updateProgress();
+    }
+
+    function selectDoor(doorId) {
+      const door = state.doors.find(d => d.doorId === doorId);
+
+      if (!door) {
+        el.locationInput.value = '';
+        el.doorInfoBox.style.display = 'none';
+        el.viewDoorLink.href = CONFIG.ROUTES.VIEW;
+        return;
+      }
+
+      el.locationInput.value = door.location || '';
+      el.doorInfoId.textContent = door.doorId;
+      el.doorInfoLocation.textContent = door.location || '-';
+      el.doorInfoBox.style.display = 'grid';
+
+      el.viewDoorLink.href = `${CONFIG.ROUTES.VIEW}?doorId=${encodeURIComponent(door.doorId)}`;
+    }
+
+    function setItemValue(index, type) {
+      const item = state.items[index];
+      if (!item) return;
+
+      const itemEl = el.checklistWrap.querySelector(`.check-item[data-index="${index}"]`);
+      const normalBtn = itemEl.querySelector('.choice-btn.normal');
+      const abnormalBtn = itemEl.querySelector('.choice-btn.abnormal');
+
+      normalBtn.classList.remove('active');
+      abnormalBtn.classList.remove('active');
+      itemEl.classList.remove('abnormal');
+
+      if (type === 'normal') {
+        item.value = item.normalValue;
+        item.isAbnormal = false;
+        item.detail = '';
+        normalBtn.classList.add('active');
+
+        const textarea = itemEl.querySelector('textarea');
+        if (textarea) textarea.value = '';
+
       } else {
-        el.completeStatus.textContent = 'ไม่ครบ';
-        el.completeStatus.className = 'complete-bad';
-        el.missingHint.textContent = `ยังไม่ตรวจ ${data.missingCount || 0} ประตู`;
+        item.value = item.abnormalValue;
+        item.isAbnormal = true;
+        abnormalBtn.classList.add('active');
+        itemEl.classList.add('abnormal');
+
+        const textarea = itemEl.querySelector('textarea');
+        if (textarea) {
+          setTimeout(() => textarea.focus(), 80);
+        }
       }
 
-      renderMissingDoors(data.missingDoors || []);
-      renderCheckedDoors(data.checkedDoors || []);
+      updateItemFinalText(index);
+      updateProgress();
     }
 
-    function renderMissingDoors(list) {
-      el.missingList.className = 'door-list';
+    function updateItemFinalText(index) {
+      const item = state.items[index];
+      if (!item) return;
 
-      if (!list.length) {
-        el.missingList.classList.add('empty');
-        el.missingList.innerHTML = `
-          <div class="empty-state success-state">
-            ✓ ตรวจครบทุกประตูแล้ว
-          </div>
-        `;
-        return;
+      let text = item.value || '';
+
+      if (item.isAbnormal && item.detail) {
+        text += ' - ' + item.detail;
       }
 
-      el.missingList.innerHTML = list.map((door) => {
-        const checkUrl = `${CONFIG.ROUTES.CHECK}?doorId=${encodeURIComponent(door.doorId)}`;
-
-        return `
-          <div class="door-row missing">
-            <div class="door-main">
-              <strong>${escapeHtml(door.doorId)}</strong>
-              <span>${escapeHtml(door.location || '-')}</span>
-            </div>
-            <div class="door-actions">
-              <a class="mini-link" href="${checkUrl}">ตรวจประตูนี้</a>
-            </div>
-          </div>
-        `;
-      }).join('');
+      item.finalText = normalizeTrueText(text);
     }
 
-    function renderCheckedDoors(list) {
-      el.checkedList.className = 'door-list';
+    function setAllNormal() {
+      if (!state.items.length) return;
 
-      if (!list.length) {
-        el.checkedList.classList.add('empty');
-        el.checkedList.innerHTML = `
-          <div class="empty-state">
-            ยังไม่มีประตูที่ตรวจแล้วในวันที่เลือก
-          </div>
-        `;
-        return;
-      }
+      state.items.forEach((item, index) => {
+        setItemValue(index, 'normal');
+      });
 
-      el.checkedList.innerHTML = list.map((door) => {
-        const viewUrl = `${CONFIG.ROUTES.VIEW}?doorId=${encodeURIComponent(door.doorId)}`;
-        const resultClass = door.result === 'ผิดปกติ' ? 'badge bad' : 'badge good';
-
-        return `
-          <div class="door-row checked">
-            <div class="door-main">
-              <strong>${escapeHtml(door.doorId)}</strong>
-              <span>${escapeHtml(door.location || '-')}</span>
-            </div>
-
-            <div class="door-meta">
-              <span class="${resultClass}">${escapeHtml(door.result || '-')}</span>
-              <small>${escapeHtml(door.inspector || '-')}</small>
-              <small>${escapeHtml(door.timestamp || '-')}</small>
-            </div>
-
-            <div class="door-actions">
-              <a class="mini-link" href="${viewUrl}">ดูผล</a>
-            </div>
-          </div>
-        `;
-      }).join('');
+      Swal.fire({
+        icon: 'success',
+        title: 'ตั้งค่าปกติทั้งหมดแล้ว',
+        timer: 900,
+        showConfirmButton: false
+      });
     }
 
-    function confirmExport(type, month, callback) {
+    function resetForm() {
       Swal.fire({
         icon: 'question',
-        title: `Export ${type}`,
-        html: `ต้องการส่งออกไฟล์เดือน <b>${escapeHtml(month)}</b> ใช่หรือไม่`,
+        title: 'ล้างฟอร์ม?',
+        text: 'ต้องการล้างค่ารายการตรวจทั้งหมดหรือไม่',
         showCancelButton: true,
-        confirmButtonText: 'Export',
+        confirmButtonText: 'ล้างฟอร์ม',
         cancelButtonText: 'ยกเลิก',
         reverseButtons: true
-      }).then((result) => {
-        if (result.isConfirmed) {
-          callback();
-        }
+      }).then(result => {
+        if (!result.isConfirmed) return;
+
+        el.sealNoInput.value = '';
+
+        state.items.forEach(item => {
+          item.value = '';
+          item.detail = '';
+          item.finalText = '';
+          item.isAbnormal = false;
+        });
+
+        renderChecklist();
       });
     }
 
-    function setLoading(isLoading) {
-      const buttons = [
-        el.btnLoadStatus,
-        el.btnRefreshSmall,
-        el.btnExportExcel,
-        el.btnExportCsv
-      ];
+    async function saveInspection() {
+      const inspector = el.inspectorSelect.value.trim();
+      const doorId = el.doorSelect.value.trim();
+      const sealNo = el.sealNoInput.value.trim();
+      const door = state.doors.find(d => d.doorId === doorId);
+      const location = door ? door.location : el.locationInput.value.trim();
 
-      buttons.forEach((btn) => {
-        btn.disabled = isLoading;
+      if (!inspector) {
+        showWarn('กรุณาเลือกชื่อผู้บันทึก');
+        return;
+      }
+
+      if (!doorId) {
+        showWarn('กรุณาเลือกหมายเลขประตูหนีไฟ');
+        return;
+      }
+
+      if (!sealNo) {
+        showWarn('กรุณากรอกหมายเลขซีล');
+        el.sealNoInput.focus();
+        return;
+      }
+
+      if (!/^[0-9]+$/.test(sealNo)) {
+        showWarn('หมายเลขซีลต้องเป็นตัวเลขเท่านั้น');
+        el.sealNoInput.focus();
+        return;
+      }
+
+      const validation = validateItems();
+
+      if (!validation.ok) {
+        showWarn(validation.message);
+        focusItem(validation.index);
+        return;
+      }
+
+      const abnormalCount = state.items.filter(item => item.isAbnormal).length;
+
+      const html = `
+        <div style="text-align:left">
+          <div><b>ผู้บันทึก:</b> ${escapeHtml(inspector)}</div>
+          <div><b>ประตู:</b> ${escapeHtml(doorId)}</div>
+          <div><b>จุดติดตั้ง:</b> ${escapeHtml(location || '-')}</div>
+          <div><b>หมายเลขซีล:</b> ${escapeHtml(sealNo)}</div>
+          <div><b>ผลรวม:</b> ${abnormalCount ? '<span style="color:#b91c1c;font-weight:bold">ผิดปกติ</span>' : '<span style="color:#15803d;font-weight:bold">ปกติ</span>'}</div>
+          <div><b>รายการผิดปกติ:</b> ${abnormalCount} รายการ</div>
+        </div>
+      `;
+
+      const confirm = await Swal.fire({
+        icon: abnormalCount ? 'warning' : 'question',
+        title: 'ยืนยันบันทึกผลตรวจ',
+        html,
+        showCancelButton: true,
+        confirmButtonText: 'บันทึก',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true
       });
 
-      if (isLoading) {
-        el.btnLoadStatus.textContent = 'กำลังโหลด...';
-      } else {
-        el.btnLoadStatus.textContent = 'ตรวจสอบสถานะ';
+      if (!confirm.isConfirmed) return;
+
+      const payload = {
+        doorId,
+        location,
+        sealNo,
+        inspector,
+        device: detectDevice(),
+        items: state.items.map(item => ({
+          no: item.no,
+          title: item.title,
+          value: normalizeTrueText(item.value),
+          detail: item.detail || '',
+          finalText: normalizeTrueText(item.finalText || item.value),
+          isAbnormal: !!item.isAbnormal
+        }))
+      };
+
+      try {
+        setSaving(true);
+
+        const data = await API.saveInspection(payload);
+
+        await Swal.fire({
+          icon: 'success',
+          title: 'บันทึกสำเร็จ',
+          html: `
+            <div style="text-align:left">
+              <div><b>เวลา:</b> ${escapeHtml(data.timestamp || '-')}</div>
+              <div><b>ประตู:</b> ${escapeHtml(data.doorId || doorId)}</div>
+              <div><b>จุดติดตั้ง:</b> ${escapeHtml(data.location || location || '-')}</div>
+              <div><b>หมายเลขซีล:</b> ${escapeHtml(data.sealNo || sealNo)}</div>
+              <div><b>ผลรวม:</b> ${escapeHtml(data.result || '-')}</div>
+            </div>
+          `,
+          confirmButtonText: 'ตกลง'
+        });
+
+        window.location.href = `${CONFIG.ROUTES.VIEW}?doorId=${encodeURIComponent(doorId)}`;
+
+      } catch (err) {
+        console.error(err);
+        showError(err.message || 'บันทึกไม่สำเร็จ');
+      } finally {
+        setSaving(false);
       }
+    }
+
+    function validateItems() {
+      if (!state.items.length) {
+        return {
+          ok: false,
+          message: 'ไม่พบรายการตรวจ',
+          index: -1
+        };
+      }
+
+      for (let i = 0; i < state.items.length; i++) {
+        const item = state.items[i];
+
+        if (!item.value) {
+          return {
+            ok: false,
+            message: `กรุณาเลือกผลตรวจข้อ ${item.no || i + 1}: ${item.title}`,
+            index: i
+          };
+        }
+
+        if (item.isAbnormal && item.requireDetail && !item.detail.trim()) {
+          return {
+            ok: false,
+            message: `กรุณาระบุรายละเอียดผิดปกติข้อ ${item.no || i + 1}: ${item.title}`,
+            index: i
+          };
+        }
+      }
+
+      return {
+        ok: true
+      };
+    }
+
+    function focusItem(index) {
+      if (index < 0) return;
+
+      const itemEl = el.checklistWrap.querySelector(`.check-item[data-index="${index}"]`);
+      if (!itemEl) return;
+
+      itemEl.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+
+      const textarea = itemEl.querySelector('textarea');
+      if (textarea && state.items[index].isAbnormal) {
+        setTimeout(() => textarea.focus(), 350);
+      }
+    }
+
+    function updateProgress() {
+      const total = state.items.length;
+      const selected = state.items.filter(item => !!item.value).length;
+      const abnormal = state.items.filter(item => item.isAbnormal).length;
+
+      el.progressLine.textContent = `เลือกแล้ว ${selected}/${total} รายการ | ผิดปกติ ${abnormal} รายการ`;
+    }
+
+    function setSaving(isSaving) {
+      el.btnSave.disabled = isSaving;
+      el.btnReset.disabled = isSaving;
+      el.btnSetAllNormal.disabled = isSaving;
+
+      if (isSaving) {
+        el.btnSave.textContent = 'กำลังบันทึก...';
+      } else {
+        el.btnSave.textContent = 'บันทึกผลตรวจ';
+      }
+    }
+
+    function setFormDisabled(disabled) {
+      el.inspectorSelect.disabled = disabled;
+      el.doorSelect.disabled = disabled;
+      el.sealNoInput.disabled = disabled;
+      el.btnSave.disabled = disabled;
+      el.btnReset.disabled = disabled;
+      el.btnSetAllNormal.disabled = disabled;
     }
 
     function setApiStatus(type, text) {
       el.apiStatusDot.className = `status-dot ${type}`;
       el.apiStatusText.textContent = text;
+    }
+
+    function detectDevice() {
+      const ua = navigator.userAgent || '';
+
+      if (/Line/i.test(ua)) return 'LINE';
+      if (/Android|iPhone|iPad|iPod/i.test(ua)) return 'Mobile';
+
+      return 'Desktop';
+    }
+
+    function normalizeTrueText(value) {
+      const s = String(value ?? '').trim();
+
+      if (s.toUpperCase() === 'TRUE') return '✓';
+      if (s.toUpperCase() === 'FALSE') return '';
+
+      return s;
+    }
+
+    function updateFooterTime() {
+      const now = new Date();
+      el.footerTime.textContent = now.toLocaleString('th-TH', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      });
     }
 
     function showWarn(message) {
@@ -430,27 +948,6 @@
       });
     }
 
-    function getTodayYMD() {
-      const d = new Date();
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${y}-${m}-${day}`;
-    }
-
-    function updateFooterTime() {
-      const now = new Date();
-      el.footerTime.textContent = now.toLocaleString('th-TH', {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-      });
-    }
-
-    function numberText(value) {
-      const n = Number(value || 0);
-      return n.toLocaleString('th-TH');
-    }
-
     function escapeHtml(value) {
       return String(value ?? '')
         .replace(/&/g, '&amp;')
@@ -458,6 +955,10 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, '&#096;');
     }
   </script>
 </body>
