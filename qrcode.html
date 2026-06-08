@@ -38,7 +38,7 @@
 
     .qr-control-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto auto auto;
+      grid-template-columns: minmax(0, 1fr) auto auto auto auto;
       gap: 10px;
       align-items: end;
     }
@@ -149,10 +149,6 @@
       color: var(--muted);
       font-size: 13px;
     }
-
-    /************************************************************
-     * A4 Print Area
-     ************************************************************/
 
     .a4-stack {
       display: grid;
@@ -380,10 +376,6 @@
       }
     }
 
-    /************************************************************
-     * Print
-     ************************************************************/
-
     @page {
       size: A4 portrait;
       margin: 0;
@@ -466,7 +458,7 @@
 
       <div class="header-status">
         <span id="apiStatusDot" class="status-dot pending"></span>
-        <span id="apiStatusText">กำลังโหลดข้อมูล...</span>
+        <span id="apiStatusText">กำลังโหลดรายการประตู...</span>
       </div>
     </header>
 
@@ -488,6 +480,7 @@
 
           <button id="btnSelectAll" class="btn primary" type="button">เลือกทั้งหมด</button>
           <button id="btnClearAll" class="btn" type="button">ล้างเลือก</button>
+          <button id="btnPreview" class="btn" type="button">รีเฟรชตัวอย่าง</button>
           <button id="btnPrint" class="btn success" type="button">พิมพ์ QR</button>
         </div>
 
@@ -507,15 +500,11 @@
             <h2>ตัวอย่างก่อนพิมพ์</h2>
             <p>ระบบจะแสดง 4 ป้ายต่อ 1 หน้า A4</p>
           </div>
-
-          <button id="btnRefreshPreview" class="btn small" type="button">
-            รีเฟรชตัวอย่าง
-          </button>
         </div>
 
         <div id="a4Stack" class="a4-stack">
           <div class="empty-state">
-            กรุณาเลือกประตูที่ต้องการพิมพ์ QR Code
+            กรุณาเลือกประตูที่ต้องการพิมพ์ QR Code แล้วกด “รีเฟรชตัวอย่าง”
           </div>
         </div>
       </section>
@@ -551,8 +540,8 @@
       searchInput: document.getElementById('searchInput'),
       btnSelectAll: document.getElementById('btnSelectAll'),
       btnClearAll: document.getElementById('btnClearAll'),
+      btnPreview: document.getElementById('btnPreview'),
       btnPrint: document.getElementById('btnPrint'),
-      btnRefreshPreview: document.getElementById('btnRefreshPreview'),
 
       doorCountText: document.getElementById('doorCountText'),
       selectedCountText: document.getElementById('selectedCountText'),
@@ -580,18 +569,30 @@
       });
 
       el.btnSelectAll.addEventListener('click', () => {
-        state.filteredDoors.forEach(door => state.selected.add(door.doorId));
+        state.filteredDoors.forEach(door => {
+          state.selected.add(door.doorId);
+        });
+
         renderDoorList();
-        renderPreview();
+        updateSelectedText();
+
+        showToast(`เลือก ${state.selected.size} รายการแล้ว`);
       });
 
       el.btnClearAll.addEventListener('click', () => {
         state.selected.clear();
+
         renderDoorList();
-        renderPreview();
+        updateSelectedText();
+
+        el.a4Stack.innerHTML = `
+          <div class="empty-state">
+            กรุณาเลือกประตูที่ต้องการพิมพ์ QR Code แล้วกด “รีเฟรชตัวอย่าง”
+          </div>
+        `;
       });
 
-      el.btnRefreshPreview.addEventListener('click', renderPreview);
+      el.btnPreview.addEventListener('click', renderPreview);
 
       el.btnPrint.addEventListener('click', () => {
         if (!state.selected.size) {
@@ -603,7 +604,7 @@
 
         setTimeout(() => {
           window.print();
-        }, 300);
+        }, 500);
       });
     }
 
@@ -612,13 +613,13 @@
         setApiStatus('pending', 'กำลังโหลดรายการประตู...');
         setControlsDisabled(true);
 
-        const data = await API.getOptions();
+        const data = await API.getDoors();
 
         state.doors = Array.isArray(data.doors) ? data.doors : [];
         state.filteredDoors = [...state.doors];
 
         renderDoorList();
-        renderPreview();
+        updateSelectedText();
 
         setApiStatus('ok', 'พร้อมพิมพ์ QR Code');
         setControlsDisabled(false);
@@ -626,6 +627,13 @@
       } catch (err) {
         console.error(err);
         setApiStatus('danger', 'โหลดข้อมูลไม่สำเร็จ');
+
+        el.doorSelectList.innerHTML = `
+          <div class="empty-state">
+            โหลดข้อมูลไม่สำเร็จ: ${escapeHtml(err.message || 'ไม่ทราบสาเหตุ')}
+          </div>
+        `;
+
         showError(err.message || 'โหลดข้อมูลไม่สำเร็จ');
       }
     }
@@ -646,7 +654,6 @@
 
     function renderDoorList() {
       el.doorCountText.textContent = `พบ ${state.filteredDoors.length.toLocaleString('th-TH')} จากทั้งหมด ${state.doors.length.toLocaleString('th-TH')} ประตู`;
-      el.selectedCountText.textContent = `เลือก ${state.selected.size.toLocaleString('th-TH')} รายการ`;
 
       if (!state.filteredDoors.length) {
         el.doorSelectList.innerHTML = `
@@ -689,10 +696,13 @@
             state.selected.delete(doorId);
           }
 
-          el.selectedCountText.textContent = `เลือก ${state.selected.size.toLocaleString('th-TH')} รายการ`;
-          renderPreview();
+          updateSelectedText();
         });
       });
+    }
+
+    function updateSelectedText() {
+      el.selectedCountText.textContent = `เลือก ${state.selected.size.toLocaleString('th-TH')} รายการ`;
     }
 
     function renderPreview() {
@@ -707,12 +717,12 @@
         return;
       }
 
+      setApiStatus('pending', 'กำลังสร้างตัวอย่าง QR...');
+
       const pages = chunkArray(selectedDoors, 4);
 
       el.a4Stack.innerHTML = pages.map((pageDoors, pageIndex) => {
-        const cards = pageDoors.map((door) => {
-          return createQrCardHtml(door);
-        }).join('');
+        const cards = pageDoors.map(door => createQrCardHtml(door)).join('');
 
         return `
           <section class="a4-sheet" data-page="${pageIndex + 1}">
@@ -721,7 +731,10 @@
         `;
       }).join('');
 
-      buildQrCodes(selectedDoors);
+      setTimeout(() => {
+        buildQrCodes(selectedDoors);
+        setApiStatus('ok', `สร้างตัวอย่างแล้ว ${selectedDoors.length} รายการ`);
+      }, 50);
     }
 
     function createQrCardHtml(door) {
@@ -784,6 +797,7 @@
     function getBaseUrl() {
       const path = window.location.pathname || '';
       const folder = path.substring(0, path.lastIndexOf('/') + 1);
+
       return `${window.location.origin}${folder}`;
     }
 
@@ -800,13 +814,24 @@
       el.searchInput.disabled = disabled;
       el.btnSelectAll.disabled = disabled;
       el.btnClearAll.disabled = disabled;
+      el.btnPreview.disabled = disabled;
       el.btnPrint.disabled = disabled;
-      el.btnRefreshPreview.disabled = disabled;
     }
 
     function setApiStatus(type, text) {
       el.apiStatusDot.className = `status-dot ${type}`;
       el.apiStatusText.textContent = text;
+    }
+
+    function showToast(message) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: message,
+        showConfirmButton: false,
+        timer: 1000
+      });
     }
 
     function showWarn(message) {
@@ -829,6 +854,7 @@
 
     function updateFooterTime() {
       const now = new Date();
+
       el.footerTime.textContent = now.toLocaleString('th-TH', {
         dateStyle: 'medium',
         timeStyle: 'short'
