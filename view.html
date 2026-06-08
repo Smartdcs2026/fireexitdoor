@@ -10,23 +10,22 @@
 
   <script src="config.js"></script>
   <script src="api.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
     .view-layout {
       display: grid;
-      gap: 14px;
+      gap: 12px;
     }
 
     .door-hero {
       background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
       color: #fff;
       border-radius: 22px;
-      padding: 18px;
+      padding: 16px;
       box-shadow: var(--shadow);
       display: grid;
-      gap: 12px;
+      gap: 10px;
       position: relative;
       overflow: hidden;
     }
@@ -36,28 +35,28 @@
       position: absolute;
       width: 160px;
       height: 160px;
-      right: -54px;
-      bottom: -62px;
+      right: -56px;
+      bottom: -64px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255,255,255,0.1);
     }
 
     .door-hero-top {
-      display: flex;
-      align-items: center;
+      display: grid;
+      grid-template-columns: 56px minmax(0, 1fr);
       gap: 12px;
+      align-items: center;
       position: relative;
       z-index: 1;
     }
 
     .door-hero-logo {
-      width: 62px;
-      height: 62px;
-      border-radius: 16px;
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
       background: #fff;
       object-fit: contain;
       padding: 6px;
-      flex: 0 0 auto;
     }
 
     .door-hero-text {
@@ -66,14 +65,14 @@
 
     .door-hero-text span {
       display: block;
-      font-size: 13px;
+      font-size: 12px;
       opacity: 0.88;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
 
     .door-hero-text strong {
       display: block;
-      font-size: 30px;
+      font-size: 28px;
       line-height: 1.1;
       word-break: break-word;
     }
@@ -81,21 +80,21 @@
     .door-location {
       position: relative;
       z-index: 1;
-      background: rgba(255, 255, 255, 0.14);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 16px;
-      padding: 11px 12px;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 14px;
+      padding: 10px 12px;
       font-size: 15px;
-      line-height: 1.45;
+      line-height: 1.35;
     }
 
     .seal-hero {
       position: relative;
       z-index: 1;
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255,255,255,0.95);
       color: #0f172a;
-      border-radius: 16px;
-      padding: 11px 12px;
+      border-radius: 14px;
+      padding: 10px 12px;
       display: grid;
       grid-template-columns: auto minmax(0, 1fr);
       gap: 8px;
@@ -110,26 +109,55 @@
 
     .seal-hero strong {
       color: #0f766e;
-      font-size: 20px;
-      letter-spacing: 0.5px;
+      font-size: 19px;
+      letter-spacing: 0.4px;
       overflow-wrap: anywhere;
+    }
+
+    .top-action-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .soft-link,
+    .soft-btn {
+      min-height: 42px;
+      border-radius: 13px;
+      background: #e2e8f0;
+      color: #0f172a;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 8px;
+      text-align: center;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .soft-btn.primary {
+      background: var(--primary);
+      color: #fff;
     }
 
     .latest-grid {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
     }
 
     .latest-card {
       background: #fff;
       border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 13px;
+      border-radius: 15px;
+      padding: 12px;
       box-shadow: var(--shadow);
       display: grid;
       gap: 4px;
-      min-height: 86px;
+      min-height: 80px;
     }
 
     .latest-card span {
@@ -139,15 +167,9 @@
     }
 
     .latest-card strong {
-      font-size: 17px;
+      font-size: 16px;
       line-height: 1.25;
       overflow-wrap: anywhere;
-    }
-
-    .latest-card.seal strong {
-      color: var(--primary-dark);
-      font-size: 19px;
-      letter-spacing: 0.4px;
     }
 
     .result-normal {
@@ -166,16 +188,16 @@
     .check-result-row {
       border: 1px solid var(--line);
       border-radius: 15px;
-      padding: 11px;
+      padding: 10px 12px;
       background: #fff;
       display: grid;
-      grid-template-columns: 34px minmax(0, 1fr) auto;
+      grid-template-columns: 30px minmax(0, 1fr) auto;
+      gap: 10px;
       align-items: center;
-      gap: 8px;
     }
 
     .check-result-row.abnormal {
-      background: linear-gradient(90deg, var(--danger-soft), #fff 48%);
+      background: linear-gradient(90deg, var(--danger-soft), #fff 50%);
       border-color: rgba(185, 28, 28, 0.28);
     }
 
@@ -193,26 +215,28 @@
     }
 
     .check-result-main {
-      display: grid;
-      gap: 3px;
       min-width: 0;
+      display: grid;
+      gap: 4px;
     }
 
     .check-result-main strong {
       font-size: 14px;
-      line-height: 1.35;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
     }
 
-    .check-result-main span {
+    .check-result-detail {
       color: var(--muted);
-      font-size: 13px;
+      font-size: 12px;
+      line-height: 1.35;
       overflow-wrap: anywhere;
     }
 
     .check-result-value {
-      min-width: 84px;
+      min-width: 82px;
       text-align: center;
-      padding: 6px 9px;
+      padding: 6px 10px;
       border-radius: 999px;
       font-weight: 900;
       font-size: 13px;
@@ -228,8 +252,8 @@
 
     .abnormal-box {
       background: var(--danger-soft);
-      border: 1px solid rgba(185, 28, 28, 0.26);
-      border-radius: 16px;
+      border: 1px solid rgba(185,28,28,0.26);
+      border-radius: 15px;
       padding: 12px;
       color: #7f1d1d;
       white-space: pre-wrap;
@@ -245,17 +269,17 @@
     .history-row {
       border: 1px solid var(--line);
       border-radius: 15px;
-      padding: 11px;
+      padding: 10px 12px;
       background: #fff;
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
       align-items: center;
-      gap: 10px;
     }
 
     .history-main {
       display: grid;
-      gap: 4px;
+      gap: 3px;
       min-width: 0;
     }
 
@@ -270,22 +294,18 @@
       overflow-wrap: anywhere;
     }
 
-    .history-seal {
-      color: var(--primary-dark) !important;
-      font-weight: 900;
-    }
-
     .history-actions {
       display: flex;
       align-items: center;
       justify-content: flex-end;
       gap: 6px;
+      flex-wrap: wrap;
     }
 
     .hidden-check-zone {
       display: flex;
       justify-content: center;
-      padding: 8px 0 2px;
+      padding: 4px 0 0;
     }
 
     .hidden-check-btn {
@@ -306,45 +326,9 @@
       color: var(--primary);
     }
 
-    .top-action-row {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-    }
-
-    .soft-link {
-      min-height: 40px;
-      border-radius: 13px;
-      background: #e2e8f0;
-      color: #0f172a;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 13px;
-      padding: 8px;
-      text-align: center;
-    }
-
     @media (max-width: 980px) {
       .latest-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 800px) {
-      .latest-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .check-result-row {
-        grid-template-columns: 30px minmax(0, 1fr);
-      }
-
-      .check-result-value {
-        grid-column: 2;
-        justify-self: start;
       }
     }
 
@@ -358,31 +342,43 @@
         padding: 14px;
       }
 
+      .door-hero-top {
+        grid-template-columns: 52px minmax(0, 1fr);
+        gap: 10px;
+      }
+
       .door-hero-logo {
         width: 52px;
         height: 52px;
-        border-radius: 14px;
       }
 
       .door-hero-text strong {
-        font-size: 25px;
+        font-size: 24px;
       }
 
       .door-location {
-        font-size: 13px;
-        border-radius: 14px;
+        font-size: 14px;
         padding: 9px 10px;
       }
 
       .seal-hero {
         grid-template-columns: 1fr;
-        gap: 3px;
-        border-radius: 14px;
+        gap: 2px;
         padding: 9px 10px;
       }
 
       .seal-hero strong {
         font-size: 18px;
+      }
+
+      .top-action-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .soft-link,
+      .soft-btn {
+        min-height: 40px;
+        font-size: 12px;
       }
 
       .latest-grid {
@@ -391,27 +387,32 @@
       }
 
       .latest-card {
-        min-height: 76px;
-        padding: 11px;
-        border-radius: 14px;
+        padding: 10px;
+        min-height: 74px;
       }
 
       .latest-card strong {
         font-size: 15px;
       }
 
-      .top-action-row {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+      .check-result-row {
+        grid-template-columns: 28px minmax(0, 1fr) auto;
+        padding: 10px;
+        gap: 8px;
       }
 
-      .soft-link {
+      .check-result-main strong {
+        font-size: 14px;
+      }
+
+      .check-result-value {
+        min-width: 74px;
         font-size: 12px;
-        min-height: 38px;
+        padding: 5px 9px;
       }
 
       .history-row {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 7px;
+        grid-template-columns: 1fr;
       }
 
       .history-actions {
@@ -420,12 +421,27 @@
     }
 
     @media (max-width: 390px) {
+      .top-action-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .soft-link,
+      .soft-btn {
+        font-size: 11px;
+        padding: 6px;
+      }
+
       .latest-grid {
         grid-template-columns: 1fr 1fr;
       }
 
-      .top-action-row {
-        grid-template-columns: 1fr;
+      .check-result-row {
+        grid-template-columns: 28px minmax(0, 1fr);
+      }
+
+      .check-result-value {
+        grid-column: 2;
+        justify-self: start;
       }
     }
   </style>
@@ -433,7 +449,6 @@
 
 <body>
   <div class="app-shell">
-
     <header class="app-header">
       <div class="brand">
         <img id="appLogo" class="brand-logo" alt="Logo" />
@@ -450,7 +465,6 @@
     </header>
 
     <main class="main-content view-layout">
-
       <section class="door-hero">
         <div class="door-hero-top">
           <img id="heroLogo" class="door-hero-logo" alt="Logo" />
@@ -473,18 +487,13 @@
       <section class="top-action-row">
         <a class="soft-link" href="index.html">หน้าหลัก</a>
         <a id="reportLink" class="soft-link" href="report.html">รายงานรายเดือน</a>
-        <button id="btnRefresh" class="btn primary" type="button">รีเฟรช</button>
+        <button id="btnRefresh" class="soft-btn primary" type="button">รีเฟรช</button>
       </section>
 
       <section class="latest-grid">
         <article class="latest-card">
           <span>ผลตรวจล่าสุด</span>
           <strong id="latestResult">-</strong>
-        </article>
-
-        <article class="latest-card seal">
-          <span>หมายเลขซีล</span>
-          <strong id="latestSealNo">-</strong>
         </article>
 
         <article class="latest-card">
@@ -545,7 +554,6 @@
           ตรวจเช็คประตู
         </button>
       </section>
-
     </main>
 
     <footer class="app-footer">
@@ -555,14 +563,6 @@
   </div>
 
   <script>
-    /************************************************************
-     * view.html app
-     * สำคัญ:
-     * - หน้าเว็บไม่แปลงวันที่เอง
-     * - แสดง timestamp ตรงจาก Backend เท่านั้น
-     * - Backend ต้องส่งรูปแบบ dd/MM/yyyy HH:mm:ss
-     ************************************************************/
-
     const CONFIG = window.APP_CONFIG;
     const API = window.FireExitAPI;
 
@@ -587,7 +587,6 @@
       btnRefresh: document.getElementById('btnRefresh'),
 
       latestResult: document.getElementById('latestResult'),
-      latestSealNo: document.getElementById('latestSealNo'),
       latestTime: document.getElementById('latestTime'),
       latestInspector: document.getElementById('latestInspector'),
       latestDevice: document.getElementById('latestDevice'),
@@ -608,7 +607,6 @@
     async function init() {
       el.appLogo.src = CONFIG.LOGO_URL;
       el.heroLogo.src = CONFIG.LOGO_URL;
-
       updateFooterTime();
 
       const params = new URLSearchParams(window.location.search);
@@ -624,13 +622,11 @@
       el.reportLink.href = `${CONFIG.ROUTES.REPORT}?doorId=${encodeURIComponent(state.doorId)}`;
 
       bindEvents();
-
       await loadData();
     }
 
     function bindEvents() {
       el.btnRefresh.addEventListener('click', loadData);
-
       el.hiddenCheckBtn.addEventListener('click', () => {
         window.location.href = `${CONFIG.ROUTES.CHECK}?doorId=${encodeURIComponent(state.doorId)}`;
       });
@@ -651,7 +647,6 @@
         renderHistory();
 
         setApiStatus('ok', 'โหลดข้อมูลสำเร็จ');
-
       } catch (err) {
         console.error(err);
         setApiStatus('danger', 'โหลดข้อมูลไม่สำเร็จ');
@@ -667,7 +662,6 @@
       if (!latest) {
         el.latestResult.textContent = 'ยังไม่เคยตรวจ';
         el.latestResult.className = 'result-abnormal';
-        el.latestSealNo.textContent = '-';
         el.heroSealNo.textContent = '-';
         el.latestTime.textContent = '-';
         el.latestInspector.textContent = '-';
@@ -686,7 +680,6 @@
 
       el.doorIdText.textContent = latest.doorId || state.doorId;
       el.doorLocationText.textContent = `จุดติดตั้ง: ${latest.location || '-'}`;
-      el.latestSealNo.textContent = latest.sealNo || '-';
       el.heroSealNo.textContent = latest.sealNo || '-';
 
       el.latestResult.textContent = latest.result || '-';
@@ -719,7 +712,8 @@
 
       el.latestItems.innerHTML = items.map((item, index) => {
         const isBad = !!item.isAbnormal;
-        const value = normalizeTrueText(item.finalText || item.value || '-');
+        const rawValue = normalizeTrueText(item.finalText || item.value || '-');
+        const detailText = buildItemDetailText(item, rawValue, isBad);
 
         return `
           <div class="check-result-row ${isBad ? 'abnormal' : ''}">
@@ -727,7 +721,7 @@
 
             <div class="check-result-main">
               <strong>${escapeHtml(item.title || '-')}</strong>
-              <span>${escapeHtml(value)}</span>
+              ${detailText ? `<div class="check-result-detail">${escapeHtml(detailText)}</div>` : ''}
             </div>
 
             <div class="check-result-value">
@@ -736,6 +730,21 @@
           </div>
         `;
       }).join('');
+    }
+
+    function buildItemDetailText(item, rawValue, isBad) {
+      if (isBad) {
+        if (item.detail && String(item.detail).trim()) {
+          return String(item.detail).trim();
+        }
+        return rawValue && rawValue !== 'ผิดปกติ' ? rawValue : 'พบสิ่งผิดปกติ';
+      }
+
+      if (rawValue && rawValue !== 'ปกติ' && rawValue !== '-') {
+        return rawValue;
+      }
+
+      return '';
     }
 
     function renderHistory() {
@@ -757,7 +766,7 @@
           <div class="history-row">
             <div class="history-main">
               <strong>${escapeHtml(normalizeTimestampDisplay(item.timestamp))}</strong>
-              <small class="history-seal">หมายเลขซีล: ${escapeHtml(item.sealNo || '-')}</small>
+              <small>หมายเลขซีล: ${escapeHtml(item.sealNo || '-')}</small>
               <small>ผู้ตรวจ: ${escapeHtml(item.inspector || '-')} | อุปกรณ์: ${escapeHtml(item.device || '-')}</small>
               <small>จุดติดตั้ง: ${escapeHtml(item.location || '-')}</small>
             </div>
@@ -834,12 +843,10 @@
 
       if (!s) return '-';
 
-      // ใช้รูปแบบที่ถูกต้องจาก Backend เท่านั้น
       if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/.test(s)) {
         return s;
       }
 
-      // ถ้า Backend ส่ง yyyy-MM-dd HH:mm:ss มา แปลงแบบไม่ใช้ Date()
       if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(s)) {
         const y = s.substring(0, 4);
         const m = s.substring(5, 7);
@@ -848,7 +855,6 @@
         return `${d}/${m}/${y} ${t}`;
       }
 
-      // ถ้ายังเป็น Date string แบบเก่า ให้แสดงเตือนใน console แต่ไม่พยายามเดา
       if (s.includes('GMT') || s.includes('เวลา')) {
         console.warn('Timestamp ยังไม่ถูก format จาก Backend:', s);
         return s;
@@ -860,12 +866,7 @@
     function setLoading(isLoading) {
       el.btnRefresh.disabled = isLoading;
       el.hiddenCheckBtn.disabled = isLoading;
-
-      if (isLoading) {
-        el.btnRefresh.textContent = 'กำลังโหลด...';
-      } else {
-        el.btnRefresh.textContent = 'รีเฟรช';
-      }
+      el.btnRefresh.textContent = isLoading ? 'กำลังโหลด...' : 'รีเฟรช';
     }
 
     function setApiStatus(type, text) {
@@ -895,10 +896,8 @@
 
     function normalizeTrueText(value) {
       const s = String(value ?? '').trim();
-
       if (s.toUpperCase() === 'TRUE') return '✓';
       if (s.toUpperCase() === 'FALSE') return '';
-
       return s;
     }
 
