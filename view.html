@@ -93,9 +93,36 @@
       line-height: 1.45;
     }
 
+    .seal-hero {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.92);
+      color: #0f172a;
+      border-radius: 16px;
+      padding: 11px 12px;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .seal-hero span {
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .seal-hero strong {
+      color: #0f766e;
+      font-size: 20px;
+      letter-spacing: 0.5px;
+      overflow-wrap: anywhere;
+    }
+
     .latest-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 10px;
     }
 
@@ -120,6 +147,12 @@
       font-size: 17px;
       line-height: 1.25;
       overflow-wrap: anywhere;
+    }
+
+    .latest-card.seal strong {
+      color: var(--primary-dark);
+      font-size: 19px;
+      letter-spacing: 0.4px;
     }
 
     .result-normal {
@@ -242,6 +275,11 @@
       overflow-wrap: anywhere;
     }
 
+    .history-seal {
+      color: var(--primary-dark) !important;
+      font-weight: 900;
+    }
+
     .history-actions {
       display: flex;
       align-items: center;
@@ -294,6 +332,12 @@
       text-align: center;
     }
 
+    @media (max-width: 980px) {
+      .latest-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
     @media (max-width: 800px) {
       .latest-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -333,6 +377,17 @@
         font-size: 13px;
         border-radius: 14px;
         padding: 9px 10px;
+      }
+
+      .seal-hero {
+        grid-template-columns: 1fr;
+        gap: 3px;
+        border-radius: 14px;
+        padding: 9px 10px;
+      }
+
+      .seal-hero strong {
+        font-size: 18px;
       }
 
       .latest-grid {
@@ -413,6 +468,11 @@
         <div id="doorLocationText" class="door-location">
           จุดติดตั้ง: -
         </div>
+
+        <div class="seal-hero">
+          <span>หมายเลขซีลล่าสุด</span>
+          <strong id="heroSealNo">-</strong>
+        </div>
       </section>
 
       <section class="top-action-row">
@@ -425,6 +485,11 @@
         <article class="latest-card">
           <span>ผลตรวจล่าสุด</span>
           <strong id="latestResult">-</strong>
+        </article>
+
+        <article class="latest-card seal">
+          <span>หมายเลขซีล</span>
+          <strong id="latestSealNo">-</strong>
         </article>
 
         <article class="latest-card">
@@ -471,7 +536,7 @@
         <div class="section-title-row">
           <div>
             <h2>ประวัติการตรวจย้อนหลัง</h2>
-            <p>แสดงรายการล่าสุดไม่เกิน 20 ครั้ง</p>
+            <p>แสดงรายการล่าสุดไม่เกิน 20 ครั้ง พร้อมหมายเลขซีลแต่ละครั้ง</p>
           </div>
         </div>
 
@@ -517,11 +582,13 @@
 
       doorIdText: document.getElementById('doorIdText'),
       doorLocationText: document.getElementById('doorLocationText'),
+      heroSealNo: document.getElementById('heroSealNo'),
 
       reportLink: document.getElementById('reportLink'),
       btnRefresh: document.getElementById('btnRefresh'),
 
       latestResult: document.getElementById('latestResult'),
+      latestSealNo: document.getElementById('latestSealNo'),
       latestTime: document.getElementById('latestTime'),
       latestInspector: document.getElementById('latestInspector'),
       latestDevice: document.getElementById('latestDevice'),
@@ -601,6 +668,8 @@
       if (!latest) {
         el.latestResult.textContent = 'ยังไม่เคยตรวจ';
         el.latestResult.className = 'result-abnormal';
+        el.latestSealNo.textContent = '-';
+        el.heroSealNo.textContent = '-';
         el.latestTime.textContent = '-';
         el.latestInspector.textContent = '-';
         el.latestDevice.textContent = '-';
@@ -618,6 +687,8 @@
 
       el.doorIdText.textContent = latest.doorId || state.doorId;
       el.doorLocationText.textContent = `จุดติดตั้ง: ${latest.location || '-'}`;
+      el.latestSealNo.textContent = latest.sealNo || '-';
+      el.heroSealNo.textContent = latest.sealNo || '-';
 
       el.latestResult.textContent = latest.result || '-';
       el.latestResult.className = latest.result === 'ผิดปกติ' ? 'result-abnormal' : 'result-normal';
@@ -687,6 +758,7 @@
           <div class="history-row">
             <div class="history-main">
               <strong>${escapeHtml(item.timestamp || '-')}</strong>
+              <small class="history-seal">หมายเลขซีล: ${escapeHtml(item.sealNo || '-')}</small>
               <small>ผู้ตรวจ: ${escapeHtml(item.inspector || '-')} | อุปกรณ์: ${escapeHtml(item.device || '-')}</small>
               <small>จุดติดตั้ง: ${escapeHtml(item.location || '-')}</small>
             </div>
@@ -733,6 +805,7 @@
         html: `
           <div style="text-align:left;font-size:14px;">
             <div><b>วันที่/เวลา:</b> ${escapeHtml(record.timestamp || '-')}</div>
+            <div><b>หมายเลขซีล:</b> ${escapeHtml(record.sealNo || '-')}</div>
             <div><b>ผู้ตรวจ:</b> ${escapeHtml(record.inspector || '-')}</div>
             <div><b>จุดติดตั้ง:</b> ${escapeHtml(record.location || '-')}</div>
             <div><b>ผลรวม:</b> ${escapeHtml(record.result || '-')}</div>
