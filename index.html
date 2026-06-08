@@ -15,7 +15,7 @@
 
   <style>
     /************************************************************
-     * index.html เฉพาะ Dashboard
+     * index.html Dashboard
      ************************************************************/
 
     .dashboard-alert {
@@ -26,6 +26,7 @@
       box-shadow: var(--shadow);
       display: grid;
       gap: 6px;
+      margin-top: 14px;
     }
 
     .dashboard-alert.ok {
@@ -89,11 +90,24 @@
       border: 1px solid rgba(15, 118, 110, 0.18);
     }
 
+    .time-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      background: #f8fafc;
+      color: #475569;
+      border: 1px solid var(--line);
+    }
+
     .quick-summary {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
-      margin-top: 10px;
+      margin-bottom: 10px;
     }
 
     .quick-summary-item {
@@ -296,6 +310,9 @@
   <script>
     /************************************************************
      * index.html Dashboard
+     * สำคัญ:
+     * - timestamp จาก API ต้องเป็น dd/MM/yyyy HH:mm:ss
+     * - หน้าเว็บไม่ใช้ new Date() แปลง timestamp ของข้อมูลตรวจ
      ************************************************************/
 
     const CONFIG = window.APP_CONFIG;
@@ -443,7 +460,7 @@
       el.totalDoors.textContent = numberText(data.totalDoors);
       el.checkedCount.textContent = numberText(data.checkedCount);
       el.missingCount.textContent = numberText(data.missingCount);
-      el.statusDateLabel.textContent = data.date || '-';
+      el.statusDateLabel.textContent = normalizeDateDisplay(data.date || '-');
 
       if (data.isComplete) {
         el.completeStatus.textContent = 'ครบ';
@@ -452,7 +469,7 @@
       } else {
         el.completeStatus.textContent = 'ไม่ครบ';
         el.completeStatus.className = 'complete-bad';
-        el.missingHint.textContent = `ยังไม่ตรวจ ${data.missingCount || 0} ประตู`;
+        el.missingHint.textContent = `ยังไม่ตรวจ ${numberText(data.missingCount || 0)} ประตู`;
       }
 
       renderDashboardAlert(data);
@@ -463,16 +480,18 @@
     function renderDashboardAlert(data) {
       el.dashboardAlert.style.display = 'grid';
 
+      const displayDate = normalizeDateDisplay(data.date || '-');
+
       if (data.isComplete) {
         el.dashboardAlert.className = 'dashboard-alert ok';
         el.dashboardAlertTitle.textContent = '✓ ตรวจครบทุกประตูแล้ว';
-        el.dashboardAlertText.textContent = `ประจำวันที่ ${data.date || '-'} ตรวจครบ ${numberText(data.checkedCount)} จาก ${numberText(data.totalDoors)} ประตู`;
+        el.dashboardAlertText.textContent = `ประจำวันที่ ${displayDate} ตรวจครบ ${numberText(data.checkedCount)} จาก ${numberText(data.totalDoors)} ประตู`;
         return;
       }
 
       el.dashboardAlert.className = 'dashboard-alert bad';
       el.dashboardAlertTitle.textContent = 'ยังตรวจไม่ครบทุกประตู';
-      el.dashboardAlertText.textContent = `ประจำวันที่ ${data.date || '-'} ยังไม่ตรวจ ${numberText(data.missingCount)} ประตู จากทั้งหมด ${numberText(data.totalDoors)} ประตู`;
+      el.dashboardAlertText.textContent = `ประจำวันที่ ${displayDate} ยังไม่ตรวจ ${numberText(data.missingCount)} ประตู จากทั้งหมด ${numberText(data.totalDoors)} ประตู`;
     }
 
     function renderMissingDoors(list) {
@@ -544,6 +563,7 @@
       const viewUrl = `${CONFIG.ROUTES.VIEW}?doorId=${encodeURIComponent(door.doorId)}`;
       const checkUrl = `${CONFIG.ROUTES.CHECK}?doorId=${encodeURIComponent(door.doorId)}`;
       const resultClass = door.result === 'ผิดปกติ' ? 'badge bad' : 'badge good';
+      const timestamp = normalizeTimestampDisplay(door.timestamp);
 
       return `
         <div class="door-row checked">
@@ -563,7 +583,7 @@
             </div>
 
             <div class="meta-line">
-              <small>${escapeHtml(door.timestamp || '-')}</small>
+              <span class="time-pill">${escapeHtml(timestamp)}</span>
             </div>
           </div>
 
@@ -596,6 +616,50 @@
           callback();
         }
       });
+    }
+
+    function normalizeTimestampDisplay(value) {
+      const s = String(value ?? '').trim();
+
+      if (!s) return '-';
+
+      if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/.test(s)) {
+        return s;
+      }
+
+      if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(s)) {
+        const y = s.substring(0, 4);
+        const m = s.substring(5, 7);
+        const d = s.substring(8, 10);
+        const t = s.substring(11, 19);
+        return `${d}/${m}/${y} ${t}`;
+      }
+
+      if (s.includes('GMT') || s.includes('เวลา')) {
+        console.warn('Timestamp ยังไม่ถูก format จาก Backend:', s);
+        return s;
+      }
+
+      return s;
+    }
+
+    function normalizeDateDisplay(value) {
+      const s = String(value ?? '').trim();
+
+      if (!s) return '-';
+
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) {
+        return s;
+      }
+
+      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+        const y = s.substring(0, 4);
+        const m = s.substring(5, 7);
+        const d = s.substring(8, 10);
+        return `${d}/${m}/${y}`;
+      }
+
+      return s;
     }
 
     function setLoading(isLoading) {
@@ -645,11 +709,13 @@
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
+
       return `${y}-${m}-${day}`;
     }
 
     function updateFooterTime() {
       const now = new Date();
+
       el.footerTime.textContent = now.toLocaleString('th-TH', {
         dateStyle: 'medium',
         timeStyle: 'short'
