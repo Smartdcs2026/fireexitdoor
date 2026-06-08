@@ -848,37 +848,69 @@
     }
 
     function buildAbnormalRows(report, dayHeaders) {
-      const rows = [];
+  const dailyList = [];
 
-      dayHeaders.forEach(day => {
-        const daily = report.dailyMap && report.dailyMap[day] ? report.dailyMap[day] : null;
+  dayHeaders.forEach(day => {
+    const daily = report.dailyMap && report.dailyMap[day] ? report.dailyMap[day] : null;
 
-        if (!daily) return;
-        if (daily.result !== 'ผิดปกติ') return;
+    if (!daily) return;
+    if (!daily.timestamp) return;
 
-        rows.push(`
-          <tr>
-            <td>${escapeHtml(normalizeTimestampDisplay(daily.timestamp || '-'))}</td>
-            <td>${escapeHtml(daily.sealNo || '-')}</td>
-            <td>${escapeHtml(daily.inspector || '-')}</td>
-            <td>${escapeHtml(normalizeTrueText(daily.abnormalDetails || '-')).replace(/\n/g, '<br>')}</td>
-          </tr>
-        `);
-      });
+    dailyList.push({
+      day,
+      timestamp: normalizeTimestampDisplay(daily.timestamp || ''),
+      sealNo: daily.sealNo || '',
+      inspector: daily.inspector || '',
+      result: daily.result || '',
+      abnormalDetails: normalizeTrueText(daily.abnormalDetails || '')
+    });
+  });
 
-      if (!rows.length) {
-        rows.push(`
-          <tr>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>ไม่พบสิ่งผิดปกติ</td>
-          </tr>
-        `);
-      }
+  if (!dailyList.length) {
+    return `
+      <tr>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>ยังไม่มีข้อมูลการตรวจในเดือนนี้</td>
+      </tr>
+    `;
+  }
 
-      return rows.join('');
-    }
+  dailyList.sort((a, b) => {
+    return timestampSortKey(b.timestamp) - timestampSortKey(a.timestamp);
+  });
+
+  const abnormalList = dailyList.filter(item => item.result === 'ผิดปกติ');
+
+  if (abnormalList.length) {
+    return abnormalList.map(item => {
+      const detail = item.abnormalDetails && item.abnormalDetails !== '-'
+        ? item.abnormalDetails
+        : 'พบสิ่งผิดปกติ แต่ไม่มีรายละเอียดเพิ่มเติม';
+
+      return `
+        <tr>
+          <td>${escapeHtml(item.timestamp || '-')}</td>
+          <td>${escapeHtml(item.sealNo || '-')}</td>
+          <td>${escapeHtml(item.inspector || '-')}</td>
+          <td>${escapeHtml(detail).replace(/\n/g, '<br>')}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  const latest = dailyList[0];
+
+  return `
+    <tr>
+      <td>${escapeHtml(latest.timestamp || '-')}</td>
+      <td>${escapeHtml(latest.sealNo || '-')}</td>
+      <td>${escapeHtml(latest.inspector || '-')}</td>
+      <td>ไม่พบสิ่งผิดปกติ</td>
+    </tr>
+  `;
+}
 
     function isAbnormalValue(value) {
       const s = String(value || '').trim();
@@ -915,7 +947,22 @@
 
       return s;
     }
+function timestampSortKey(value) {
+  const s = String(value ?? '').trim();
 
+  if (!/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/.test(s)) {
+    return 0;
+  }
+
+  const dd = s.substring(0, 2);
+  const mm = s.substring(3, 5);
+  const yyyy = s.substring(6, 10);
+  const hh = s.substring(11, 13);
+  const mi = s.substring(14, 16);
+  const ss = s.substring(17, 19);
+
+  return Number(`${yyyy}${mm}${dd}${hh}${mi}${ss}`);
+}
     function setControlsDisabled(disabled) {
       el.monthInput.disabled = disabled;
       el.doorSelect.disabled = disabled;
