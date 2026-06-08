@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>บันทึกตรวจประตูหนีไฟ</title>
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="config.js"></script>
+  <script src="api.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    /************************************************************
+     * check.html เฉพาะฟอร์มตรวจ
+     ************************************************************/
+
+    .check-layout {
+      display: grid;
+      gap: 14px;
+    }
+
+    .form-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .form-grid .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .door-info-box {
+      border: 1px solid rgba(15, 118, 110, 0.25);
+      background: var(--primary-soft);
+      border-radius: 16px;
+      padding: 12px;
+      display: grid;
+      gap: 4px;
+      margin-top: 12px;
+    }
+
+    .door-info-box strong {
+      font-size: 18px;
+      color: var(--primary-dark);
+    }
+
+    .door-info-box span {
+      color: #334155;
+      font-size: 14px;
+    }
+
+    .checklist-wrap {
+      display: grid;
+      gap: 10px;
+    }
+
+    .check-item {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 16px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .check-item.abnormal {
+      border-color: rgba(185, 28, 28, 0.35);
+      background: linear-gradient(90deg, var(--danger-soft), #fff 42%);
+    }
+
+    .check-title-row {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+
+    .check-no {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: var(--primary);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .check-title {
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .check-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .choice-btn {
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: #0f172a;
+      min-height: 44px;
+      border-radius: 14px;
+      padding: 9px 10px;
+      font-weight: 900;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .choice-btn.normal.active {
+      background: var(--success);
+      border-color: var(--success);
+      color: #fff;
+    }
+
+    .choice-btn.abnormal.active {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: #fff;
+    }
+
+    .detail-box {
+      display: none;
+    }
+
+    .check-item.abnormal .detail-box {
+      display: grid;
+      gap: 6px;
+    }
+
+    .detail-box label {
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .detail-box textarea {
+      width: 100%;
+      min-height: 78px;
+      resize: vertical;
+      border: 1px solid rgba(185, 28, 28, 0.35);
+      border-radius: 14px;
+      padding: 10px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .detail-box textarea:focus {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.12);
+    }
+
+    .sticky-save {
+      position: sticky;
+      bottom: 8px;
+      z-index: 10;
+      display: grid;
+      gap: 8px;
+      background: rgba(244, 247, 251, 0.88);
+      backdrop-filter: blur(10px);
+      padding: 10px;
+      border-radius: 18px;
+      border: 1px solid rgba(217, 226, 236, 0.8);
+      box-shadow: var(--shadow);
+    }
+
+    .save-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .progress-line {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .quick-nav {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .page-link-btn {
+      min-height: 38px;
+      border-radius: 12px;
+      background: #e2e8f0;
+      color: #0f172a;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 8px;
+    }
+
+    @media (max-width: 640px) {
+      .check-layout {
+        gap: 10px;
+      }
+
+      .form-card {
+        padding: 12px;
+        border-radius: 16px;
+      }
+
+      .form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .check-item {
+        padding: 10px;
+        border-radius: 14px;
+        gap: 8px;
+      }
+
+      .check-title-row {
+        grid-template-columns: 32px minmax(0, 1fr);
+        gap: 7px;
+      }
+
+      .check-no {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+      }
+
+      .check-title {
+        font-size: 14px;
+      }
+
+      .choice-btn {
+        min-height: 40px;
+        border-radius: 12px;
+        font-size: 13px;
+        padding: 8px;
+      }
+
+      .detail-box textarea {
+        min-height: 68px;
+        font-size: 14px;
+      }
+
+      .quick-nav {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .page-link-btn {
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .save-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <header class="app-header">
+      <div class="brand">
+        <img id="appLogo" class="brand-logo" alt="Logo" />
+        <div class="brand-text">
+          <h1>บันทึกตรวจประตูหนีไฟ</h1>
+          <p>Daily Fire Exit Door Inspection Form</p>
+        </div>
+      </div>
+
+      <div class="header-status">
+        <span id="apiStatusDot" class="status-dot pending"></span>
+        <span id="apiStatusText">กำลังโหลดข้อมูล...</span>
+      </div>
+    </header>
+
+    <main class="main-content check-layout">
+
+      <section class="form-card">
+        <div class="section-title-row">
+          <div>
+            <h2>ข้อมูลการตรวจ</h2>
+            <p>เลือกชื่อผู้บันทึกและประตูที่ต้องการตรวจ</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>ชื่อผู้บันทึก</span>
+            <select id="inspectorSelect">
+              <option value="">กำลังโหลด...</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>หมายเลขประตูหนีไฟ</span>
+            <select id="doorSelect">
+              <option value="">กำลังโหลด...</option>
+            </select>
+          </label>
+
+          <label class="field full">
+            <span>จุดติดตั้ง</span>
+            <input id="locationInput" type="text" readonly />
+          </label>
+        </div>
+
+        <div id="doorInfoBox" class="door-info-box" style="display:none;">
+          <strong id="doorInfoId">-</strong>
+          <span id="doorInfoLocation">-</span>
+        </div>
+      </section>
+
+      <section class="form-card">
+        <div class="section-title-row">
+          <div>
+            <h2>รายการตรวจสอบ</h2>
+            <p>หากพบผิดปกติ ต้องกรอกรายละเอียดก่อนบันทึก</p>
+          </div>
+
+          <button id="btnSetAllNormal" class="btn small" type="button">
+            ตั้งค่าปกติทั้งหมด
+          </button>
+        </div>
+
+        <div id="checklistWrap" class="checklist-wrap">
+          <div class="empty-state">กำลังโหลดรายการตรวจ...</div>
+        </div>
+      </section>
+
+      <section class="sticky-save">
+        <div id="progressLine" class="progress-line">
+          ยังไม่ได้เลือกรายการตรวจ
+        </div>
+
+        <div class="save-row">
+          <button id="btnSave" class="btn primary" type="button">
+            บันทึกผลตรวจ
+          </button>
+
+          <button id="btnReset" class="btn" type="button">
+            ล้างฟอร์ม
+          </button>
+        </div>
+
+        <div class="quick-nav">
+          <a class="page-link-btn" href="index.html">หน้าหลัก</a>
+          <a id="viewDoorLink" class="page-link-btn" href="view.html">ดูผลประตู</a>
+          <a class="page-link-btn" href="report.html">รายงาน</a>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="app-footer">
+      <span>Fire Exit Door Inspection System</span>
+      <span id="footerTime"></span>
+    </footer>
+  </div>
+
+  <script>
+    /************************************************************
+     * check.html app
+     ************************************************************/
+
+    const CONFIG = window.APP_CONFIG;
+    const API = window.FireExitAPI;
+
+    const state = {
+      names: [],
+      doors: [],
+      checklist: [],
+      selectedDoorId: '',
+      items: []
+    };
+
+    const el = {
+      appLogo: document.getElementById('appLogo'),
+      apiStatusDot: document.getElementById('apiStatusDot'),
+      apiStatusText: document.getElementById('apiStatusText'),
+
+      inspectorSelect: document.getElementById('inspectorSelect'),
+      doorSelect: document.getElementById('doorSelect'),
+      locationInput: document.getElementById('locationInput'),
+
+      doorInfoBox: document.getElementById('doorInfoBox'),
+      doorInfoId: document.getElementById('doorInfoId'),
+      doorInfoLocation: document.getElementById('doorInfoLocation'),
+
+      checklistWrap: document.getElementById('checklistWrap'),
+
+      btnSetAllNormal: document.getElementById('btnSetAllNormal'),
+      btnSave: document.getElementById('btnSave'),
+      btnReset: document.getElementById('btnReset'),
+
+      progressLine: document.getElementById('progressLine'),
+      viewDoorLink: document.getElementById('viewDoorLink'),
+
+      footerTime: document.getElementById('footerTime')
+    };
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    async function init() {
+      el.appLogo.src = CONFIG.LOGO_URL;
+      updateFooterTime();
+      bindEvents();
+
+      const params = new URLSearchParams(window.location.search);
+      state.selectedDoorId = params.get('doorId') || params.get('door') || '';
+
+      await loadOptions();
+    }
+
+    function bindEvents() {
+      el.doorSelect.addEventListener('change', () => {
+        selectDoor(el.doorSelect.value);
+      });
+
+      el.btnSetAllNormal.addEventListener('click', setAllNormal);
+      el.btnSave.addEventListener('click', saveInspection);
+      el.btnReset.addEventListener('click', resetForm);
+    }
+
+    async function loadOptions() {
+      try {
+        setApiStatus('pending', 'กำลังโหลดข้อมูล...');
+        setFormDisabled(true);
+
+        const data = await API.getOptions();
+
+        state.names = Array.isArray(data.names) ? data.names : [];
+        state.doors = Array.isArray(data.doors) ? data.doors : [];
+        state.checklist = Array.isArray(data.checklist) ? data.checklist : [];
+
+        renderNames();
+        renderDoors();
+        renderChecklist();
+
+        if (state.selectedDoorId) {
+          const found = state.doors.find(d => d.doorId === state.selectedDoorId);
+          if (found) {
+            el.doorSelect.value = state.selectedDoorId;
+            selectDoor(state.selectedDoorId);
+          }
+        }
+
+        setApiStatus('ok', 'พร้อมบันทึกข้อมูล');
+        setFormDisabled(false);
+
+      } catch (err) {
+        console.error(err);
+        setApiStatus('danger', 'โหลดข้อมูลไม่สำเร็จ');
+        showError(err.message || 'โหลดข้อมูลไม่สำเร็จ');
+      }
+    }
+
+    function renderNames() {
+      if (!state.names.length) {
+        el.inspectorSelect.innerHTML = '<option value="">ไม่พบรายชื่อในชีท Name</option>';
+        return;
+      }
+
+      el.inspectorSelect.innerHTML = [
+        '<option value="">เลือกชื่อผู้บันทึก</option>',
+        ...state.names.map(name => `<option value="${escapeAttr(name)}">${escapeHtml(name)}</option>`)
+      ].join('');
+    }
+
+    function renderDoors() {
+      if (!state.doors.length) {
+        el.doorSelect.innerHTML = '<option value="">ไม่พบข้อมูลประตูใน Sheet1</option>';
+        return;
+      }
+
+      el.doorSelect.innerHTML = [
+        '<option value="">เลือกประตูหนีไฟ</option>',
+        ...state.doors.map(door => {
+          const text = `${door.doorId} | ${door.location || '-'}`;
+          return `<option value="${escapeAttr(door.doorId)}">${escapeHtml(text)}</option>`;
+        })
+      ].join('');
+    }
+
+    function renderChecklist() {
+      if (!state.checklist.length) {
+        el.checklistWrap.innerHTML = '<div class="empty-state">ไม่พบรายการตรวจในชีท Checklist</div>';
+        return;
+      }
+
+      state.items = state.checklist.map(item => ({
+        no: item.no,
+        title: item.title,
+        normalValue: item.normalValue || 'ปกติ',
+        abnormalValue: item.abnormalValue || 'ผิดปกติ',
+        requireDetail: item.requireDetail !== false,
+        value: '',
+        detail: '',
+        finalText: '',
+        isAbnormal: false
+      }));
+
+      el.checklistWrap.innerHTML = state.items.map((item, index) => {
+        return `
+          <div class="check-item" data-index="${index}">
+            <div class="check-title-row">
+              <span class="check-no">${escapeHtml(item.no || index + 1)}</span>
+              <div class="check-title">${escapeHtml(item.title)}</div>
+            </div>
+
+            <div class="check-actions">
+              <button class="choice-btn normal" type="button" data-type="normal" data-index="${index}">
+                ${escapeHtml(item.normalValue)}
+              </button>
+
+              <button class="choice-btn abnormal" type="button" data-type="abnormal" data-index="${index}">
+                ${escapeHtml(item.abnormalValue)}
+              </button>
+            </div>
+
+            <div class="detail-box">
+              <label>รายละเอียดกรณีผิดปกติ</label>
+              <textarea data-detail-index="${index}" placeholder="ระบุรายละเอียด เช่น มีสิ่งกีดขวาง / ไฟดับ / ชำรุด"></textarea>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      el.checklistWrap.querySelectorAll('.choice-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const index = Number(btn.dataset.index);
+          const type = btn.dataset.type;
+          setItemValue(index, type);
+        });
+      });
+
+      el.checklistWrap.querySelectorAll('textarea[data-detail-index]').forEach(textarea => {
+        textarea.addEventListener('input', () => {
+          const index = Number(textarea.dataset.detailIndex);
+          state.items[index].detail = textarea.value.trim();
+          updateItemFinalText(index);
+          updateProgress();
+        });
+      });
+
+      updateProgress();
+    }
+
+    function selectDoor(doorId) {
+      const door = state.doors.find(d => d.doorId === doorId);
+
+      if (!door) {
+        el.locationInput.value = '';
+        el.doorInfoBox.style.display = 'none';
+        el.viewDoorLink.href = CONFIG.ROUTES.VIEW;
+        return;
+      }
+
+      el.locationInput.value = door.location || '';
+      el.doorInfoId.textContent = door.doorId;
+      el.doorInfoLocation.textContent = door.location || '-';
+      el.doorInfoBox.style.display = 'grid';
+
+      el.viewDoorLink.href = `${CONFIG.ROUTES.VIEW}?doorId=${encodeURIComponent(door.doorId)}`;
+    }
+
+    function setItemValue(index, type) {
+      const item = state.items[index];
+      if (!item) return;
+
+      const itemEl = el.checklistWrap.querySelector(`.check-item[data-index="${index}"]`);
+      const normalBtn = itemEl.querySelector('.choice-btn.normal');
+      const abnormalBtn = itemEl.querySelector('.choice-btn.abnormal');
+
+      normalBtn.classList.remove('active');
+      abnormalBtn.classList.remove('active');
+      itemEl.classList.remove('abnormal');
+
+      if (type === 'normal') {
+        item.value = item.normalValue;
+        item.isAbnormal = false;
+        item.detail = '';
+        normalBtn.classList.add('active');
+
+        const textarea = itemEl.querySelector('textarea');
+        if (textarea) textarea.value = '';
+
+      } else {
+        item.value = item.abnormalValue;
+        item.isAbnormal = true;
+        abnormalBtn.classList.add('active');
+        itemEl.classList.add('abnormal');
+
+        const textarea = itemEl.querySelector('textarea');
+        if (textarea) {
+          setTimeout(() => textarea.focus(), 80);
+        }
+      }
+
+      updateItemFinalText(index);
+      updateProgress();
+    }
+
+    function updateItemFinalText(index) {
+      const item = state.items[index];
+      if (!item) return;
+
+      let text = item.value || '';
+
+      if (item.isAbnormal && item.detail) {
+        text += ' - ' + item.detail;
+      }
+
+      item.finalText = normalizeTrueText(text);
+    }
+
+    function setAllNormal() {
+      if (!state.items.length) return;
+
+      state.items.forEach((item, index) => {
+        setItemValue(index, 'normal');
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'ตั้งค่าปกติทั้งหมดแล้ว',
+        timer: 900,
+        showConfirmButton: false
+      });
+    }
+
+    function resetForm() {
+      Swal.fire({
+        icon: 'question',
+        title: 'ล้างฟอร์ม?',
+        text: 'ต้องการล้างค่ารายการตรวจทั้งหมดหรือไม่',
+        showCancelButton: true,
+        confirmButtonText: 'ล้างฟอร์ม',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true
+      }).then(result => {
+        if (!result.isConfirmed) return;
+
+        state.items.forEach(item => {
+          item.value = '';
+          item.detail = '';
+          item.finalText = '';
+          item.isAbnormal = false;
+        });
+
+        renderChecklist();
+      });
+    }
+
+    async function saveInspection() {
+      const inspector = el.inspectorSelect.value.trim();
+      const doorId = el.doorSelect.value.trim();
+      const door = state.doors.find(d => d.doorId === doorId);
+      const location = door ? door.location : el.locationInput.value.trim();
+
+      if (!inspector) {
+        showWarn('กรุณาเลือกชื่อผู้บันทึก');
+        return;
+      }
+
+      if (!doorId) {
+        showWarn('กรุณาเลือกหมายเลขประตูหนีไฟ');
+        return;
+      }
+
+      const validation = validateItems();
+
+      if (!validation.ok) {
+        showWarn(validation.message);
+        focusItem(validation.index);
+        return;
+      }
+
+      const abnormalCount = state.items.filter(item => item.isAbnormal).length;
+
+      const html = `
+        <div style="text-align:left">
+          <div><b>ผู้บันทึก:</b> ${escapeHtml(inspector)}</div>
+          <div><b>ประตู:</b> ${escapeHtml(doorId)}</div>
+          <div><b>จุดติดตั้ง:</b> ${escapeHtml(location || '-')}</div>
+          <div><b>ผลรวม:</b> ${abnormalCount ? '<span style="color:#b91c1c;font-weight:bold">ผิดปกติ</span>' : '<span style="color:#15803d;font-weight:bold">ปกติ</span>'}</div>
+          <div><b>รายการผิดปกติ:</b> ${abnormalCount} รายการ</div>
+        </div>
+      `;
+
+      const confirm = await Swal.fire({
+        icon: abnormalCount ? 'warning' : 'question',
+        title: 'ยืนยันบันทึกผลตรวจ',
+        html,
+        showCancelButton: true,
+        confirmButtonText: 'บันทึก',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true
+      });
+
+      if (!confirm.isConfirmed) return;
+
+      const payload = {
+        doorId,
+        location,
+        inspector,
+        device: detectDevice(),
+        items: state.items.map(item => ({
+          no: item.no,
+          title: item.title,
+          value: normalizeTrueText(item.value),
+          detail: item.detail || '',
+          finalText: normalizeTrueText(item.finalText || item.value),
+          isAbnormal: !!item.isAbnormal
+        }))
+      };
+
+      try {
+        setSaving(true);
+
+        const data = await API.saveInspection(payload);
+
+        await Swal.fire({
+          icon: 'success',
+          title: 'บันทึกสำเร็จ',
+          html: `
+            <div style="text-align:left">
+              <div><b>เวลา:</b> ${escapeHtml(data.timestamp || '-')}</div>
+              <div><b>ประตู:</b> ${escapeHtml(data.doorId || doorId)}</div>
+              <div><b>ผลรวม:</b> ${escapeHtml(data.result || '-')}</div>
+            </div>
+          `,
+          confirmButtonText: 'ตกลง'
+        });
+
+        window.location.href = `${CONFIG.ROUTES.VIEW}?doorId=${encodeURIComponent(doorId)}`;
+
+      } catch (err) {
+        console.error(err);
+        showError(err.message || 'บันทึกไม่สำเร็จ');
+      } finally {
+        setSaving(false);
+      }
+    }
+
+    function validateItems() {
+      if (!state.items.length) {
+        return {
+          ok: false,
+          message: 'ไม่พบรายการตรวจ',
+          index: -1
+        };
+      }
+
+      for (let i = 0; i < state.items.length; i++) {
+        const item = state.items[i];
+
+        if (!item.value) {
+          return {
+            ok: false,
+            message: `กรุณาเลือกผลตรวจข้อ ${item.no || i + 1}: ${item.title}`,
+            index: i
+          };
+        }
+
+        if (item.isAbnormal && item.requireDetail && !item.detail.trim()) {
+          return {
+            ok: false,
+            message: `กรุณาระบุรายละเอียดผิดปกติข้อ ${item.no || i + 1}: ${item.title}`,
+            index: i
+          };
+        }
+      }
+
+      return {
+        ok: true
+      };
+    }
+
+    function focusItem(index) {
+      if (index < 0) return;
+
+      const itemEl = el.checklistWrap.querySelector(`.check-item[data-index="${index}"]`);
+      if (!itemEl) return;
+
+      itemEl.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+
+      const textarea = itemEl.querySelector('textarea');
+      if (textarea && state.items[index].isAbnormal) {
+        setTimeout(() => textarea.focus(), 350);
+      }
+    }
+
+    function updateProgress() {
+      const total = state.items.length;
+      const selected = state.items.filter(item => !!item.value).length;
+      const abnormal = state.items.filter(item => item.isAbnormal).length;
+
+      el.progressLine.textContent = `เลือกแล้ว ${selected}/${total} รายการ | ผิดปกติ ${abnormal} รายการ`;
+    }
+
+    function setSaving(isSaving) {
+      el.btnSave.disabled = isSaving;
+      el.btnReset.disabled = isSaving;
+      el.btnSetAllNormal.disabled = isSaving;
+
+      if (isSaving) {
+        el.btnSave.textContent = 'กำลังบันทึก...';
+      } else {
+        el.btnSave.textContent = 'บันทึกผลตรวจ';
+      }
+    }
+
+    function setFormDisabled(disabled) {
+      el.inspectorSelect.disabled = disabled;
+      el.doorSelect.disabled = disabled;
+      el.btnSave.disabled = disabled;
+      el.btnReset.disabled = disabled;
+      el.btnSetAllNormal.disabled = disabled;
+    }
+
+    function setApiStatus(type, text) {
+      el.apiStatusDot.className = `status-dot ${type}`;
+      el.apiStatusText.textContent = text;
+    }
+
+    function detectDevice() {
+      const ua = navigator.userAgent || '';
+
+      if (/Line/i.test(ua)) return 'LINE';
+      if (/Android|iPhone|iPad|iPod/i.test(ua)) return 'Mobile';
+
+      return 'Desktop';
+    }
+
+    function normalizeTrueText(value) {
+      const s = String(value ?? '').trim();
+
+      if (s.toUpperCase() === 'TRUE') return '✓';
+      if (s.toUpperCase() === 'FALSE') return '';
+
+      return s;
+    }
+
+    function updateFooterTime() {
+      const now = new Date();
+      el.footerTime.textContent = now.toLocaleString('th-TH', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      });
+    }
+
+    function showWarn(message) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'แจ้งเตือน',
+        text: message,
+        confirmButtonText: 'ตกลง'
+      });
+    }
+
+    function showError(message) {
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: message,
+        confirmButtonText: 'ตกลง'
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, '&#096;');
+    }
+  </script>
+</body>
+</html>
