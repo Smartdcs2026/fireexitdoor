@@ -69,10 +69,6 @@
       font-size: 13px;
     }
 
-    /************************************************************
-     * Report Paper
-     ************************************************************/
-
     .report-paper {
       width: 29.7cm;
       min-height: 21cm;
@@ -282,7 +278,7 @@
       font-size: 7.3pt;
       color: #111827;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       gap: 10px;
     }
 
@@ -355,10 +351,6 @@
         font-size: 13px;
       }
     }
-
-    /************************************************************
-     * Print
-     ************************************************************/
 
     @page {
       size: A4 landscape;
@@ -512,10 +504,6 @@
   </div>
 
   <script>
-    /************************************************************
-     * report.html app
-     ************************************************************/
-
     const CONFIG = window.APP_CONFIG;
     const API = window.FireExitAPI;
 
@@ -585,11 +573,13 @@
           showWarn('กรุณาแสดงรายงานก่อนพิมพ์');
           return;
         }
+
         window.print();
       });
 
       el.btnExportExcel.addEventListener('click', () => {
         const month = el.monthInput.value;
+
         if (!month) {
           showWarn('กรุณาเลือกเดือน');
           return;
@@ -626,9 +616,10 @@
         setApiStatus('pending', 'กำลังโหลดตัวเลือก...');
         setControlsDisabled(true);
 
-        const data = await API.getOptions();
+        const data = await API.getDoors();
 
         state.doors = Array.isArray(data.doors) ? data.doors : [];
+
         renderDoorOptions();
         renderDoorMiniNav();
 
@@ -745,10 +736,10 @@
         const cells = dayHeaders.map(day => {
           const daily = report.dailyMap && report.dailyMap[day] ? report.dailyMap[day] : null;
           const value = daily && daily.items ? normalizeTrueText(daily.items[item.title] || '') : '';
-          const isAbnormal = isAbnormalValue(value);
+          const isBad = isAbnormalValue(value);
 
           return `
-            <td class="${value ? (isAbnormal ? 'abnormal-cell' : 'normal-cell') : 'empty-cell'}">
+            <td class="${value ? (isBad ? 'abnormal-cell' : 'normal-cell') : 'empty-cell'}">
               ${escapeHtml(value || '-')}
             </td>
           `;
@@ -793,10 +784,12 @@
                 <div class="report-meta-label">ประตู</div>
                 <div class="report-meta-value">${escapeHtml(report.door.doorId || '-')}</div>
               </div>
+
               <div class="report-meta-row">
                 <div class="report-meta-label">เดือน</div>
                 <div class="report-meta-value">${escapeHtml(report.monthName || '-')}</div>
               </div>
+
               <div class="report-meta-row">
                 <div class="report-meta-label">พ.ศ.</div>
                 <div class="report-meta-value">${escapeHtml(report.thaiYear || '-')}</div>
@@ -848,8 +841,7 @@
           </section>
 
           <section class="report-note">
-            <div><b>หมายเหตุ:</b> TRUE ในข้อมูลระบบจะแสดงเป็นเครื่องหมาย ✓</div>
-            <div>สร้างรายงาน: ${escapeHtml(new Date().toLocaleString('th-TH'))}</div>
+            <div>สร้างรายงานจากระบบตรวจประตูหนีไฟ</div>
           </section>
         </article>
       `;
@@ -866,7 +858,7 @@
 
         rows.push(`
           <tr>
-            <td>${escapeHtml(daily.timestamp || '-')}</td>
+            <td>${escapeHtml(normalizeTimestampDisplay(daily.timestamp || '-'))}</td>
             <td>${escapeHtml(daily.sealNo || '-')}</td>
             <td>${escapeHtml(daily.inspector || '-')}</td>
             <td>${escapeHtml(normalizeTrueText(daily.abnormalDetails || '-')).replace(/\n/g, '<br>')}</td>
@@ -902,6 +894,26 @@
         s.includes('มี -') ||
         s === 'มี'
       );
+    }
+
+    function normalizeTimestampDisplay(value) {
+      const s = String(value ?? '').trim();
+
+      if (!s) return '-';
+
+      if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/.test(s)) {
+        return s;
+      }
+
+      if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(s)) {
+        const y = s.substring(0, 4);
+        const m = s.substring(5, 7);
+        const d = s.substring(8, 10);
+        const t = s.substring(11, 19);
+        return `${d}/${m}/${y} ${t}`;
+      }
+
+      return s;
     }
 
     function setControlsDisabled(disabled) {
@@ -947,6 +959,7 @@
 
     function updateFooterTime() {
       const now = new Date();
+
       el.footerTime.textContent = now.toLocaleString('th-TH', {
         dateStyle: 'medium',
         timeStyle: 'short'
