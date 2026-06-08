@@ -20,6 +20,7 @@
     if (params && typeof params === 'object') {
       Object.keys(params).forEach((key) => {
         const value = params[key];
+
         if (value !== undefined && value !== null && String(value).trim() !== '') {
           url.searchParams.set(key, value);
         }
@@ -49,6 +50,7 @@
     const text = await res.text();
 
     let data;
+
     try {
       data = JSON.parse(text);
     } catch (err) {
@@ -75,6 +77,14 @@
     return requestJson('/api/options');
   }
 
+  function getDoors() {
+    return requestJson('/api/doors');
+  }
+
+  function getChecklist() {
+    return requestJson('/api/checklist');
+  }
+
   function getDailyStatus(date) {
     return requestJson('/api/daily-status', {
       params: { date }
@@ -89,7 +99,10 @@
 
   function getHistory(doorId, limit) {
     return requestJson('/api/history', {
-      params: { doorId, limit: limit || 20 }
+      params: {
+        doorId,
+        limit: limit || 20
+      }
     });
   }
 
@@ -124,8 +137,11 @@
     buildUrl,
     requestJson,
     downloadFile,
+
     getHealth,
     getOptions,
+    getDoors,
+    getChecklist,
     getDailyStatus,
     getLatest,
     getHistory,
