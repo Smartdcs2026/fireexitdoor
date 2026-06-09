@@ -15,7 +15,7 @@
   <style>
     /************************************************************
      * view.html
-     * Compact Mobile View
+     * Redesigned Compact Inspection View
      ************************************************************/
 
     .view-layout {
@@ -23,124 +23,166 @@
       gap: 10px;
     }
 
-    .compact-hero {
+    .view-topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .view-topbar-title {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .view-topbar-title strong {
+      color: #0f172a;
+      font-size: 16px;
+      line-height: 1.2;
+      font-weight: 900;
+    }
+
+    .view-topbar-title span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .view-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 900;
+      color: #475569;
+      white-space: nowrap;
+    }
+
+    .door-hero {
       background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
       color: #fff;
-      border-radius: 20px;
-      padding: 14px;
+      border-radius: 22px;
+      padding: 16px;
       box-shadow: var(--shadow);
       display: grid;
-      gap: 10px;
+      gap: 12px;
       position: relative;
       overflow: hidden;
     }
 
-    .compact-hero::after {
+    .door-hero::after {
       content: "";
       position: absolute;
-      width: 150px;
-      height: 150px;
-      right: -58px;
-      bottom: -66px;
+      width: 190px;
+      height: 190px;
+      right: -74px;
+      top: -78px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.10);
     }
 
-    .hero-main-line {
+    .door-hero-main {
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: 48px minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr) auto;
       gap: 10px;
-      align-items: center;
+      align-items: start;
     }
 
-    .hero-logo {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      background: #fff;
-      object-fit: contain;
-      padding: 5px;
-    }
-
-    .hero-door {
+    .door-id-block {
       min-width: 0;
       display: grid;
-      gap: 2px;
+      gap: 4px;
     }
 
-    .hero-door span {
-      font-size: 11px;
-      opacity: 0.86;
+    .door-id-block span {
+      font-size: 12px;
       font-weight: 800;
+      opacity: 0.84;
     }
 
-    .hero-door strong {
-      font-size: 28px;
-      line-height: 1;
-      font-weight: 900;
+    .door-id-block strong {
+      font-size: clamp(42px, 13vw, 76px);
+      line-height: 0.92;
+      font-weight: 1000;
+      letter-spacing: -1px;
       overflow-wrap: anywhere;
+      text-shadow: 0 8px 20px rgba(0,0,0,0.14);
     }
 
-    .hero-result {
-      min-width: 74px;
-      min-height: 34px;
-      padding: 6px 10px;
+    .result-badge-large {
+      min-width: 82px;
+      min-height: 38px;
+      padding: 7px 12px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.18);
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      color: #fff;
-      font-weight: 900;
-      font-size: 13px;
+      font-size: 14px;
+      font-weight: 1000;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
       white-space: nowrap;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.22);
+      color: #fff;
     }
 
-    .hero-result.normal {
-      background: rgba(220, 252, 231, 0.95);
+    .result-badge-large.normal {
+      background: rgba(220, 252, 231, 0.96);
       color: #15803d;
     }
 
-    .hero-result.abnormal {
-      background: rgba(254, 226, 226, 0.95);
+    .result-badge-large.abnormal {
+      background: rgba(254, 226, 226, 0.96);
       color: #b91c1c;
     }
 
-    .hero-info-grid {
+    .door-location-line {
+      position: relative;
+      z-index: 1;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 15px;
+      padding: 10px 12px;
+      font-size: 14px;
+      line-height: 1.38;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .door-meta-grid {
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 7px;
     }
 
-    .hero-info-pill {
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 13px;
-      padding: 8px 9px;
+    .door-meta-item {
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 14px;
+      padding: 8px;
       min-width: 0;
       display: grid;
-      gap: 2px;
+      gap: 3px;
     }
 
-    .hero-info-pill.full {
-      grid-column: 1 / -1;
-    }
-
-    .hero-info-pill span {
-      font-size: 10.5px;
+    .door-meta-item span {
+      font-size: 10px;
       font-weight: 800;
-      opacity: 0.82;
+      opacity: 0.80;
     }
 
-    .hero-info-pill strong {
-      font-size: 13px;
-      font-weight: 900;
+    .door-meta-item strong {
+      font-size: 12px;
+      font-weight: 1000;
       line-height: 1.25;
       overflow-wrap: anywhere;
     }
@@ -174,28 +216,28 @@
       color: #fff;
     }
 
-    .latest-panel-head {
+    .section-head-compact {
       display: flex;
+      align-items: flex-start;
       justify-content: space-between;
-      align-items: center;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 10px;
     }
 
-    .latest-panel-head h2 {
+    .section-head-compact h2 {
       margin: 0;
       font-size: 17px;
       line-height: 1.2;
     }
 
-    .latest-panel-head p {
+    .section-head-compact p {
       margin: 3px 0 0;
       color: var(--muted);
       font-size: 12px;
       line-height: 1.35;
     }
 
-    .latest-count-pill {
+    .section-count {
       min-height: 30px;
       padding: 6px 10px;
       border-radius: 999px;
@@ -207,88 +249,83 @@
       white-space: nowrap;
     }
 
-    .latest-items-grid {
+    /************************************************************
+     * Latest checklist: compact rows
+     ************************************************************/
+
+    .latest-list {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
+      gap: 7px;
     }
 
-    .latest-check-card {
+    .latest-row {
       border: 1px solid var(--line);
       background: #fff;
       border-radius: 15px;
-      padding: 10px;
-      min-height: 94px;
+      padding: 9px 10px;
       display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 6px;
+      grid-template-columns: 28px minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
     }
 
-    .latest-check-card.abnormal {
-      background: linear-gradient(180deg, var(--danger-soft), #fff 56%);
+    .latest-row.abnormal {
+      background: linear-gradient(90deg, var(--danger-soft), #fff 55%);
       border-color: rgba(185, 28, 28, 0.28);
     }
 
-    .latest-check-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-    }
-
-    .latest-check-no {
-      width: 24px;
-      height: 24px;
+    .latest-no {
+      width: 26px;
+      height: 26px;
       border-radius: 999px;
       background: var(--primary);
       color: #fff;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-weight: 900;
+      font-weight: 1000;
       font-size: 11px;
-      flex: 0 0 auto;
     }
 
-    .latest-check-status {
-      min-height: 23px;
-      padding: 4px 8px;
+    .latest-main {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .latest-title {
+      color: #0f172a;
+      font-size: 13px;
+      line-height: 1.28;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .latest-detail {
+      color: #7f1d1d;
+      font-size: 11.5px;
+      line-height: 1.28;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .latest-status {
+      min-width: 64px;
+      min-height: 26px;
+      padding: 5px 8px;
       border-radius: 999px;
       font-size: 11px;
-      font-weight: 900;
+      font-weight: 1000;
+      text-align: center;
       background: var(--success-soft);
       color: var(--success);
       white-space: nowrap;
     }
 
-    .latest-check-card.abnormal .latest-check-status {
+    .latest-row.abnormal .latest-status {
       background: var(--danger-soft);
       color: var(--danger);
-    }
-
-    .latest-check-title {
-      color: #0f172a;
-      font-size: 13px;
-      font-weight: 900;
-      line-height: 1.28;
-      overflow-wrap: anywhere;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .latest-check-detail {
-      color: #7f1d1d;
-      font-size: 11.5px;
-      font-weight: 800;
-      line-height: 1.3;
-      overflow-wrap: anywhere;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
     }
 
     .abnormal-box {
@@ -302,6 +339,10 @@
       font-weight: 700;
     }
 
+    /************************************************************
+     * History: one inspection per row
+     ************************************************************/
+
     .history-list {
       display: grid;
       gap: 7px;
@@ -309,84 +350,65 @@
 
     .history-row {
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 9px;
+      border-radius: 15px;
+      padding: 9px 10px;
       background: #fff;
       display: grid;
-      grid-template-columns: minmax(122px, 1.05fr) auto minmax(72px, 0.6fr) minmax(74px, 0.7fr) auto;
+      grid-template-columns: minmax(0, 1.1fr) auto auto auto auto;
       gap: 6px;
       align-items: center;
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
     }
 
-    .history-cell {
+    .history-time {
       min-width: 0;
+      color: #0f172a;
       font-size: 12px;
-      font-weight: 900;
-      color: #334155;
+      font-weight: 1000;
+      line-height: 1.25;
       overflow-wrap: anywhere;
     }
 
-    .history-cell.time {
-      color: #0f172a;
-      font-size: 12px;
+    .history-pill {
+      min-height: 24px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 11px;
+      font-weight: 1000;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .history-cell.inspector {
-      color: #9a3412;
+    .history-pill.seal {
+      background: #eaf4ff;
+      color: var(--primary-dark);
+      border-color: rgba(15,118,110,0.18);
+    }
+
+    .history-pill.inspector {
       background: #fff7ed;
-      border: 1px solid rgba(234, 88, 12, 0.16);
-      border-radius: 999px;
-      padding: 4px 7px;
-      text-align: center;
-      white-space: nowrap;
+      color: #9a3412;
+      border-color: rgba(234,88,12,0.16);
+      max-width: 86px;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .history-cell.seal {
-      color: var(--primary-dark);
-      background: #eaf4ff;
-      border: 1px solid rgba(15, 118, 110, 0.18);
-      border-radius: 999px;
-      padding: 4px 7px;
-      text-align: center;
-      white-space: nowrap;
-    }
-
-    .history-actions {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-    }
-
     .history-actions .btn.small {
-      min-height: 28px;
+      min-height: 26px;
       padding: 4px 9px;
       border-radius: 999px;
-      font-size: 11px;
+      font-size: 10.5px;
       white-space: nowrap;
-    }
-
-    .history-head {
-      display: grid;
-      grid-template-columns: minmax(122px, 1.05fr) auto minmax(72px, 0.6fr) minmax(74px, 0.7fr) auto;
-      gap: 6px;
-      align-items: center;
-      padding: 0 4px 2px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 900;
-    }
-
-    .history-head span:last-child {
-      text-align: right;
     }
 
     .hidden-check-zone {
       display: flex;
       justify-content: center;
-      padding: 4px 0 0;
+      padding: 2px 0 0;
     }
 
     .hidden-check-btn {
@@ -402,18 +424,7 @@
       padding: 8px 12px;
     }
 
-    .hidden-check-btn:hover {
-      opacity: 1;
-      color: var(--primary);
-    }
-
-    @media (max-width: 980px) {
-      .latest-items-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 640px) {
+    @media (max-width: 760px) {
       .app-shell {
         padding-left: 10px;
         padding-right: 10px;
@@ -428,54 +439,41 @@
         padding: 12px;
       }
 
-      .compact-hero {
+      .view-topbar {
+        padding: 9px 10px;
+        border-radius: 16px;
+      }
+
+      .door-hero {
         border-radius: 18px;
-        padding: 12px;
-        gap: 8px;
+        padding: 13px;
+        gap: 9px;
       }
 
-      .hero-main-line {
-        grid-template-columns: 42px minmax(0, 1fr) auto;
-        gap: 8px;
+      .door-hero-main {
+        grid-template-columns: minmax(0, 1fr) auto;
       }
 
-      .hero-logo {
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
+      .door-id-block strong {
+        font-size: clamp(40px, 18vw, 64px);
       }
 
-      .hero-door strong {
-        font-size: 23px;
+      .door-location-line {
+        padding: 9px 10px;
+        font-size: 13px;
       }
 
-      .hero-result {
-        min-width: 64px;
-        min-height: 30px;
-        font-size: 12px;
-        padding: 5px 8px;
-      }
-
-      .hero-info-grid {
+      .door-meta-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 6px;
       }
 
-      .hero-info-pill {
+      .door-meta-item {
         padding: 7px 8px;
         border-radius: 12px;
       }
 
-      .hero-info-pill span {
-        font-size: 10px;
-      }
-
-      .hero-info-pill strong {
-        font-size: 12px;
-      }
-
       .top-action-row {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 7px;
       }
 
@@ -486,74 +484,49 @@
         padding: 6px;
       }
 
-      .latest-panel-head h2 {
+      .section-head-compact h2 {
         font-size: 16px;
       }
 
-      .latest-panel-head p {
+      .section-head-compact p {
         font-size: 11.5px;
       }
 
-      .latest-items-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+      .latest-row {
+        padding: 8px 9px;
+        grid-template-columns: 26px minmax(0, 1fr) auto;
         gap: 7px;
       }
 
-      .latest-check-card {
-        min-height: 86px;
-        padding: 9px;
-        border-radius: 14px;
-      }
-
-      .latest-check-no {
-        width: 22px;
-        height: 22px;
-        font-size: 10px;
-      }
-
-      .latest-check-status {
-        min-height: 21px;
-        font-size: 10.5px;
-        padding: 3px 7px;
-      }
-
-      .latest-check-title {
+      .latest-title {
         font-size: 12px;
-        -webkit-line-clamp: 3;
       }
 
-      .latest-check-detail {
-        font-size: 11px;
-      }
-
-      .history-head {
-        display: none;
+      .latest-status {
+        min-width: 58px;
+        min-height: 24px;
+        padding: 4px 7px;
+        font-size: 10.5px;
       }
 
       .history-row {
-        grid-template-columns: minmax(108px, 1fr) auto minmax(58px, auto) minmax(56px, auto) auto;
+        grid-template-columns: minmax(0, 1fr) auto auto auto auto;
         gap: 4px;
         padding: 8px;
       }
 
-      .history-cell {
+      .history-time {
         font-size: 10.5px;
       }
 
-      .history-cell.time {
-        font-size: 10.5px;
-      }
-
-      .history-cell.seal,
-      .history-cell.inspector {
+      .history-pill {
+        min-height: 22px;
         padding: 3px 6px;
         font-size: 10px;
       }
 
-      .history-actions .btn.small {
-        min-height: 26px;
-        padding: 3px 8px;
-        font-size: 10.5px;
+      .history-pill.inspector {
+        max-width: 62px;
       }
 
       .history-row .badge {
@@ -563,11 +536,7 @@
     }
 
     @media (max-width: 390px) {
-      .hero-info-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .latest-items-grid {
+      .door-meta-grid {
         grid-template-columns: 1fr 1fr;
       }
 
@@ -575,7 +544,7 @@
         grid-template-columns: 1fr auto;
       }
 
-      .history-cell.time {
+      .history-time {
         grid-column: 1;
       }
 
@@ -585,14 +554,14 @@
         justify-self: end;
       }
 
-      .history-cell.seal,
-      .history-cell.inspector {
-        grid-column: auto;
+      .history-pill.seal,
+      .history-pill.inspector {
+        justify-self: start;
       }
 
       .history-actions {
         grid-column: 2;
-        justify-content: flex-end;
+        justify-self: end;
       }
     }
   </style>
@@ -601,57 +570,49 @@
 <body>
   <div class="app-shell">
 
-    <header class="app-header">
-      <div class="brand">
-        <img id="appLogo" class="brand-logo" alt="Logo" />
-        <div class="brand-text">
-          <h1>ผลตรวจประตูหนีไฟ</h1>
-          <p>Fire Exit Door Inspection Result</p>
-        </div>
+    <header class="view-topbar">
+      <div class="view-topbar-title">
+        <strong>ผลตรวจประตูหนีไฟ</strong>
+        <span>Fire Exit Door Inspection Result</span>
       </div>
 
-      <div class="header-status">
+      <div class="view-status">
         <span id="apiStatusDot" class="status-dot pending"></span>
-        <span id="apiStatusText">กำลังโหลดข้อมูล...</span>
+        <span id="apiStatusText">โหลด...</span>
       </div>
     </header>
 
     <main class="main-content view-layout">
 
-      <section class="compact-hero">
-        <div class="hero-main-line">
-          <img id="heroLogo" class="hero-logo" alt="Logo" />
-
-          <div class="hero-door">
-            <span>ประตูหนีไฟ</span>
+      <section class="door-hero">
+        <div class="door-hero-main">
+          <div class="door-id-block">
+            <span>หมายเลขประตู</span>
             <strong id="doorIdText">-</strong>
           </div>
 
-          <div id="latestResult" class="hero-result">-</div>
+          <div id="latestResult" class="result-badge-large">-</div>
         </div>
 
-        <div class="hero-info-grid">
-          <div class="hero-info-pill full">
-            <span>จุดติดตั้ง</span>
-            <strong id="doorLocationText">-</strong>
-          </div>
+        <div id="doorLocationText" class="door-location-line">-</div>
 
-          <div class="hero-info-pill">
+        <div class="door-meta-grid">
+          <div class="door-meta-item">
             <span>หมายเลขซีล</span>
             <strong id="heroSealNo">-</strong>
           </div>
 
-          <div class="hero-info-pill">
+          <div class="door-meta-item">
             <span>วันที่/เวลา</span>
             <strong id="latestTime">-</strong>
           </div>
 
-          <div class="hero-info-pill">
+          <div class="door-meta-item">
             <span>ผู้ตรวจ</span>
             <strong id="latestInspector">-</strong>
           </div>
 
-          <div class="hero-info-pill">
+          <div class="door-meta-item">
             <span>อุปกรณ์</span>
             <strong id="latestDevice">-</strong>
           </div>
@@ -665,21 +626,21 @@
       </section>
 
       <section class="panel">
-        <div class="latest-panel-head">
+        <div class="section-head-compact">
           <div>
             <h2>รายการตรวจล่าสุด</h2>
-            <p>แสดงแบบช่องย่อเพื่อดูง่ายบนมือถือ</p>
+            <p>จัดเป็นแถวสั้น อ่านง่าย ไม่ลากยาว</p>
           </div>
-          <span id="latestCountPill" class="latest-count-pill">0 ข้อ</span>
+          <span id="latestCountPill" class="section-count">0 ข้อ</span>
         </div>
 
-        <div id="latestItems" class="latest-items-grid">
+        <div id="latestItems" class="latest-list">
           <div class="empty-state">กำลังโหลดข้อมูล...</div>
         </div>
       </section>
 
       <section id="abnormalSection" class="panel" style="display:none;">
-        <div class="latest-panel-head">
+        <div class="section-head-compact">
           <div>
             <h2>รายละเอียดผิดปกติ</h2>
             <p>รายการที่ต้องติดตาม/แก้ไข</p>
@@ -690,19 +651,11 @@
       </section>
 
       <section class="panel">
-        <div class="latest-panel-head">
+        <div class="section-head-compact">
           <div>
             <h2>ประวัติย้อนหลัง</h2>
             <p>หนึ่งครั้งต่อหนึ่งแถว</p>
           </div>
-        </div>
-
-        <div class="history-head">
-          <span>วันที่/เวลา</span>
-          <span>ผล</span>
-          <span>ซีล</span>
-          <span>ผู้ตรวจ</span>
-          <span>ดู</span>
         </div>
 
         <div id="historyList" class="history-list">
@@ -735,9 +688,6 @@
     };
 
     const el = {
-      appLogo: document.getElementById('appLogo'),
-      heroLogo: document.getElementById('heroLogo'),
-
       apiStatusDot: document.getElementById('apiStatusDot'),
       apiStatusText: document.getElementById('apiStatusText'),
 
@@ -768,15 +718,13 @@
     document.addEventListener('DOMContentLoaded', init);
 
     async function init() {
-      el.appLogo.src = CONFIG.LOGO_URL;
-      el.heroLogo.src = CONFIG.LOGO_URL;
       updateFooterTime();
 
       const params = new URLSearchParams(window.location.search);
       state.doorId = params.get('doorId') || params.get('door') || '';
 
       if (!state.doorId) {
-        setApiStatus('danger', 'ไม่พบหมายเลขประตู');
+        setApiStatus('danger', 'ไม่พบประตู');
         showNoDoorAlert();
         return;
       }
@@ -799,7 +747,7 @@
     async function loadData() {
       try {
         setLoading(true);
-        setApiStatus('pending', 'กำลังโหลดข้อมูล...');
+        setApiStatus('pending', 'กำลังโหลด');
 
         const latestData = await API.getLatest(state.doorId);
         const historyData = await API.getHistory(state.doorId, 20);
@@ -810,11 +758,11 @@
         renderLatest();
         renderHistory();
 
-        setApiStatus('ok', 'โหลดข้อมูลสำเร็จ');
+        setApiStatus('ok', 'พร้อมใช้งาน');
 
       } catch (err) {
         console.error(err);
-        setApiStatus('danger', 'โหลดข้อมูลไม่สำเร็จ');
+        setApiStatus('danger', 'โหลดไม่ได้');
         showError(err.message || 'โหลดข้อมูลไม่สำเร็จ');
       } finally {
         setLoading(false);
@@ -825,8 +773,8 @@
       const latest = state.latest;
 
       if (!latest) {
-        el.latestResult.textContent = 'ยังไม่เคยตรวจ';
-        el.latestResult.className = 'hero-result abnormal';
+        el.latestResult.textContent = 'ยังไม่ตรวจ';
+        el.latestResult.className = 'result-badge-large abnormal';
         el.heroSealNo.textContent = '-';
         el.latestTime.textContent = '-';
         el.latestInspector.textContent = '-';
@@ -853,8 +801,8 @@
 
       el.latestResult.textContent = latest.result || '-';
       el.latestResult.className = latest.result === 'ผิดปกติ'
-        ? 'hero-result abnormal'
-        : 'hero-result normal';
+        ? 'result-badge-large abnormal'
+        : 'result-badge-large normal';
 
       renderLatestItems(latest.items || []);
 
@@ -886,17 +834,15 @@
         const detailText = buildItemDetailText(item, rawValue, isBad);
 
         return `
-          <div class="latest-check-card ${isBad ? 'abnormal' : ''}">
-            <div class="latest-check-top">
-              <span class="latest-check-no">${escapeHtml(item.no || index + 1)}</span>
-              <span class="latest-check-status">${isBad ? 'ผิดปกติ' : 'ปกติ'}</span>
+          <div class="latest-row ${isBad ? 'abnormal' : ''}">
+            <span class="latest-no">${escapeHtml(item.no || index + 1)}</span>
+
+            <div class="latest-main">
+              <div class="latest-title">${escapeHtml(item.title || '-')}</div>
+              ${detailText ? `<div class="latest-detail">${escapeHtml(detailText)}</div>` : ''}
             </div>
 
-            <div class="latest-check-title">
-              ${escapeHtml(item.title || '-')}
-            </div>
-
-            ${detailText ? `<div class="latest-check-detail">${escapeHtml(detailText)}</div>` : ''}
+            <span class="latest-status">${isBad ? 'ผิดปกติ' : 'ปกติ'}</span>
           </div>
         `;
       }).join('');
@@ -938,10 +884,10 @@
 
         return `
           <div class="history-row">
-            <div class="history-cell time">${escapeHtml(timestamp)}</div>
+            <div class="history-time">${escapeHtml(timestamp)}</div>
             <span class="${resultClass}">${escapeHtml(item.result || '-')}</span>
-            <div class="history-cell seal">${escapeHtml(sealNo)}</div>
-            <div class="history-cell inspector">${escapeHtml(inspector)}</div>
+            <span class="history-pill seal">ซีล ${escapeHtml(sealNo)}</span>
+            <span class="history-pill inspector">${escapeHtml(inspector)}</span>
             <div class="history-actions">
               <button class="btn small" type="button" data-history-index="${index}">
                 ดู
@@ -981,7 +927,7 @@
         width: 'min(760px, 96vw)',
         title: `ผลตรวจ ${escapeHtml(record.doorId || state.doorId)}`,
         html: `
-          <div style="text-align:left;font-size:14px;">
+          <div style="text-align:left;font-size:14px;line-height:1.55">
             <div><b>วันที่/เวลา:</b> ${escapeHtml(normalizeTimestampDisplay(record.timestamp))}</div>
             <div><b>หมายเลขซีล:</b> ${escapeHtml(record.sealNo || '-')}</div>
             <div><b>ผู้ตรวจ:</b> ${escapeHtml(record.inspector || '-')}</div>
