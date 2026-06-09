@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
   <title>ระบบตรวจประตูหนีไฟประจำวัน</title>
 
@@ -10,13 +10,63 @@
 
   <script src="config.js"></script>
   <script src="api.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
     /************************************************************
-     * index.html Dashboard
+     * index.html
+     * Mobile-first Daily Fire Exit Door Dashboard
      ************************************************************/
+
+    .dashboard-layout {
+      display: grid;
+      gap: 12px;
+    }
+
+    .control-panel {
+      display: grid;
+      gap: 12px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .field span {
+      font-size: 13px;
+      font-weight: 900;
+      color: #334155;
+      margin-bottom: 5px;
+    }
+
+    .field input,
+    .field select {
+      min-height: 48px;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .main-action-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .main-action-grid .btn {
+      min-height: 52px;
+      border-radius: 15px;
+      font-size: 14px;
+      font-weight: 900;
+      padding: 10px;
+      touch-action: manipulation;
+    }
+
+    .main-action-grid .wide {
+      grid-column: 1 / -1;
+    }
 
     .dashboard-alert {
       border-radius: 18px;
@@ -26,16 +76,15 @@
       box-shadow: var(--shadow);
       display: grid;
       gap: 6px;
-      margin-top: 14px;
     }
 
     .dashboard-alert.ok {
-      background: linear-gradient(90deg, var(--success-soft), #fff 55%);
+      background: linear-gradient(90deg, var(--success-soft), #fff 58%);
       border-color: rgba(21, 128, 61, 0.25);
     }
 
     .dashboard-alert.bad {
-      background: linear-gradient(90deg, var(--danger-soft), #fff 55%);
+      background: linear-gradient(90deg, var(--danger-soft), #fff 58%);
       border-color: rgba(185, 28, 28, 0.25);
     }
 
@@ -48,6 +97,7 @@
       color: var(--muted);
       font-size: 13px;
       font-weight: 700;
+      line-height: 1.4;
     }
 
     .dashboard-alert.ok strong {
@@ -58,17 +108,136 @@
       color: var(--danger);
     }
 
+    .summary-grid.compact-summary {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .summary-grid.compact-summary .stat-card {
+      min-height: 92px;
+      padding: 12px;
+      border-radius: 16px;
+    }
+
+    .summary-grid.compact-summary .stat-card strong {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .summary-grid.compact-summary .stat-card small {
+      font-size: 12px;
+    }
+
+    .list-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .list-toolbar h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .list-toolbar p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .list-toolbar .btn {
+      min-height: 38px;
+      border-radius: 12px;
+      font-size: 12px;
+      padding: 7px 10px;
+    }
+
+    .door-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .door-row {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 11px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+      display: grid;
+      gap: 8px;
+    }
+
+    .door-row.missing {
+      border-color: rgba(185, 28, 28, 0.2);
+      background: linear-gradient(90deg, var(--danger-soft), #fff 48%);
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+    }
+
     .door-row.checked {
-      grid-template-columns: minmax(0, 1.1fr) minmax(240px, 0.9fr) auto;
+      border-color: rgba(15, 118, 110, 0.18);
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
     }
 
-    .door-meta {
-      align-items: flex-end;
-      flex-direction: column;
-      gap: 5px;
+    .door-main {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
     }
 
-    .meta-line {
+    .door-main strong {
+      font-size: 18px;
+      color: #0f172a;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    .door-main span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .door-actions {
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .mini-link {
+      min-height: 34px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: var(--primary);
+      color: #fff;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    .mini-link.gray {
+      background: #64748b;
+    }
+
+    .checked-meta {
+      display: grid;
+      gap: 6px;
+      justify-items: end;
+    }
+
+    .checked-line {
       display: flex;
       align-items: center;
       justify-content: flex-end;
@@ -77,37 +246,44 @@
       text-align: right;
     }
 
-    .seal-pill {
+    .seal-pill,
+    .time-pill,
+    .inspector-pill {
       display: inline-flex;
       align-items: center;
-      min-height: 26px;
-      padding: 4px 9px;
+      min-height: 25px;
+      padding: 4px 8px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 900;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: #475569;
+      white-space: nowrap;
+    }
+
+    .seal-pill {
       background: #eaf4ff;
       color: var(--primary-dark);
-      border: 1px solid rgba(15, 118, 110, 0.18);
+      border-color: rgba(15, 118, 110, 0.18);
     }
 
     .time-pill {
-      display: inline-flex;
-      align-items: center;
-      min-height: 24px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
       background: #f8fafc;
-      color: #475569;
-      border: 1px solid var(--line);
+      color: #334155;
+    }
+
+    .inspector-pill {
+      background: #fff7ed;
+      color: #9a3412;
+      border-color: rgba(234, 88, 12, 0.16);
     }
 
     .quick-summary {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 9px;
     }
 
     .quick-summary-item {
@@ -127,29 +303,107 @@
 
     .quick-summary-item strong {
       color: var(--text);
-      font-size: 14px;
+      font-size: 15px;
       overflow-wrap: anywhere;
     }
 
-    @media (max-width: 960px) {
-      .door-row.checked {
+    .empty-state.success-state {
+      color: var(--success);
+      font-weight: 900;
+      background: var(--success-soft);
+      border-color: rgba(21, 128, 61, 0.18);
+    }
+
+    .bottom-mobile-actions {
+      position: sticky;
+      bottom: 8px;
+      z-index: 20;
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: rgba(244, 247, 251, 0.92);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(217, 226, 236, 0.85);
+      box-shadow: var(--shadow);
+      border-radius: 18px;
+      padding: 9px;
+    }
+
+    .bottom-mobile-actions .btn {
+      min-height: 46px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    @media (max-width: 900px) {
+      .summary-grid.compact-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .door-row.checked,
+      .door-row.missing {
         grid-template-columns: minmax(0, 1fr);
       }
 
-      .door-meta {
-        align-items: flex-start;
+      .checked-meta {
+        justify-items: start;
       }
 
-      .meta-line {
+      .checked-line {
         justify-content: flex-start;
         text-align: left;
+      }
+
+      .door-actions {
+        justify-content: flex-start;
       }
     }
 
     @media (max-width: 640px) {
-      .dashboard-alert {
+      .app-shell {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .dashboard-layout {
+        gap: 10px;
+      }
+
+      .panel {
         border-radius: 16px;
         padding: 12px;
+      }
+
+      .filter-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .field span {
+        font-size: 12px;
+      }
+
+      .field input {
+        min-height: 46px;
+        font-size: 15px;
+        border-radius: 13px;
+      }
+
+      .main-action-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .main-action-grid .btn {
+        min-height: 48px;
+        font-size: 13px;
+        border-radius: 14px;
+      }
+
+      .dashboard-alert {
+        padding: 12px;
+        border-radius: 16px;
       }
 
       .dashboard-alert strong {
@@ -160,7 +414,133 @@
         font-size: 12px;
       }
 
+      .summary-grid.compact-summary {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 7px;
+      }
+
+      .summary-grid.compact-summary .stat-card {
+        min-height: 78px;
+        padding: 9px 7px;
+        border-radius: 14px;
+      }
+
+      .summary-grid.compact-summary .stat-label {
+        font-size: 10.5px;
+        white-space: nowrap;
+      }
+
+      .summary-grid.compact-summary .stat-card strong {
+        font-size: 19px;
+      }
+
+      .summary-grid.compact-summary .stat-card small {
+        font-size: 10px;
+      }
+
+      .list-toolbar {
+        gap: 6px;
+      }
+
+      .list-toolbar h2 {
+        font-size: 16px;
+      }
+
+      .list-toolbar p {
+        font-size: 11.5px;
+      }
+
+      .door-row {
+        padding: 10px;
+        border-radius: 14px;
+        gap: 7px;
+      }
+
+      .door-main strong {
+        font-size: 16px;
+      }
+
+      .door-main span {
+        font-size: 12px;
+      }
+
+      .door-row.missing {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+
+      .mini-link {
+        min-height: 32px;
+        padding: 6px 9px;
+        font-size: 11.5px;
+      }
+
+      .checked-line {
+        gap: 5px;
+      }
+
+      .seal-pill,
+      .time-pill,
+      .inspector-pill {
+        min-height: 23px;
+        padding: 3px 7px;
+        font-size: 11px;
+      }
+
+      .bottom-mobile-actions {
+        display: grid;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .filter-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .main-action-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .summary-grid.compact-summary {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .summary-grid.compact-summary .stat-card {
+        min-height: 74px;
+        padding: 8px 5px;
+      }
+
+      .summary-grid.compact-summary .stat-label {
+        font-size: 9.5px;
+      }
+
+      .summary-grid.compact-summary .stat-card strong {
+        font-size: 18px;
+      }
+
+      .door-row.missing {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .door-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .mini-link {
+        width: 100%;
+      }
+
       .quick-summary {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .summary-grid.compact-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .bottom-mobile-actions {
         grid-template-columns: 1fr;
       }
     }
@@ -185,7 +565,7 @@
       </div>
     </header>
 
-    <main class="main-content">
+    <main class="main-content dashboard-layout">
 
       <section class="panel control-panel">
         <div class="section-title-row">
@@ -202,14 +582,18 @@
           </label>
 
           <label class="field">
-            <span>เดือนสำหรับ Export</span>
+            <span>เดือน Export</span>
             <input id="exportMonth" type="month" />
           </label>
         </div>
 
-        <div class="action-grid">
+        <div class="main-action-grid">
           <button id="btnLoadStatus" class="btn primary" type="button">
             ตรวจสอบสถานะ
+          </button>
+
+          <button id="btnNextMissing" class="btn success" type="button">
+            ตรวจประตูถัดไป
           </button>
 
           <button id="btnCheckForm" class="btn" type="button">
@@ -224,11 +608,11 @@
             พิมพ์ QR Code
           </button>
 
-          <button id="btnExportExcel" class="btn success" type="button">
+          <button id="btnExportExcel" class="btn warning" type="button">
             Export Excel
           </button>
 
-          <button id="btnExportCsv" class="btn warning" type="button">
+          <button id="btnExportCsv" class="btn wide" type="button">
             Export CSV
           </button>
         </div>
@@ -239,23 +623,23 @@
         </div>
       </section>
 
-      <section class="summary-grid">
+      <section class="summary-grid compact-summary">
         <article class="stat-card">
-          <span class="stat-label">ประตูทั้งหมด</span>
+          <span class="stat-label">ทั้งหมด</span>
           <strong id="totalDoors">-</strong>
-          <small>จุด</small>
+          <small>ประตู</small>
         </article>
 
         <article class="stat-card ok">
           <span class="stat-label">ตรวจแล้ว</span>
           <strong id="checkedCount">-</strong>
-          <small>จุด</small>
+          <small>ประตู</small>
         </article>
 
         <article class="stat-card danger">
           <span class="stat-label">ยังไม่ตรวจ</span>
           <strong id="missingCount">-</strong>
-          <small>จุด</small>
+          <small>ประตู</small>
         </article>
 
         <article class="stat-card status">
@@ -266,10 +650,10 @@
       </section>
 
       <section class="panel">
-        <div class="section-title-row">
+        <div class="list-toolbar">
           <div>
-            <h2>รายการประตูที่ยังไม่ตรวจ</h2>
-            <p id="missingHint">ระบบจะแสดงเฉพาะประตูที่ยังไม่มีผลตรวจในวันที่เลือก</p>
+            <h2>ยังไม่ตรวจ</h2>
+            <p id="missingHint">แสดงเฉพาะประตูที่ยังไม่มีผลตรวจในวันที่เลือก</p>
           </div>
 
           <button id="btnRefreshSmall" class="btn small" type="button">
@@ -285,10 +669,10 @@
       </section>
 
       <section class="panel">
-        <div class="section-title-row">
+        <div class="list-toolbar">
           <div>
-            <h2>รายการประตูที่ตรวจแล้ว</h2>
-            <p>แสดงผลล่าสุดของแต่ละประตูในวันที่เลือก พร้อมหมายเลขซีล</p>
+            <h2>ตรวจแล้ว</h2>
+            <p>แสดงผลล่าสุดของแต่ละประตูในวันที่เลือก</p>
           </div>
         </div>
 
@@ -297,6 +681,15 @@
             ยังไม่มีข้อมูล
           </div>
         </div>
+      </section>
+
+      <section class="bottom-mobile-actions">
+        <button id="btnBottomNextMissing" class="btn success" type="button">
+          ตรวจประตูถัดไป
+        </button>
+        <button id="btnBottomRefresh" class="btn primary" type="button">
+          รีเฟรชสถานะ
+        </button>
       </section>
 
     </main>
@@ -310,9 +703,6 @@
   <script>
     /************************************************************
      * index.html Dashboard
-     * สำคัญ:
-     * - timestamp จาก API ต้องเป็น dd/MM/yyyy HH:mm:ss
-     * - หน้าเว็บไม่ใช้ new Date() แปลง timestamp ของข้อมูลตรวจ
      ************************************************************/
 
     const CONFIG = window.APP_CONFIG;
@@ -331,12 +721,15 @@
       exportMonth: document.getElementById('exportMonth'),
 
       btnLoadStatus: document.getElementById('btnLoadStatus'),
+      btnNextMissing: document.getElementById('btnNextMissing'),
       btnCheckForm: document.getElementById('btnCheckForm'),
       btnReport: document.getElementById('btnReport'),
       btnQrCode: document.getElementById('btnQrCode'),
       btnExportExcel: document.getElementById('btnExportExcel'),
       btnExportCsv: document.getElementById('btnExportCsv'),
       btnRefreshSmall: document.getElementById('btnRefreshSmall'),
+      btnBottomNextMissing: document.getElementById('btnBottomNextMissing'),
+      btnBottomRefresh: document.getElementById('btnBottomRefresh'),
 
       totalDoors: document.getElementById('totalDoors'),
       checkedCount: document.getElementById('checkedCount'),
@@ -374,10 +767,14 @@
     function bindEvents() {
       el.btnLoadStatus.addEventListener('click', loadDailyStatus);
       el.btnRefreshSmall.addEventListener('click', loadDailyStatus);
+      el.btnBottomRefresh.addEventListener('click', loadDailyStatus);
 
       el.statusDate.addEventListener('change', () => {
         loadDailyStatus();
       });
+
+      el.btnNextMissing.addEventListener('click', openNextMissingDoor);
+      el.btnBottomNextMissing.addEventListener('click', openNextMissingDoor);
 
       el.btnCheckForm.addEventListener('click', () => {
         window.location.href = CONFIG.ROUTES.CHECK;
@@ -475,6 +872,7 @@
       renderDashboardAlert(data);
       renderMissingDoors(data.missingDoors || []);
       renderCheckedDoors(data.checkedDoors || []);
+      updateNextMissingButtons();
     }
 
     function renderDashboardAlert(data) {
@@ -519,8 +917,8 @@
             </div>
 
             <div class="door-actions">
-              <a class="mini-link" href="${checkUrl}">ตรวจประตูนี้</a>
-              <a class="mini-link" style="background:#64748b;margin-left:6px;" href="${viewUrl}">ดูผล</a>
+              <a class="mini-link" href="${checkUrl}">ตรวจ</a>
+              <a class="mini-link gray" href="${viewUrl}">ดูผล</a>
             </div>
           </div>
         `;
@@ -555,6 +953,7 @@
             <strong>${numberText(abnormalCount)} ประตู</strong>
           </div>
         </div>
+
         ${list.map((door) => renderCheckedDoorRow(door)).join('')}
       `;
     }
@@ -572,27 +971,62 @@
             <span>${escapeHtml(door.location || '-')}</span>
           </div>
 
-          <div class="door-meta">
-            <div class="meta-line">
+          <div class="checked-meta">
+            <div class="checked-line">
               <span class="${resultClass}">${escapeHtml(door.result || '-')}</span>
               <span class="seal-pill">ซีล: ${escapeHtml(door.sealNo || '-')}</span>
             </div>
 
-            <div class="meta-line">
-              <small>ผู้ตรวจ: ${escapeHtml(door.inspector || '-')}</small>
-            </div>
-
-            <div class="meta-line">
+            <div class="checked-line">
               <span class="time-pill">${escapeHtml(timestamp)}</span>
+              <span class="inspector-pill">${escapeHtml(door.inspector || '-')}</span>
             </div>
-          </div>
 
-          <div class="door-actions">
-            <a class="mini-link" href="${viewUrl}">ดูผล</a>
-            <a class="mini-link" style="background:#64748b;margin-left:6px;" href="${checkUrl}">ตรวจซ้ำ</a>
+            <div class="door-actions">
+              <a class="mini-link" href="${viewUrl}">ดูผล</a>
+              <a class="mini-link gray" href="${checkUrl}">ตรวจซ้ำ</a>
+            </div>
           </div>
         </div>
       `;
+    }
+
+    function openNextMissingDoor() {
+      const data = state.latestDailyStatus;
+
+      if (!data || !Array.isArray(data.missingDoors)) {
+        showWarn('กรุณาโหลดสถานะก่อน');
+        return;
+      }
+
+      if (!data.missingDoors.length) {
+        Swal.fire({
+          icon: 'success',
+          title: 'ตรวจครบแล้ว',
+          text: 'ไม่มีประตูที่ยังไม่ตรวจในวันที่เลือก',
+          confirmButtonText: 'ตกลง'
+        });
+        return;
+      }
+
+      const door = data.missingDoors[0];
+      window.location.href = `${CONFIG.ROUTES.CHECK}?doorId=${encodeURIComponent(door.doorId)}`;
+    }
+
+    function updateNextMissingButtons() {
+      const data = state.latestDailyStatus;
+      const hasMissing = !!(data && Array.isArray(data.missingDoors) && data.missingDoors.length);
+
+      el.btnNextMissing.disabled = !hasMissing;
+      el.btnBottomNextMissing.disabled = !hasMissing;
+
+      if (hasMissing) {
+        el.btnNextMissing.textContent = `ตรวจประตูถัดไป`;
+        el.btnBottomNextMissing.textContent = `ตรวจประตูถัดไป`;
+      } else {
+        el.btnNextMissing.textContent = `ตรวจครบแล้ว`;
+        el.btnBottomNextMissing.textContent = `ตรวจครบแล้ว`;
+      }
     }
 
     function confirmExport(type, month, callback) {
@@ -667,18 +1101,16 @@
         el.btnLoadStatus,
         el.btnRefreshSmall,
         el.btnExportExcel,
-        el.btnExportCsv
+        el.btnExportCsv,
+        el.btnBottomRefresh
       ];
 
       buttons.forEach((btn) => {
         btn.disabled = isLoading;
       });
 
-      if (isLoading) {
-        el.btnLoadStatus.textContent = 'กำลังโหลด...';
-      } else {
-        el.btnLoadStatus.textContent = 'ตรวจสอบสถานะ';
-      }
+      el.btnLoadStatus.textContent = isLoading ? 'กำลังโหลด...' : 'ตรวจสอบสถานะ';
+      el.btnBottomRefresh.textContent = isLoading ? 'กำลังโหลด...' : 'รีเฟรชสถานะ';
     }
 
     function setApiStatus(type, text) {
