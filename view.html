@@ -938,48 +938,43 @@
     }
 
     function renderLatestItems(items) {
-      const list = Array.isArray(items) ? items : [];
-      el.latestCountPill.textContent = `${list.length} ข้อ`;
+  const list = Array.isArray(items) ? items : [];
+  el.latestCountPill.textContent = `${list.length} ข้อ`;
 
-      if (!list.length) {
-        el.latestItems.innerHTML = `
-          <div class="empty-state">
-            ไม่พบรายการตรวจล่าสุด
-          </div>
-        `;
-        return;
-      }
+  if (!list.length) {
+    el.latestItems.innerHTML = `
+      <div class="empty-state">
+        ไม่พบรายการตรวจล่าสุด
+      </div>
+    `;
+    return;
+  }
 
-      const groupSize = window.matchMedia('(max-width: 760px)').matches ? 2 : 3;
-      const rows = chunkArray(list, groupSize);
+  const rows = chunkArray(list, 2);
 
-      el.latestItems.innerHTML = rows.map(rowItems => {
-        return `
-          <div class="latest-data-row">
-            ${rowItems.map((item, rowIndex) => renderLatestCell(item, list.indexOf(item))).join('')}
-          </div>
-        `;
-      }).join('');
-    }
+  el.latestItems.innerHTML = rows.map(rowItems => {
+    return `
+      <div class="latest-data-row">
+        ${rowItems.map(item => renderLatestCell(item, list.indexOf(item))).join('')}
+      </div>
+    `;
+  }).join('');
+}
 
-    function renderLatestCell(item, index) {
-      const isBad = !!item.isAbnormal;
-      const rawValue = normalizeTrueText(item.finalText || item.value || '-');
-      const detailText = buildItemDetailText(item, rawValue, isBad);
+   function renderLatestCell(item, index) {
+  const isBad = !!item.isAbnormal;
+  const rawValue = normalizeTrueText(item.finalText || item.value || '-');
+  const detailText = buildItemDetailText(item, rawValue, isBad);
 
-      return `
-        <div class="latest-data-cell ${isBad ? 'abnormal' : ''}">
-          <span class="latest-no">${escapeHtml(item.no || index + 1)}</span>
-
-          <div class="latest-main">
-            <div class="latest-title">${escapeHtml(item.title || '-')}</div>
-            ${detailText ? `<div class="latest-detail">${escapeHtml(detailText)}</div>` : ''}
-          </div>
-
-          <span class="latest-status">${isBad ? 'ผิดปกติ' : 'ปกติ'}</span>
-        </div>
-      `;
-    }
+  return `
+    <div class="latest-data-cell ${isBad ? 'abnormal' : ''}">
+      <span class="latest-no">${escapeHtml(item.no || index + 1)}</span>
+      <div class="latest-title">${escapeHtml(item.title || '-')}</div>
+      <span class="latest-status">${isBad ? 'ผิดปกติ' : 'ปกติ'}</span>
+      ${isBad && detailText ? `<div class="latest-detail-row">${escapeHtml(detailText)}</div>` : ''}
+    </div>
+  `;
+}
 
     function buildItemDetailText(item, rawValue, isBad) {
       if (isBad) {
