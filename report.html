@@ -642,17 +642,24 @@
 
   const confirm = await Swal.fire({
     icon: 'question',
-    title: 'Export Excel',
-    html: `ต้องการส่งออก Excel ทุกประตูของเดือน <b>${escapeHtml(month)}</b> ใช่หรือไม่`,
+    title: 'Export Excel ทุกประตู',
+    html: `
+      <div style="text-align:left;line-height:1.55">
+        <div>ต้องการสร้างไฟล์ Excel รวมทุกประตูของเดือน <b>${escapeHtml(month)}</b> ใช่หรือไม่</div>
+        <div style="margin-top:8px;color:#b45309;font-size:13px;">
+          ระบบจะสร้างไฟล์แบบเบื้องหลังทีละประตู และจะแจ้งสถานะจนกว่าจะเสร็จ
+        </div>
+      </div>
+    `,
     showCancelButton: true,
-    confirmButtonText: 'Export',
+    confirmButtonText: 'เริ่มสร้างไฟล์',
     cancelButtonText: 'ยกเลิก',
     reverseButtons: true
   });
 
   if (!confirm.isConfirmed) return;
 
-  await exportExcelWithProgress(month);
+  await exportExcelJobWithProgress(month);
 });
 
       el.monthInput.addEventListener('change', () => {
@@ -769,30 +776,38 @@
         setControlsDisabled(false);
       }
     }
-async function exportExcelWithProgress(month) {
+async function exportExcelJobWithProgress(month) {
   const startedAt = Date.now();
+  let timer = null;
+  let pollTimer = null;
+  let currentJobId = '';
 
   try {
     setControlsDisabled(true);
-    setApiStatus('pending', 'กำลังส่งออก Excel...');
+    setApiStatus('pending', 'กำลังเริ่มสร้างไฟล์ Excel...');
 
     Swal.fire({
-      title: 'กำลังเตรียมไฟล์ Excel',
+      title: 'กำลังเริ่มสร้างไฟล์ Excel',
       html: buildExportProgressHtml({
         percent: 0,
-        title: 'เริ่มต้นส่งออกไฟล์',
-        detail: 'กรุณารอสักครู่ ห้ามปิดหน้านี้จนกว่าจะเสร็จ',
-        elapsed: '0 วินาที'
+        title: 'กำลังเริ่มงาน Export',
+        detail: 'ระบบกำลังสร้างงานส่งออกไฟล์ กรุณารอสักครู่...',
+        elapsed: '0 วินาที',
+        subDetail: 'ห้ามปิดหน้านี้จนกว่าจะสร้างไฟล์เสร็จ'
       }),
       allowOutsideClick: false,
       allowEscapeKey: false,
       showConfirmButton: false,
+      showCancelButton: true,
+      cancelButtonText: 'ยกเลิกงาน',
+      reverseButtons: true,
       didOpen: () => {
         Swal.showLoading();
-      }
+      },
+      preDeny: false
     });
 
-    const timer = setInterval(() => {
+    timer = setInterval(() => {
       const elapsedText = formatElapsedTime(Date.now() - startedAt);
       const elapsedEl = document.getElementById('exportElapsedText');
 
@@ -801,31 +816,131 @@ async function exportExcelWithProgress(month) {
       }
     }, 1000);
 
-    await API.exportExcel(month, progress => {
-      updateExportProgress(progress, startedAt);
-    });
+    updateExportProgress({
+      percent: 2,
+      title: 'กำลังติดต่อระบบ',
+      detail: 'กำลังส่งคำขอเริ่มสร้างไฟล์ Excel รวมทุกประตู...',
+      subDetail: 'ขั้นตอนนี้ระบบจะสร้างไฟล์งานชั่วคราวใน Google Drive'
+    }, startedAt);
+
+    const startData = await API.startExportJob(month);
+
+    currentJobId = startData.jobId;
+
+    if (!currentJobId) {
+      throw new Error('ไม่พบ jobId จากระบบ Export');
+    }
+
+    updateExportProgress({
+      percent: Number(startData.percent || 3),
+      title: 'เริ่มสร้างไฟล์แล้ว',
+      detail: startData.message || 'ระบบเริ่มสร้างไฟล์รายงานแล้ว',
+      subDetail: `รหัสงาน: ${currentJobId}`
+    }, startedAt);
+
+    let latestStatus = startData;
+    let safeLoop = 0;
+
+    while (true) {
+      safeLoop++;
+
+      if (safeLoop > 300) {
+        throw new Error('ใช้เวลาสร้างไฟล์นานเกินไป กรุณาลองใหม่อีกครั้ง');
+      }
+
+      await waitMs(2500);
+
+      latestStatus = await API.getExportJobStatus(currentJobId);
+
+      const status = String(latestStatus.status || '').toUpperCase();
+      const percent = Number(latestStatus.percent || 0);
+      const doneDoors = Number(latestStatus.doneDoors || 0);
+      const totalDoors = Number(latestStatus.totalDoors || 0);
+      const currentDoor = latestStatus.currentDoor || '';
+
+      let title = 'กำลังสร้างไฟล์ Excel';
+      let detail = latestStatus.message || 'ระบบกำลังสร้างรายงานทีละประตู...';
+      let subDetail = '';
+
+      if (status === 'RUNNING') {
+        title = 'กำลังสร้างรายงานรายประตู';
+        subDetail = `ดำเนินการแล้ว ${doneDoors}/${totalDoors} ประตู${currentDoor ? ` | กำลังทำ: ${currentDoor}` : ''}`;
+      } else if (status === 'EXPORTING') {
+        title = 'กำลังแปลงเป็นไฟล์ Excel';
+        subDetail = 'สร้างรายงานครบทุกประตูแล้ว กำลังแปลงไฟล์เป็น .xlsx';
+      } else if (status === 'DONE') {
+        title = 'สร้างไฟล์สำเร็จ';
+        detail = 'ระบบสร้างไฟล์ Excel รวมทุกประตูเรียบร้อยแล้ว';
+        subDetail = latestStatus.filename || '';
+      } else if (status === 'ERROR') {
+        throw new Error(latestStatus.error || latestStatus.message || 'สร้างไฟล์ Excel ไม่สำเร็จ');
+      } else if (status === 'CANCELLED') {
+        throw new Error('งาน Export ถูกยกเลิกแล้ว');
+      }
+
+      updateExportProgress({
+        percent,
+        title,
+        detail,
+        subDetail
+      }, startedAt);
+
+      setApiStatus('pending', `${title} ${percent}%`);
+
+      if (status === 'DONE') {
+        break;
+      }
+    }
 
     clearInterval(timer);
+    timer = null;
 
     updateExportProgress({
       percent: 100,
-      title: 'ดาวน์โหลดสำเร็จ',
-      detail: 'ระบบดาวน์โหลดไฟล์ Excel เรียบร้อยแล้ว'
+      title: 'พร้อมดาวน์โหลด',
+      detail: 'ไฟล์ Excel สร้างเสร็จแล้ว กดปุ่มด้านล่างเพื่อดาวน์โหลด',
+      subDetail: latestStatus.filename || ''
     }, startedAt);
 
-    setApiStatus('ok', 'ส่งออก Excel สำเร็จ');
+    setApiStatus('ok', 'สร้างไฟล์ Excel สำเร็จ');
 
-    setTimeout(() => {
-      Swal.fire({
-        icon: 'success',
-        title: 'ส่งออกสำเร็จ',
-        text: 'ดาวน์โหลดไฟล์ Excel เรียบร้อยแล้ว',
-        confirmButtonText: 'ตกลง'
-      });
-    }, 500);
+    Swal.fire({
+      icon: 'success',
+      title: 'สร้างไฟล์สำเร็จ',
+      html: `
+        <div style="text-align:left;line-height:1.55">
+          <div><b>ไฟล์:</b> ${escapeHtml(latestStatus.filename || 'FireExitDoor_Report.xlsx')}</div>
+          <div><b>จำนวนประตู:</b> ${escapeHtml(String(latestStatus.totalDoors || '-'))}</div>
+          <div><b>ใช้เวลา:</b> ${escapeHtml(formatElapsedTime(Date.now() - startedAt))}</div>
+          <div style="margin-top:8px;color:#64748b;font-size:13px;">
+            ไฟล์นี้รวมทุกประตูอยู่ในไฟล์เดียว โดยแยก Sheet ตามหมายเลขประตู
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'ดาวน์โหลดไฟล์',
+      cancelButtonText: 'ปิด',
+      reverseButtons: true
+    }).then(async result => {
+      if (result.isConfirmed) {
+        try {
+          await API.downloadExportJob(currentJobId);
+        } catch (err) {
+          showError(err.message || 'ดาวน์โหลดไฟล์ไม่สำเร็จ');
+        }
+      }
+    });
 
   } catch (err) {
     console.error(err);
+
+    if (timer) {
+      clearInterval(timer);
+    }
+
+    if (pollTimer) {
+      clearInterval(pollTimer);
+    }
 
     setApiStatus('danger', 'ส่งออก Excel ไม่สำเร็จ');
 
@@ -835,8 +950,9 @@ async function exportExcelWithProgress(month) {
       html: `
         <div style="text-align:left;line-height:1.55">
           <div><b>สาเหตุ:</b> ${escapeHtml(err.message || 'ไม่ทราบสาเหตุ')}</div>
+          ${currentJobId ? `<div style="margin-top:6px;"><b>Job ID:</b> ${escapeHtml(currentJobId)}</div>` : ''}
           <div style="margin-top:8px;color:#64748b;font-size:13px;">
-            กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต หรือทดสอบ Export ใหม่อีกครั้ง
+            กรุณาตรวจสอบว่า Deploy Code.gs และ Worker.js เป็นเวอร์ชันล่าสุดแล้ว
           </div>
         </div>
       `,
@@ -847,18 +963,24 @@ async function exportExcelWithProgress(month) {
     setControlsDisabled(false);
   }
 }
-
 function buildExportProgressHtml(info) {
   const percent = Math.max(0, Math.min(100, Number(info.percent || 0)));
 
   return `
     <div style="text-align:left">
-      <div style="font-weight:900;font-size:15px;color:#0f172a;margin-bottom:6px;">
+      <div id="exportMainTitle"
+           style="font-weight:900;font-size:15px;color:#0f172a;margin-bottom:6px;">
         ${escapeHtml(info.title || 'กำลังดำเนินการ')}
       </div>
 
-      <div style="font-size:13px;color:#475569;line-height:1.45;margin-bottom:10px;">
+      <div id="exportMainDetail"
+           style="font-size:13px;color:#475569;line-height:1.45;margin-bottom:8px;">
         ${escapeHtml(info.detail || 'กรุณารอสักครู่...')}
+      </div>
+
+      <div id="exportSubDetail"
+           style="font-size:12px;color:#0f766e;line-height:1.45;margin-bottom:10px;font-weight:800;">
+        ${escapeHtml(info.subDetail || '')}
       </div>
 
       <div style="width:100%;height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden;">
@@ -873,7 +995,7 @@ function buildExportProgressHtml(info) {
       </div>
 
       <div style="margin-top:10px;font-size:12px;color:#b45309;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:8px;">
-        ไฟล์ Excel อาจใช้เวลานาน หากมีจำนวนประตูหรือประวัติการตรวจจำนวนมาก
+        ระบบกำลังสร้างไฟล์รวมทุกประตูในไฟล์เดียว อาจใช้เวลาหลายนาทีตามจำนวนประตูและข้อมูลในเดือนนั้น
       </div>
     </div>
   `;
@@ -883,20 +1005,36 @@ function updateExportProgress(progress, startedAt) {
   const percent = Math.max(0, Math.min(100, Number(progress.percent || 0)));
   const title = progress.title || 'กำลังดำเนินการ';
   const detail = progress.detail || 'กรุณารอสักครู่...';
+  const subDetail = progress.subDetail || '';
   const elapsed = formatElapsedTime(Date.now() - startedAt);
 
   const titleEl = Swal.getTitle();
   const htmlEl = Swal.getHtmlContainer();
 
-  if (!htmlEl) return;
-
   if (titleEl) {
     titleEl.textContent = title;
   }
 
+  if (!htmlEl) return;
+
+  const mainTitle = document.getElementById('exportMainTitle');
+  const mainDetail = document.getElementById('exportMainDetail');
+  const subDetailEl = document.getElementById('exportSubDetail');
   const bar = document.getElementById('exportProgressBar');
   const percentText = document.getElementById('exportProgressText');
   const elapsedText = document.getElementById('exportElapsedText');
+
+  if (mainTitle) {
+    mainTitle.textContent = title;
+  }
+
+  if (mainDetail) {
+    mainDetail.textContent = detail;
+  }
+
+  if (subDetailEl) {
+    subDetailEl.textContent = subDetail;
+  }
 
   if (bar) {
     bar.style.width = `${percent}%`;
@@ -909,13 +1047,12 @@ function updateExportProgress(progress, startedAt) {
   if (elapsedText) {
     elapsedText.textContent = elapsed;
   }
-
-  const detailTarget = htmlEl.querySelector('div[style*="font-size:13px"]');
-  if (detailTarget) {
-    detailTarget.textContent = detail;
-  }
 }
-
+function waitMs(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, Number(ms || 0));
+  });
+}
 function formatElapsedTime(ms) {
   const totalSeconds = Math.max(0, Math.floor(Number(ms || 0) / 1000));
   const minutes = Math.floor(totalSeconds / 60);
