@@ -178,12 +178,121 @@
       align-items: center;
     }
 
-    .door-row.checked {
-      border-color: rgba(15, 118, 110, 0.18);
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: center;
-    }
+   .door-row.checked {
+  border-color: rgba(15, 118, 110, 0.18);
+  grid-template-columns: 1fr;
+  align-items: stretch;
+  gap: 8px;
+}
 
+.checked-one-line {
+  display: grid;
+  grid-template-columns: minmax(72px, 0.7fr) minmax(0, 1.4fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.checked-door-info {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.checked-door-info strong {
+  font-size: 16px;
+  color: #0f172a;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.checked-door-info span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.checked-data-line {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.checked-action-line {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  flex-wrap: nowrap;
+}
+
+.checked-action-line .mini-link {
+  min-height: 30px;
+  padding: 5px 8px;
+  font-size: 11px;
+}
+
+@media (max-width: 640px) {
+  .checked-one-line {
+    grid-template-columns: minmax(68px, 0.62fr) minmax(0, 1.38fr) auto;
+    gap: 6px;
+  }
+
+  .checked-door-info strong {
+    font-size: 15px;
+  }
+
+  .checked-door-info span {
+    font-size: 11px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .checked-data-line {
+    gap: 4px;
+  }
+
+  .checked-action-line {
+    gap: 4px;
+  }
+
+  .checked-action-line .mini-link {
+    min-height: 28px;
+    padding: 4px 7px;
+    font-size: 10.5px;
+  }
+
+  .seal-pill,
+  .time-pill,
+  .inspector-pill {
+    min-height: 22px;
+    padding: 3px 6px;
+    font-size: 10.5px;
+  }
+}
+
+@media (max-width: 430px) {
+  .checked-one-line {
+    grid-template-columns: 1fr;
+  }
+
+  .checked-data-line {
+    justify-content: flex-start;
+  }
+
+  .checked-action-line {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .checked-action-line .mini-link {
+    width: 100%;
+  }
+}
     .door-main {
       min-width: 0;
       display: grid;
@@ -959,37 +1068,34 @@
     }
 
     function renderCheckedDoorRow(door) {
-      const viewUrl = `${CONFIG.ROUTES.VIEW}?doorId=${encodeURIComponent(door.doorId)}`;
-      const checkUrl = `${CONFIG.ROUTES.CHECK}?doorId=${encodeURIComponent(door.doorId)}`;
-      const resultClass = door.result === 'ผิดปกติ' ? 'badge bad' : 'badge good';
-      const timestamp = normalizeTimestampDisplay(door.timestamp);
+  const viewUrl = `${CONFIG.ROUTES.VIEW}?doorId=${encodeURIComponent(door.doorId)}`;
+  const checkUrl = `${CONFIG.ROUTES.CHECK}?doorId=${encodeURIComponent(door.doorId)}`;
+  const resultClass = door.result === 'ผิดปกติ' ? 'badge bad' : 'badge good';
+  const timestamp = normalizeTimestampDisplay(door.timestamp);
 
-      return `
-        <div class="door-row checked">
-          <div class="door-main">
-            <strong>${escapeHtml(door.doorId)}</strong>
-            <span>${escapeHtml(door.location || '-')}</span>
-          </div>
-
-          <div class="checked-meta">
-            <div class="checked-line">
-              <span class="${resultClass}">${escapeHtml(door.result || '-')}</span>
-              <span class="seal-pill">ซีล: ${escapeHtml(door.sealNo || '-')}</span>
-            </div>
-
-            <div class="checked-line">
-              <span class="time-pill">${escapeHtml(timestamp)}</span>
-              <span class="inspector-pill">${escapeHtml(door.inspector || '-')}</span>
-            </div>
-
-            <div class="door-actions">
-              <a class="mini-link" href="${viewUrl}">ดูผล</a>
-              <a class="mini-link gray" href="${checkUrl}">ตรวจซ้ำ</a>
-            </div>
-          </div>
+  return `
+    <div class="door-row checked">
+      <div class="checked-one-line">
+        <div class="checked-door-info">
+          <strong>${escapeHtml(door.doorId)}</strong>
+          <span>${escapeHtml(door.location || '-')}</span>
         </div>
-      `;
-    }
+
+        <div class="checked-data-line">
+          <span class="${resultClass}">${escapeHtml(door.result || '-')}</span>
+          <span class="seal-pill">ซีล: ${escapeHtml(door.sealNo || '-')}</span>
+          <span class="time-pill">${escapeHtml(timestamp)}</span>
+          <span class="inspector-pill">${escapeHtml(door.inspector || '-')}</span>
+        </div>
+
+        <div class="checked-action-line">
+          <a class="mini-link" href="${viewUrl}">ดูผล</a>
+          <a class="mini-link gray" href="${checkUrl}">ตรวจซ้ำ</a>
+        </div>
+      </div>
+    </div>
+  `;
+}
 
     function openNextMissingDoor() {
       const data = state.latestDailyStatus;
