@@ -249,161 +249,285 @@
       white-space: nowrap;
     }
 
-    /************************************************************
-     * Latest checklist: compact rows
-     ************************************************************/
+   /************************************************************
+ * Latest checklist: 2 items per row on mobile
+ ************************************************************/
 
-    .latest-list {
-      display: grid;
-      gap: 7px;
-    }
+.latest-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
 
-    .latest-row {
-      border: 1px solid var(--line);
-      background: #fff;
-      border-radius: 15px;
-      padding: 9px 10px;
-      display: grid;
-      grid-template-columns: 28px minmax(0, 1fr) auto;
-      gap: 8px;
-      align-items: center;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-    }
+.latest-row {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 15px;
+  padding: 9px;
+  min-height: 92px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
 
-    .latest-row.abnormal {
-      background: linear-gradient(90deg, var(--danger-soft), #fff 55%);
-      border-color: rgba(185, 28, 28, 0.28);
-    }
+.latest-row.abnormal {
+  background: linear-gradient(180deg, var(--danger-soft), #fff 58%);
+  border-color: rgba(185, 28, 28, 0.28);
+}
 
-    .latest-no {
-      width: 26px;
-      height: 26px;
-      border-radius: 999px;
-      background: var(--primary);
-      color: #fff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 1000;
-      font-size: 11px;
-    }
+.latest-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
 
-    .latest-main {
-      min-width: 0;
-      display: grid;
-      gap: 2px;
-    }
+.latest-no {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 1000;
+  font-size: 11px;
+  flex: 0 0 auto;
+}
 
-    .latest-title {
-      color: #0f172a;
-      font-size: 13px;
-      line-height: 1.28;
-      font-weight: 900;
-      overflow-wrap: anywhere;
-    }
+.latest-status {
+  min-height: 23px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 1000;
+  text-align: center;
+  background: var(--success-soft);
+  color: var(--success);
+  white-space: nowrap;
+}
 
-    .latest-detail {
-      color: #7f1d1d;
-      font-size: 11.5px;
-      line-height: 1.28;
-      font-weight: 800;
-      overflow-wrap: anywhere;
-    }
+.latest-row.abnormal .latest-status {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
 
-    .latest-status {
-      min-width: 64px;
-      min-height: 26px;
-      padding: 5px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 1000;
-      text-align: center;
-      background: var(--success-soft);
-      color: var(--success);
-      white-space: nowrap;
-    }
+.latest-main {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  align-content: start;
+}
 
-    .latest-row.abnormal .latest-status {
-      background: var(--danger-soft);
-      color: var(--danger);
-    }
+.latest-title {
+  color: #0f172a;
+  font-size: 12.5px;
+  line-height: 1.28;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
-    .abnormal-box {
-      background: var(--danger-soft);
-      border: 1px solid rgba(185, 28, 28, 0.26);
-      border-radius: 15px;
-      padding: 12px;
-      color: #7f1d1d;
-      white-space: pre-wrap;
-      line-height: 1.55;
-      font-weight: 700;
-    }
+.latest-detail {
+  color: #7f1d1d;
+  font-size: 11px;
+  line-height: 1.25;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
-    /************************************************************
-     * History: one inspection per row
-     ************************************************************/
+.abnormal-box {
+  background: var(--danger-soft);
+  border: 1px solid rgba(185, 28, 28, 0.26);
+  border-radius: 15px;
+  padding: 12px;
+  color: #7f1d1d;
+  white-space: pre-wrap;
+  line-height: 1.55;
+  font-weight: 700;
+}
 
-    .history-list {
-      display: grid;
-      gap: 7px;
-    }
+/************************************************************
+ * History: one inspection per one tight row
+ ************************************************************/
 
-    .history-row {
-      border: 1px solid var(--line);
-      border-radius: 15px;
-      padding: 9px 10px;
-      background: #fff;
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) auto auto auto auto;
-      gap: 6px;
-      align-items: center;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-    }
+.history-list {
+  display: grid;
+  gap: 7px;
+}
 
-    .history-time {
-      min-width: 0;
-      color: #0f172a;
-      font-size: 12px;
-      font-weight: 1000;
-      line-height: 1.25;
-      overflow-wrap: anywhere;
-    }
+.history-row {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 8px;
+  background: #fff;
+  display: grid;
+  grid-template-columns: minmax(104px, 1.1fr) 48px 78px minmax(58px, 0.7fr) 38px;
+  gap: 5px;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
 
-    .history-pill {
-      min-height: 24px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      font-size: 11px;
-      font-weight: 1000;
-      white-space: nowrap;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
+.history-time {
+  min-width: 0;
+  color: #0f172a;
+  font-size: 11px;
+  font-weight: 1000;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
 
-    .history-pill.seal {
-      background: #eaf4ff;
-      color: var(--primary-dark);
-      border-color: rgba(15,118,110,0.18);
-    }
+.history-row .badge {
+  justify-self: center;
+  font-size: 10px;
+  padding: 3px 7px;
+  white-space: nowrap;
+}
 
-    .history-pill.inspector {
-      background: #fff7ed;
-      color: #9a3412;
-      border-color: rgba(234,88,12,0.16);
-      max-width: 86px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+.history-pill {
+  min-height: 23px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 10px;
+  font-weight: 1000;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
 
-    .history-actions .btn.small {
-      min-height: 26px;
-      padding: 4px 9px;
-      border-radius: 999px;
-      font-size: 10.5px;
-      white-space: nowrap;
-    }
+.history-pill.seal {
+  background: #eaf4ff;
+  color: var(--primary-dark);
+  border-color: rgba(15,118,110,0.18);
+}
+
+.history-pill.inspector {
+  background: #fff7ed;
+  color: #9a3412;
+  border-color: rgba(234,88,12,0.16);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.history-actions .btn.small {
+  min-height: 25px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+@media (max-width: 980px) {
+  .latest-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .latest-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .latest-row {
+    min-height: 86px;
+    padding: 8px;
+    border-radius: 14px;
+  }
+
+  .latest-no {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+  }
+
+  .latest-status {
+    min-height: 21px;
+    padding: 3px 7px;
+    font-size: 10px;
+  }
+
+  .latest-title {
+    font-size: 12px;
+    -webkit-line-clamp: 3;
+  }
+
+  .latest-detail {
+    font-size: 10.5px;
+  }
+
+  .history-row {
+    grid-template-columns: minmax(94px, 1fr) 44px 70px minmax(52px, 0.65fr) 34px;
+    gap: 4px;
+    padding: 7px;
+  }
+
+  .history-time {
+    font-size: 10px;
+  }
+
+  .history-pill {
+    min-height: 21px;
+    padding: 3px 5px;
+    font-size: 9.5px;
+  }
+
+  .history-actions .btn.small {
+    min-height: 23px;
+    padding: 3px 7px;
+    font-size: 9.5px;
+  }
+}
+
+@media (max-width: 390px) {
+  .latest-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .history-row {
+    grid-template-columns: minmax(86px, 1fr) 40px 62px minmax(46px, 0.55fr) 32px;
+    gap: 3px;
+    padding: 6px;
+  }
+
+  .history-time {
+    font-size: 9.3px;
+  }
+
+  .history-pill {
+    font-size: 9px;
+    padding: 2px 4px;
+  }
+
+  .history-row .badge {
+    font-size: 9px;
+    padding: 2px 5px;
+  }
+
+  .history-actions .btn.small {
+    min-height: 22px;
+    padding: 2px 6px;
+    font-size: 9px;
+  }
+}
 
     .hidden-check-zone {
       display: flex;
@@ -815,38 +939,39 @@
       }
     }
 
-    function renderLatestItems(items) {
-      const list = Array.isArray(items) ? items : [];
-      el.latestCountPill.textContent = `${list.length} ข้อ`;
+function renderLatestItems(items) {
+  const list = Array.isArray(items) ? items : [];
+  el.latestCountPill.textContent = `${list.length} ข้อ`;
 
-      if (!list.length) {
-        el.latestItems.innerHTML = `
-          <div class="empty-state">
-            ไม่พบรายการตรวจล่าสุด
-          </div>
-        `;
-        return;
-      }
+  if (!list.length) {
+    el.latestItems.innerHTML = `
+      <div class="empty-state">
+        ไม่พบรายการตรวจล่าสุด
+      </div>
+    `;
+    return;
+  }
 
-      el.latestItems.innerHTML = list.map((item, index) => {
-        const isBad = !!item.isAbnormal;
-        const rawValue = normalizeTrueText(item.finalText || item.value || '-');
-        const detailText = buildItemDetailText(item, rawValue, isBad);
+  el.latestItems.innerHTML = list.map((item, index) => {
+    const isBad = !!item.isAbnormal;
+    const rawValue = normalizeTrueText(item.finalText || item.value || '-');
+    const detailText = buildItemDetailText(item, rawValue, isBad);
 
-        return `
-          <div class="latest-row ${isBad ? 'abnormal' : ''}">
-            <span class="latest-no">${escapeHtml(item.no || index + 1)}</span>
+    return `
+      <div class="latest-row ${isBad ? 'abnormal' : ''}">
+        <div class="latest-top">
+          <span class="latest-no">${escapeHtml(item.no || index + 1)}</span>
+          <span class="latest-status">${isBad ? 'ผิดปกติ' : 'ปกติ'}</span>
+        </div>
 
-            <div class="latest-main">
-              <div class="latest-title">${escapeHtml(item.title || '-')}</div>
-              ${detailText ? `<div class="latest-detail">${escapeHtml(detailText)}</div>` : ''}
-            </div>
-
-            <span class="latest-status">${isBad ? 'ผิดปกติ' : 'ปกติ'}</span>
-          </div>
-        `;
-      }).join('');
-    }
+        <div class="latest-main">
+          <div class="latest-title">${escapeHtml(item.title || '-')}</div>
+          ${detailText ? `<div class="latest-detail">${escapeHtml(detailText)}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
 
     function buildItemDetailText(item, rawValue, isBad) {
       if (isBad) {
@@ -864,46 +989,46 @@
       return '';
     }
 
-    function renderHistory() {
-      const list = state.history || [];
+   function renderHistory() {
+  const list = state.history || [];
 
-      if (!list.length) {
-        el.historyList.innerHTML = `
-          <div class="empty-state">
-            ยังไม่มีประวัติการตรวจย้อนหลัง
-          </div>
-        `;
-        return;
-      }
+  if (!list.length) {
+    el.historyList.innerHTML = `
+      <div class="empty-state">
+        ยังไม่มีประวัติการตรวจย้อนหลัง
+      </div>
+    `;
+    return;
+  }
 
-      el.historyList.innerHTML = list.map((item, index) => {
-        const resultClass = item.result === 'ผิดปกติ' ? 'badge bad' : 'badge good';
-        const timestamp = normalizeTimestampDisplay(item.timestamp);
-        const sealNo = item.sealNo || '-';
-        const inspector = item.inspector || '-';
+  el.historyList.innerHTML = list.map((item, index) => {
+    const resultClass = item.result === 'ผิดปกติ' ? 'badge bad' : 'badge good';
+    const timestamp = normalizeTimestampDisplay(item.timestamp);
+    const sealNo = item.sealNo || '-';
+    const inspector = item.inspector || '-';
 
-        return `
-          <div class="history-row">
-            <div class="history-time">${escapeHtml(timestamp)}</div>
-            <span class="${resultClass}">${escapeHtml(item.result || '-')}</span>
-            <span class="history-pill seal">ซีล ${escapeHtml(sealNo)}</span>
-            <span class="history-pill inspector">${escapeHtml(inspector)}</span>
-            <div class="history-actions">
-              <button class="btn small" type="button" data-history-index="${index}">
-                ดู
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
+    return `
+      <div class="history-row">
+        <div class="history-time">${escapeHtml(timestamp)}</div>
+        <span class="${resultClass}">${escapeHtml(item.result || '-')}</span>
+        <span class="history-pill seal">${escapeHtml(sealNo)}</span>
+        <span class="history-pill inspector">${escapeHtml(inspector)}</span>
+        <div class="history-actions">
+          <button class="btn small" type="button" data-history-index="${index}">
+            ดู
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
 
-      el.historyList.querySelectorAll('button[data-history-index]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const index = Number(btn.dataset.historyIndex);
-          showHistoryDetail(list[index]);
-        });
-      });
-    }
+  el.historyList.querySelectorAll('button[data-history-index]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const index = Number(btn.dataset.historyIndex);
+      showHistoryDetail(list[index]);
+    });
+  });
+}
 
     function showHistoryDetail(record) {
       if (!record) return;
