@@ -72,78 +72,161 @@
     return data;
   }
 
-  async function requestFile(path, params, fallbackFilename, fallbackMimeType) {
-    const url = buildUrl(path, params);
+ async function requestFile(path, params, fallbackFilename, fallbackMimeType, onProgress) {
+  const reportProgress = typeof onProgress === 'function'
+    ? onProgress
+    : function () {};
 
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json, application/octet-stream, */*'
-      }
+  const url = buildUrl(path, params);
+
+  reportProgress({
+    step: 'connecting',
+    percent: 5,
+    title: 'กำลังเชื่อมต่อระบบ',
+    detail: 'กำลังส่งคำขอไปยังระบบรายงาน...'
+  });
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json, application/octet-stream, */*'
+    }
+  });
+
+  const contentType = res.headers.get('content-type') || '';
+  const contentLength = Number(res.headers.get('content-length') || 0);
+
+  if (!res.ok) {
+    const errorText = await res.text().catch(() => '');
+    throw new Error(errorText.slice(0, 500) || 'ส่งออกไฟล์ไม่สำเร็จ');
+  }
+
+  reportProgress({
+    step: 'preparing',
+    percent: 15,
+    title: 'กำลังสร้างไฟล์',
+    detail: 'ระบบกำลังสร้างไฟล์ Excel กรุณารอสักครู่...'
+  });
+
+  if (contentType.includes('application/json') || contentType.includes('text/plain')) {
+    const text = await res.text();
+
+    let data;
+
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      throw new Error('Export API ไม่ได้ส่ง JSON หรือไฟล์กลับมา: ' + text.slice(0, 300));
+    }
+
+    if (!data || data.ok === false) {
+      throw new Error((data && (data.message || data.error)) || 'ส่งออกไฟล์ไม่สำเร็จ');
+    }
+
+    if (!data.base64) {
+      throw new Error('ไม่พบข้อมูล base64 สำหรับดาวน์โหลดไฟล์');
+    }
+
+    reportProgress({
+      step: 'converting',
+      percent: 80,
+      title: 'กำลังเตรียมไฟล์ดาวน์โหลด',
+      detail: 'ได้รับข้อมูลไฟล์แล้ว กำลังแปลงเป็นไฟล์สำหรับดาวน์โหลด...'
     });
 
-    const contentType = res.headers.get('content-type') || '';
+    const filename = data.filename || fallbackFilename || 'download';
+    const mimeType = data.mimeType || fallbackMimeType || 'application/octet-stream';
 
-    if (!res.ok) {
-      const errorText = await res.text().catch(() => '');
-      throw new Error(errorText.slice(0, 300) || 'ส่งออกไฟล์ไม่สำเร็จ');
-    }
+    downloadBase64File(data.base64, filename, mimeType);
 
-    /*
-     * กรณี API ส่ง JSON กลับมา:
-     * {
-     *   ok: true,
-     *   filename: "...xlsx",
-     *   mimeType: "...",
-     *   base64: "..."
-     * }
-     */
-    if (contentType.includes('application/json') || contentType.includes('text/plain')) {
-      const text = await res.text();
+    reportProgress({
+      step: 'done',
+      percent: 100,
+      title: 'ดาวน์โหลดสำเร็จ',
+      detail: `ดาวน์โหลดไฟล์ ${filename} เรียบร้อยแล้ว`
+    });
 
-      let data;
-
-      try {
-        data = JSON.parse(text);
-      } catch (err) {
-        throw new Error('Export API ไม่ได้ส่ง JSON หรือไฟล์กลับมา: ' + text.slice(0, 300));
-      }
-
-      if (!data || data.ok === false) {
-        throw new Error((data && (data.message || data.error)) || 'ส่งออกไฟล์ไม่สำเร็จ');
-      }
-
-      if (!data.base64) {
-        throw new Error('ไม่พบข้อมูล base64 สำหรับดาวน์โหลดไฟล์');
-      }
-
-      const filename = data.filename || fallbackFilename || 'download';
-      const mimeType = data.mimeType || fallbackMimeType || 'application/octet-stream';
-
-      downloadBase64File(data.base64, filename, mimeType);
-
-      return data;
-    }
-
-    /*
-     * กรณี Worker ส่งไฟล์จริงกลับมาโดยตรง
-     */
-    const blob = await res.blob();
-    const filename = getFilenameFromResponse(res) || fallbackFilename || 'download';
-
-    if (!blob || !blob.size) {
-      throw new Error('ไฟล์ที่ส่งออกมีขนาดว่าง');
-    }
-
-    downloadBlob(blob, filename);
-
-    return {
-      ok: true,
-      filename,
-      mimeType: blob.type || fallbackMimeType || 'application/octet-stream',
-      size: blob.size
-    };
+    return data;
   }
+
+  const filename = getFilenameFromResponse(res) || fallbackFilename || 'download';
+
+  let blob;
+
+  if (res.body && typeof res.body.getReader === 'function') {
+    const reader = res.body.getReader();
+    const chunks = [];
+    let received = 0;
+
+    while (true) {
+      const read = await reader.read();
+
+      if (read.done) break;
+
+      chunks.push(read.value);
+      received += read.value.length;
+
+      if (contentLength > 0) {
+        const downloadPercent = Math.min(95, Math.round((received / contentLength) * 75) + 20);
+
+        reportProgress({
+          step: 'downloading',
+          percent: downloadPercent,
+          title: 'กำลังดาวน์โหลดไฟล์',
+          detail: `ดาวน์โหลดแล้ว ${formatBytes(received)} จาก ${formatBytes(contentLength)}`
+        });
+      } else {
+        reportProgress({
+          step: 'downloading',
+          percent: 50,
+          title: 'กำลังดาวน์โหลดไฟล์',
+          detail: `ดาวน์โหลดแล้ว ${formatBytes(received)}`
+        });
+      }
+    }
+
+    blob = new Blob(chunks, {
+      type: contentType || fallbackMimeType || 'application/octet-stream'
+    });
+
+  } else {
+    blob = await res.blob();
+
+    reportProgress({
+      step: 'downloading',
+      percent: 85,
+      title: 'กำลังดาวน์โหลดไฟล์',
+      detail: `ได้รับไฟล์แล้ว ${formatBytes(blob.size)}`
+    });
+  }
+
+  if (!blob || !blob.size) {
+    throw new Error('ไฟล์ที่ส่งออกมีขนาดว่าง');
+  }
+
+  reportProgress({
+    step: 'saving',
+    percent: 96,
+    title: 'กำลังบันทึกไฟล์',
+    detail: 'กำลังเปิดหน้าต่างดาวน์โหลดไฟล์...'
+  });
+
+  downloadBlob(blob, filename);
+
+  reportProgress({
+    step: 'done',
+    percent: 100,
+    title: 'ดาวน์โหลดสำเร็จ',
+    detail: `ดาวน์โหลดไฟล์ ${filename} เรียบร้อยแล้ว`
+  });
+
+  return {
+    ok: true,
+    filename,
+    mimeType: blob.type || fallbackMimeType || 'application/octet-stream',
+    size: blob.size
+  };
+}
 
   function getFilenameFromResponse(res) {
     const disposition = res.headers.get('content-disposition') || '';
@@ -205,26 +288,46 @@
   }
 
   function downloadBlob(blob, filename) {
-    if (!blob || !blob.size) {
-      throw new Error('ไฟล์ที่ดาวน์โหลดมีขนาดว่าง');
-    }
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-
-    a.href = url;
-    a.download = filename || 'download';
-    a.style.display = 'none';
-
-    document.body.appendChild(a);
-    a.click();
-
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-      a.remove();
-    }, 1000);
+  if (!blob || !blob.size) {
+    throw new Error('ไฟล์ที่ดาวน์โหลดมีขนาดว่าง');
   }
 
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+
+  a.href = url;
+  a.download = filename || 'download';
+  a.style.display = 'none';
+
+  document.body.appendChild(a);
+  a.click();
+
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    a.remove();
+  }, 1000);
+}
+function formatBytes(bytes) {
+  const n = Number(bytes || 0);
+
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+
+  return `${(n / 1024 / 1024).toFixed(2)} MB`;
+}
+async function exportCsv(month, onProgress) {
+  if (!month) {
+    throw new Error('กรุณาระบุเดือนสำหรับ Export CSV');
+  }
+
+  return requestFile(
+    '/api/export-csv',
+    { month },
+    `FireExitDoor_Report_${month}.csv`,
+    'text/csv;charset=utf-8',
+    onProgress
+  );
+}
   /************************************************************
    * API Functions
    ************************************************************/
@@ -298,41 +401,44 @@
     );
   }
 
-  async function exportExcel(month) {
-    if (!month) {
-      throw new Error('กรุณาระบุเดือนสำหรับ Export Excel');
-    }
-
-    return requestFile(
-      '/api/export-excel',
-      { month },
-      `FireExitDoor_Report_${month}.xlsx`,
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    );
+  async function exportExcel(month, onProgress) {
+  if (!month) {
+    throw new Error('กรุณาระบุเดือนสำหรับ Export Excel');
   }
+
+  return requestFile(
+    '/api/export-excel',
+    { month },
+    `FireExitDoor_Report_${month}.xlsx`,
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    onProgress
+  );
+}
 
   /************************************************************
    * Expose API
    ************************************************************/
 
   window.FireExitAPI = {
-    buildUrl,
-    requestJson,
-    requestFile,
-    downloadBase64File,
-    downloadBlob,
+  buildUrl,
+  requestJson,
+  requestFile,
+  downloadBase64File,
+  downloadBlob,
 
-    getHealth,
-    getOptions,
-    getDoors,
-    getChecklist,
-    getDailyStatus,
-    getLatest,
-    getHistory,
-    getMonthlyReport,
-    getMonthlyReportAll,
-    saveInspection,
-    exportCsv,
-    exportExcel
-  };
+  getHealth,
+  getOptions,
+  getDoors,
+  getChecklist,
+  getDailyStatus,
+  getLatest,
+  getHistory,
+  getMonthlyReport,
+  getMonthlyReportAll,
+  saveInspection,
+  exportCsv,
+  exportExcel
+};
 })();
+
+
