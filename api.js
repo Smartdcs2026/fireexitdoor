@@ -13,9 +13,17 @@
     console.error('ไม่พบ APP_CONFIG.API_BASE');
   }
 
+  /************************************************************
+   * URL / Request Helpers
+   ************************************************************/
+
   function buildUrl(path, params) {
-    const base = API_BASE.replace(/\/+$/, '');
-    const url = new URL(base + path);
+    const base = String(API_BASE || '').replace(/\/+$/, '');
+    const cleanPath = String(path || '').startsWith('/')
+      ? String(path || '')
+      : '/' + String(path || '');
+
+    const url = new URL(base + cleanPath);
 
     if (params && typeof params === 'object') {
       Object.keys(params).forEach((key) => {
@@ -37,7 +45,7 @@
     const fetchOptions = {
       method: opts.method || 'GET',
       headers: {
-        'Accept': 'application/json'
+        Accept: 'application/json'
       }
     };
 
@@ -58,16 +66,168 @@
     }
 
     if (!res.ok || data.ok === false) {
-      throw new Error(data.message || 'เกิดข้อผิดพลาดจาก API');
+      throw new Error(data.message || data.error || 'เกิดข้อผิดพลาดจาก API');
     }
 
     return data;
   }
 
-  function downloadFile(path, params) {
+  async function requestFile(path, params, fallbackFilename, fallbackMimeType) {
     const url = buildUrl(path, params);
-    window.open(url, '_blank', 'noopener,noreferrer');
+
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json, application/octet-stream, */*'
+      }
+    });
+
+    const contentType = res.headers.get('content-type') || '';
+
+    if (!res.ok) {
+      const errorText = await res.text().catch(() => '');
+      throw new Error(errorText.slice(0, 300) || 'ส่งออกไฟล์ไม่สำเร็จ');
+    }
+
+    /*
+     * กรณี API ส่ง JSON กลับมา:
+     * {
+     *   ok: true,
+     *   filename: "...xlsx",
+     *   mimeType: "...",
+     *   base64: "..."
+     * }
+     */
+    if (contentType.includes('application/json') || contentType.includes('text/plain')) {
+      const text = await res.text();
+
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch (err) {
+        throw new Error('Export API ไม่ได้ส่ง JSON หรือไฟล์กลับมา: ' + text.slice(0, 300));
+      }
+
+      if (!data || data.ok === false) {
+        throw new Error((data && (data.message || data.error)) || 'ส่งออกไฟล์ไม่สำเร็จ');
+      }
+
+      if (!data.base64) {
+        throw new Error('ไม่พบข้อมูล base64 สำหรับดาวน์โหลดไฟล์');
+      }
+
+      const filename = data.filename || fallbackFilename || 'download';
+      const mimeType = data.mimeType || fallbackMimeType || 'application/octet-stream';
+
+      downloadBase64File(data.base64, filename, mimeType);
+
+      return data;
+    }
+
+    /*
+     * กรณี Worker ส่งไฟล์จริงกลับมาโดยตรง
+     */
+    const blob = await res.blob();
+    const filename = getFilenameFromResponse(res) || fallbackFilename || 'download';
+
+    if (!blob || !blob.size) {
+      throw new Error('ไฟล์ที่ส่งออกมีขนาดว่าง');
+    }
+
+    downloadBlob(blob, filename);
+
+    return {
+      ok: true,
+      filename,
+      mimeType: blob.type || fallbackMimeType || 'application/octet-stream',
+      size: blob.size
+    };
   }
+
+  function getFilenameFromResponse(res) {
+    const disposition = res.headers.get('content-disposition') || '';
+
+    const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+    if (utf8Match && utf8Match[1]) {
+      try {
+        return decodeURIComponent(utf8Match[1].replace(/"/g, '').trim());
+      } catch (err) {
+        return utf8Match[1].replace(/"/g, '').trim();
+      }
+    }
+
+    const normalMatch = disposition.match(/filename="?([^"]+)"?/i);
+    if (normalMatch && normalMatch[1]) {
+      return normalMatch[1].trim();
+    }
+
+    return '';
+  }
+
+  /************************************************************
+   * Download Helpers
+   ************************************************************/
+
+  function downloadBase64File(base64, filename, mimeType) {
+    const cleanBase64 = String(base64 || '').replace(/\s/g, '');
+
+    if (!cleanBase64) {
+      throw new Error('ไม่พบข้อมูลไฟล์สำหรับดาวน์โหลด');
+    }
+
+    let byteCharacters;
+
+    try {
+      byteCharacters = atob(cleanBase64);
+    } catch (err) {
+      throw new Error('base64 ของไฟล์ไม่ถูกต้อง');
+    }
+
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+      const slice = byteCharacters.slice(offset, offset + 1024);
+      const byteNumbers = new Array(slice.length);
+
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      byteArrays.push(new Uint8Array(byteNumbers));
+    }
+
+    const blob = new Blob(byteArrays, {
+      type: mimeType || 'application/octet-stream'
+    });
+
+    downloadBlob(blob, filename || 'download');
+  }
+
+  function downloadBlob(blob, filename) {
+    if (!blob || !blob.size) {
+      throw new Error('ไฟล์ที่ดาวน์โหลดมีขนาดว่าง');
+    }
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+
+    a.href = url;
+    a.download = filename || 'download';
+    a.style.display = 'none';
+
+    document.body.appendChild(a);
+    a.click();
+
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 1000);
+  }
+
+  /************************************************************
+   * API Functions
+   ************************************************************/
 
   function getHealth() {
     return requestJson('/api/health');
@@ -125,18 +285,42 @@
     });
   }
 
-  function exportCsv(month) {
-    downloadFile('/api/export-csv', { month });
+  async function exportCsv(month) {
+    if (!month) {
+      throw new Error('กรุณาระบุเดือนสำหรับ Export CSV');
+    }
+
+    return requestFile(
+      '/api/export-csv',
+      { month },
+      `FireExitDoor_Report_${month}.csv`,
+      'text/csv;charset=utf-8'
+    );
   }
 
-  function exportExcel(month) {
-    downloadFile('/api/export-excel', { month });
+  async function exportExcel(month) {
+    if (!month) {
+      throw new Error('กรุณาระบุเดือนสำหรับ Export Excel');
+    }
+
+    return requestFile(
+      '/api/export-excel',
+      { month },
+      `FireExitDoor_Report_${month}.xlsx`,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
   }
+
+  /************************************************************
+   * Expose API
+   ************************************************************/
 
   window.FireExitAPI = {
     buildUrl,
     requestJson,
-    downloadFile,
+    requestFile,
+    downloadBase64File,
+    downloadBlob,
 
     getHealth,
     getOptions,
