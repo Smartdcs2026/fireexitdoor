@@ -10,7 +10,6 @@
 
   <script src="config.js"></script>
   <script src="api.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
@@ -193,71 +192,44 @@
       font-weight: 900;
     }
 
-
     .monthly-table .inspector-row td {
       background: #fff2cc;
       font-weight: 900;
+      font-size: 6.4pt;
     }
 
- .normal-cell {
-  color: #15803d;
-  font-weight: 900;
-  font-size: 12pt;
-}
+    .normal-cell {
+      color: #15803d;
+      font-weight: 900;
+      font-size: 12pt;
+    }
 
-.abnormal-cell {
-  color: #b91c1c;
-  font-weight: 900;
-  background: #fee2e2;
-  font-size: 12pt;
-}
+    .abnormal-cell {
+      color: #b91c1c;
+      font-weight: 900;
+      background: #fee2e2;
+      font-size: 12pt;
+    }
 
-.empty-cell {
-  color: #9ca3af;
-  font-weight: 400;
-  font-size: 8pt;
-}
+    .empty-cell {
+      color: #9ca3af;
+      font-weight: 400;
+      font-size: 8pt;
+    }
 
-.check-ok {
-  color: #15803d;
-  font-weight: 900;
-  font-size: 13pt;
-  line-height: 1;
-}
+    .check-ok {
+      color: #15803d;
+      font-weight: 900;
+      font-size: 13pt;
+      line-height: 1;
+    }
 
-.check-bad {
-  color: #b91c1c;
-  font-weight: 900;
-  font-size: 13pt;
-  line-height: 1;
-}
-
-.latest-seal-summary {
-  display: grid;
-  grid-template-columns: 3.6cm 1fr 3.2cm 1fr;
-  border-bottom: 1px solid #000;
-  font-size: 8pt;
-}
-
-.latest-seal-label {
-  background: #eaf4ff;
-  border-right: 1px solid #000;
-  padding: 0.1cm;
-  text-align: center;
-  font-weight: 900;
-}
-
-.latest-seal-value {
-  border-right: 1px solid #000;
-  padding: 0.1cm;
-  text-align: center;
-  font-weight: 900;
-  word-break: break-word;
-}
-
-.latest-seal-value:last-child {
-  border-right: 0;
-}
+    .check-bad {
+      color: #b91c1c;
+      font-weight: 900;
+      font-size: 13pt;
+      line-height: 1;
+    }
 
     .abnormal-section {
       margin-top: 0.35cm;
@@ -271,6 +243,33 @@
       font-weight: 900;
       padding: 0.12cm;
       font-size: 9pt;
+    }
+
+    .latest-seal-summary {
+      display: grid;
+      grid-template-columns: 3.6cm 1fr 3.2cm 1fr;
+      border-bottom: 1px solid #000;
+      font-size: 8pt;
+    }
+
+    .latest-seal-label {
+      background: #eaf4ff;
+      border-right: 1px solid #000;
+      padding: 0.1cm;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .latest-seal-value {
+      border-right: 1px solid #000;
+      padding: 0.1cm;
+      text-align: center;
+      font-weight: 900;
+      word-break: break-word;
+    }
+
+    .latest-seal-value:last-child {
+      border-right: 0;
     }
 
     .abnormal-table {
@@ -320,10 +319,6 @@
       display: flex;
       justify-content: flex-end;
       gap: 10px;
-    }
-
-    .report-note b {
-      font-weight: 900;
     }
 
     .door-mini-nav {
@@ -450,6 +445,11 @@
       .monthly-table th,
       .monthly-table td {
         height: 0.65cm;
+      }
+
+      .check-ok,
+      .check-bad {
+        font-size: 12pt;
       }
 
       .abnormal-table {
@@ -755,286 +755,252 @@
       }
     }
 
-   function renderReport(report) {
-  if (!report || !report.ok) {
-    el.reportContainer.innerHTML = `
-      <div class="empty-state">
-        ไม่พบข้อมูลรายงาน
-      </div>
-    `;
-    return;
-  }
-
-  const days = Number(report.days || 31);
-  const dayHeaders = [];
-
-  for (let d = 1; d <= days; d++) {
-    dayHeaders.push(String(d).padStart(2, '0'));
-  }
-
-  const latestDaily = getLatestDailyRecord(report, dayHeaders);
-
-  const checklistRows = (report.checklist || []).map(item => {
-    const cells = dayHeaders.map(day => {
-      const daily = report.dailyMap && report.dailyMap[day] ? report.dailyMap[day] : null;
-      const rawValue = daily && daily.items ? normalizeTrueText(daily.items[item.title] || '') : '';
-      const isBad = isAbnormalValue(rawValue);
-
-      if (!rawValue) {
-        return `<td class="empty-cell">-</td>`;
+    function renderReport(report) {
+      if (!report || !report.ok) {
+        el.reportContainer.innerHTML = `
+          <div class="empty-state">
+            ไม่พบข้อมูลรายงาน
+          </div>
+        `;
+        return;
       }
 
-      if (isBad) {
-        return `<td class="abnormal-cell"><span class="check-bad">✕</span></td>`;
+      const days = Number(report.days || 31);
+      const dayHeaders = [];
+
+      for (let d = 1; d <= days; d++) {
+        dayHeaders.push(String(d).padStart(2, '0'));
       }
 
-      return `<td class="normal-cell"><span class="check-ok">✓</span></td>`;
-    }).join('');
+      const latestDaily = getLatestDailyRecord(report, dayHeaders);
 
-    return `
-      <tr>
-        <td>${escapeHtml(item.title || '-')}</td>
-        ${cells}
-      </tr>
-    `;
-  }).join('');
+      const checklistRows = (report.checklist || []).map(item => {
+        const cells = dayHeaders.map(day => {
+          const daily = report.dailyMap && report.dailyMap[day] ? report.dailyMap[day] : null;
+          const rawValue = daily && daily.items ? normalizeTrueText(daily.items[item.title] || '') : '';
+          const isBad = isAbnormalValue(rawValue);
 
-  const inspectorRow = dayHeaders.map(day => {
-    const daily = report.dailyMap && report.dailyMap[day] ? report.dailyMap[day] : null;
-    return `<td>${escapeHtml(daily && daily.inspector ? daily.inspector : '-')}</td>`;
-  }).join('');
+          if (!rawValue) {
+            return `<td class="empty-cell">-</td>`;
+          }
 
-  const abnormalRows = buildAbnormalRows(report, dayHeaders, report.checklist || []);
+          if (isBad) {
+            return `<td class="abnormal-cell"><span class="check-bad">✕</span></td>`;
+          }
 
-  el.reportContainer.innerHTML = `
-    <article class="report-paper">
-      <section class="report-head">
-        <div class="report-logo-box">
-          <img src="${escapeAttr(CONFIG.LOGO_URL)}" alt="Logo" />
-        </div>
+          return `<td class="normal-cell"><span class="check-ok">✓</span></td>`;
+        }).join('');
 
-        <div class="report-title-box">
-          <div>
-            <h1>แบบตรวจประตูหนีไฟ</h1>
-            <span>Fire Exit Door Inspection Form</span>
-          </div>
-        </div>
+        return `
+          <tr>
+            <td>${escapeHtml(item.title || '-')}</td>
+            ${cells}
+          </tr>
+        `;
+      }).join('');
 
-        <div class="report-meta-box">
-          <div class="report-meta-row">
-            <div class="report-meta-label">ประตู</div>
-            <div class="report-meta-value">${escapeHtml(report.door.doorId || '-')}</div>
-          </div>
+      const inspectorRow = dayHeaders.map(day => {
+        const daily = report.dailyMap && report.dailyMap[day] ? report.dailyMap[day] : null;
+        return `<td>${escapeHtml(daily && daily.inspector ? daily.inspector : '-')}</td>`;
+      }).join('');
 
-          <div class="report-meta-row">
-            <div class="report-meta-label">เดือน</div>
-            <div class="report-meta-value">${escapeHtml(report.monthName || '-')}</div>
-          </div>
+      const abnormalRows = buildAbnormalRows(report, dayHeaders, report.checklist || []);
 
-          <div class="report-meta-row">
-            <div class="report-meta-label">พ.ศ.</div>
-            <div class="report-meta-value">${escapeHtml(report.thaiYear || '-')}</div>
-          </div>
-        </div>
-      </section>
+      el.reportContainer.innerHTML = `
+        <article class="report-paper">
+          <section class="report-head">
+            <div class="report-logo-box">
+              <img src="${escapeAttr(CONFIG.LOGO_URL)}" alt="Logo" />
+            </div>
 
-      <section class="report-table-wrap">
-        <table class="monthly-table">
-          <thead>
-            <tr>
-              <th>หัวข้อตรวจสอบ / จุดติดตั้ง: ${escapeHtml(report.door.location || '-')}</th>
-              ${dayHeaders.map(day => `<th>${day}</th>`).join('')}
-            </tr>
-          </thead>
+            <div class="report-title-box">
+              <div>
+                <h1>แบบตรวจประตูหนีไฟ</h1>
+                <span>Fire Exit Door Inspection Form</span>
+              </div>
+            </div>
 
-          <tbody>
-            ${checklistRows}
+            <div class="report-meta-box">
+              <div class="report-meta-row">
+                <div class="report-meta-label">ประตู</div>
+                <div class="report-meta-value">${escapeHtml(report.door.doorId || '-')}</div>
+              </div>
 
-            <tr class="inspector-row">
-              <td>ลงชื่อผู้ตรวจ</td>
-              ${inspectorRow}
-            </tr>
-          </tbody>
-        </table>
-      </section>
+              <div class="report-meta-row">
+                <div class="report-meta-label">เดือน</div>
+                <div class="report-meta-value">${escapeHtml(report.monthName || '-')}</div>
+              </div>
 
-      <section class="abnormal-section">
-        <div class="abnormal-title">ดำเนินการกรณีพบสิ่งผิดปกติ</div>
+              <div class="report-meta-row">
+                <div class="report-meta-label">พ.ศ.</div>
+                <div class="report-meta-value">${escapeHtml(report.thaiYear || '-')}</div>
+              </div>
+            </div>
+          </section>
 
-        <div class="latest-seal-summary">
-          <div class="latest-seal-label">หมายเลขซีลล่าสุด</div>
-          <div class="latest-seal-value">${escapeHtml(latestDaily.sealNo || '-')}</div>
+          <section class="report-table-wrap">
+            <table class="monthly-table">
+              <thead>
+                <tr>
+                  <th>หัวข้อตรวจสอบ / จุดติดตั้ง: ${escapeHtml(report.door.location || '-')}</th>
+                  ${dayHeaders.map(day => `<th>${day}</th>`).join('')}
+                </tr>
+              </thead>
 
-          <div class="latest-seal-label">ตรวจล่าสุด</div>
-          <div class="latest-seal-value">${escapeHtml(normalizeTimestampDisplay(latestDaily.timestamp || '-'))}</div>
-        </div>
+              <tbody>
+                ${checklistRows}
 
-        <table class="abnormal-table">
-          <thead>
-            <tr>
-              <th>วันที่/เวลา</th>
-              <th>หมายเลขซีล</th>
-              <th>ผู้ตรวจ</th>
-              <th>รายละเอียด</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${abnormalRows}
-          </tbody>
-        </table>
-      </section>
+                <tr class="inspector-row">
+                  <td>ลงชื่อผู้ตรวจ</td>
+                  ${inspectorRow}
+                </tr>
+              </tbody>
+            </table>
+          </section>
 
-      <section class="report-note">
-        <div>✓ = ปกติ&nbsp;&nbsp;&nbsp; <span style="color:#b91c1c;font-weight:900;">✕</span> = ผิดปกติ</div>
-      </section>
-    </article>
-  `;
-}
+          <section class="abnormal-section">
+            <div class="abnormal-title">ดำเนินการกรณีพบสิ่งผิดปกติ</div>
 
-   function buildAbnormalRows(report, dayHeaders, checklist) {
-  const rows = [];
-  const dailyList = [];
+            <div class="latest-seal-summary">
+              <div class="latest-seal-label">หมายเลขซีลล่าสุด</div>
+              <div class="latest-seal-value">${escapeHtml(latestDaily.sealNo || '-')}</div>
 
-  dayHeaders.forEach(day => {
-    const daily = report.dailyMap && report.dailyMap[day] ? report.dailyMap[day] : null;
+              <div class="latest-seal-label">ตรวจล่าสุด</div>
+              <div class="latest-seal-value">${escapeHtml(normalizeTimestampDisplay(latestDaily.timestamp || '-'))}</div>
+            </div>
 
-    if (!daily || !daily.timestamp) return;
+            <table class="abnormal-table">
+              <thead>
+                <tr>
+                  <th>วันที่/เวลา</th>
+                  <th>หมายเลขซีล</th>
+                  <th>ผู้ตรวจ</th>
+                  <th>รายละเอียด</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${abnormalRows}
+              </tbody>
+            </table>
+          </section>
 
-    dailyList.push(daily);
-
-    const badDetails = [];
-
-    (checklist || []).forEach(item => {
-      const title = item.title || '';
-      const rawValue = daily.items ? normalizeTrueText(daily.items[title] || '') : '';
-
-      if (!rawValue) return;
-
-      if (isAbnormalValue(rawValue)) {
-        badDetails.push(`${title}: ${rawValue}`);
-      }
-    });
-
-    if (!badDetails.length && daily.result === 'ผิดปกติ' && daily.abnormalDetails && daily.abnormalDetails !== '-') {
-      badDetails.push(normalizeTrueText(daily.abnormalDetails));
+          <section class="report-note">
+            <div>✓ = ปกติ&nbsp;&nbsp;&nbsp; <span style="color:#b91c1c;font-weight:900;">✕</span> = ผิดปกติ</div>
+          </section>
+        </article>
+      `;
     }
 
-    if (!badDetails.length) return;
+    function buildAbnormalRows(report, dayHeaders, checklist) {
+      const rows = [];
 
-    rows.push(`
-      <tr>
-        <td>${escapeHtml(normalizeTimestampDisplay(daily.timestamp || '-'))}</td>
-        <td>${escapeHtml(daily.sealNo || '-')}</td>
-        <td>${escapeHtml(daily.inspector || '-')}</td>
-        <td>${escapeHtml(badDetails.join('\n')).replace(/\n/g, '<br>')}</td>
-      </tr>
-    `);
-  });
+      dayHeaders.forEach(day => {
+        const daily = report.dailyMap && report.dailyMap[day] ? report.dailyMap[day] : null;
 
-  if (rows.length) {
-    return rows.join('');
-  }
+        if (!daily || !daily.timestamp) return;
 
-  const latest = getLatestDailyRecord(report, dayHeaders);
+        const badDetails = [];
 
-  if (latest && latest.timestamp) {
-    return `
-      <tr>
-        <td>${escapeHtml(normalizeTimestampDisplay(latest.timestamp || '-'))}</td>
-        <td>${escapeHtml(latest.sealNo || '-')}</td>
-        <td>${escapeHtml(latest.inspector || '-')}</td>
-        <td>ไม่พบสิ่งผิดปกติ</td>
-      </tr>
-    `;
-  }
+        (checklist || []).forEach(item => {
+          const title = item.title || '';
+          const rawValue = daily.items ? normalizeTrueText(daily.items[title] || '') : '';
 
-  return `
-    <tr>
-      <td>-</td>
-      <td>-</td>
-      <td>-</td>
-      <td>ยังไม่มีข้อมูลการตรวจในเดือนนี้</td>
-    </tr>
-  `;
-}
+          if (!rawValue) return;
 
-  dailyList.sort((a, b) => {
-    return timestampSortKey(b.timestamp) - timestampSortKey(a.timestamp);
-  });
+          if (isAbnormalValue(rawValue)) {
+            badDetails.push(`${title}: ${rawValue}`);
+          }
+        });
 
-  const abnormalList = dailyList.filter(item => item.result === 'ผิดปกติ');
+        if (!badDetails.length && daily.result === 'ผิดปกติ' && daily.abnormalDetails && daily.abnormalDetails !== '-') {
+          badDetails.push(normalizeTrueText(daily.abnormalDetails));
+        }
 
-  if (abnormalList.length) {
-    return abnormalList.map(item => {
-      const detail = item.abnormalDetails && item.abnormalDetails !== '-'
-        ? item.abnormalDetails
-        : 'พบสิ่งผิดปกติ แต่ไม่มีรายละเอียดเพิ่มเติม';
+        if (!badDetails.length) return;
+
+        rows.push(`
+          <tr>
+            <td>${escapeHtml(normalizeTimestampDisplay(daily.timestamp || '-'))}</td>
+            <td>${escapeHtml(daily.sealNo || '-')}</td>
+            <td>${escapeHtml(daily.inspector || '-')}</td>
+            <td>${escapeHtml(badDetails.join('\n')).replace(/\n/g, '<br>')}</td>
+          </tr>
+        `);
+      });
+
+      if (rows.length) {
+        return rows.join('');
+      }
+
+      const latest = getLatestDailyRecord(report, dayHeaders);
+
+      if (latest && latest.timestamp) {
+        return `
+          <tr>
+            <td>${escapeHtml(normalizeTimestampDisplay(latest.timestamp || '-'))}</td>
+            <td>${escapeHtml(latest.sealNo || '-')}</td>
+            <td>${escapeHtml(latest.inspector || '-')}</td>
+            <td>ไม่พบสิ่งผิดปกติ</td>
+          </tr>
+        `;
+      }
 
       return `
         <tr>
-          <td>${escapeHtml(item.timestamp || '-')}</td>
-          <td>${escapeHtml(item.sealNo || '-')}</td>
-          <td>${escapeHtml(item.inspector || '-')}</td>
-          <td>${escapeHtml(detail).replace(/\n/g, '<br>')}</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>ยังไม่มีข้อมูลการตรวจในเดือนนี้</td>
         </tr>
       `;
-    }).join('');
-  }
-
-  const latest = dailyList[0];
-
-  return `
-    <tr>
-      <td>${escapeHtml(latest.timestamp || '-')}</td>
-      <td>${escapeHtml(latest.sealNo || '-')}</td>
-      <td>${escapeHtml(latest.inspector || '-')}</td>
-      <td>ไม่พบสิ่งผิดปกติ</td>
-    </tr>
-  `;
-}
+    }
 
     function getLatestDailyRecord(report, dayHeaders) {
-  const list = [];
+      const list = [];
 
-  dayHeaders.forEach(day => {
-    const daily = report.dailyMap && report.dailyMap[day] ? report.dailyMap[day] : null;
+      dayHeaders.forEach(day => {
+        const daily = report.dailyMap && report.dailyMap[day] ? report.dailyMap[day] : null;
 
-    if (!daily || !daily.timestamp) return;
+        if (!daily || !daily.timestamp) return;
 
-    list.push(daily);
-  });
+        list.push(daily);
+      });
 
-  if (!list.length) {
-    return {
-      timestamp: '',
-      sealNo: '',
-      inspector: ''
-    };
-  }
+      if (!list.length) {
+        return {
+          timestamp: '',
+          sealNo: '',
+          inspector: ''
+        };
+      }
 
-  list.sort((a, b) => {
-    return timestampSortKey(normalizeTimestampDisplay(b.timestamp)) - timestampSortKey(normalizeTimestampDisplay(a.timestamp));
-  });
+      list.sort((a, b) => {
+        return timestampSortKey(normalizeTimestampDisplay(b.timestamp)) - timestampSortKey(normalizeTimestampDisplay(a.timestamp));
+      });
 
-  return list[0];
-}
+      return list[0];
+    }
+
     function isAbnormalValue(value) {
-  const s = String(value || '').trim();
+      const s = String(value || '').trim();
 
-  if (!s || s === '-') return false;
+      if (!s || s === '-') return false;
 
-  const normalWords = [
-    '✓',
-    'ปกติ',
-    'normal',
-    'ok',
-    'true'
-  ];
+      const lower = s.toLowerCase();
 
-  if (normalWords.includes(s.toLowerCase())) return false;
+      const normalWords = [
+        '✓',
+        'ปกติ',
+        'normal',
+        'ok',
+        'true'
+      ];
 
-  return true;
-}
+      if (normalWords.includes(lower)) return false;
+
+      return true;
+    }
+
     function normalizeTimestampDisplay(value) {
       const s = String(value ?? '').trim();
 
@@ -1054,22 +1020,24 @@
 
       return s;
     }
-function timestampSortKey(value) {
-  const s = String(value ?? '').trim();
 
-  if (!/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/.test(s)) {
-    return 0;
-  }
+    function timestampSortKey(value) {
+      const s = String(value ?? '').trim();
 
-  const dd = s.substring(0, 2);
-  const mm = s.substring(3, 5);
-  const yyyy = s.substring(6, 10);
-  const hh = s.substring(11, 13);
-  const mi = s.substring(14, 16);
-  const ss = s.substring(17, 19);
+      if (!/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/.test(s)) {
+        return 0;
+      }
 
-  return Number(`${yyyy}${mm}${dd}${hh}${mi}${ss}`);
-}
+      const dd = s.substring(0, 2);
+      const mm = s.substring(3, 5);
+      const yyyy = s.substring(6, 10);
+      const hh = s.substring(11, 13);
+      const mi = s.substring(14, 16);
+      const ss = s.substring(17, 19);
+
+      return Number(`${yyyy}${mm}${dd}${hh}${mi}${ss}`);
+    }
+
     function setControlsDisabled(disabled) {
       el.monthInput.disabled = disabled;
       el.doorSelect.disabled = disabled;
