@@ -255,43 +255,44 @@
       white-space: nowrap;
     }
 
-    /************************************************************
+ /************************************************************
  * รายการตรวจล่าสุด: แถวข้อมูลธรรมดา แถวละ 2 ข้อมูล
+ * บังคับให้รายการตรวจ + ผลตรวจ อยู่แถวเดียวกันเสมอ
  ************************************************************/
 
 .latest-list {
   display: grid;
-  gap: 6px;
+  gap: 5px;
 }
 
 .latest-data-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
+  gap: 5px;
 }
 
 .latest-data-cell {
   border: 1px solid var(--line);
   background: #fff;
-  border-radius: 11px;
-  padding: 7px 8px;
-  min-height: 36px;
+  border-radius: 10px;
+  padding: 6px;
+  min-height: 32px;
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) auto;
-  gap: 5px;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  gap: 4px;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.035);
+  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.035);
   overflow: hidden;
 }
 
 .latest-data-cell.abnormal {
-  background: linear-gradient(90deg, var(--danger-soft), #fff 70%);
+  background: linear-gradient(90deg, var(--danger-soft), #fff 72%);
   border-color: rgba(185, 28, 28, 0.28);
 }
 
 .latest-no {
-  width: 20px;
-  height: 20px;
+  width: 17px;
+  height: 17px;
   border-radius: 999px;
   background: var(--primary);
   color: #fff;
@@ -299,15 +300,15 @@
   align-items: center;
   justify-content: center;
   font-weight: 1000;
-  font-size: 9px;
+  font-size: 8px;
   flex: 0 0 auto;
 }
 
 .latest-title {
   min-width: 0;
   color: #0f172a;
-  font-size: 11.5px;
-  line-height: 1.18;
+  font-size: 10.6px;
+  line-height: 1.15;
   font-weight: 900;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -315,10 +316,10 @@
 }
 
 .latest-status {
-  min-height: 20px;
-  padding: 3px 6px;
+  min-height: 17px;
+  padding: 2px 5px;
   border-radius: 999px;
-  font-size: 9.5px;
+  font-size: 8.4px;
   font-weight: 1000;
   text-align: center;
   background: var(--success-soft);
@@ -333,12 +334,11 @@
 }
 
 .latest-detail-row {
-  grid-column: 1 / -1;
+  grid-column: 2 / 4;
   color: #7f1d1d;
-  font-size: 10.5px;
-  line-height: 1.25;
+  font-size: 9.4px;
+  line-height: 1.2;
   font-weight: 800;
-  padding-left: 27px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -355,63 +355,72 @@
   font-weight: 700;
 }
 
-@media (max-width: 760px) {
-  .latest-list {
-    gap: 5px;
-  }
-
+@media (min-width: 761px) {
   .latest-data-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 5px;
   }
 
   .latest-data-cell {
-    min-height: 34px;
-    padding: 6px;
-    border-radius: 10px;
-    grid-template-columns: 20px minmax(0, 1fr) auto;
-    gap: 4px;
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+    min-height: 36px;
+    padding: 7px 8px;
+    gap: 5px;
   }
 
   .latest-no {
-    width: 18px;
-    height: 18px;
-    font-size: 8.5px;
+    width: 20px;
+    height: 20px;
+    font-size: 9px;
   }
 
   .latest-title {
-    font-size: 10.8px;
+    font-size: 11.5px;
   }
 
   .latest-status {
-    min-height: 18px;
-    padding: 2px 5px;
-    font-size: 8.8px;
+    min-height: 20px;
+    padding: 3px 6px;
+    font-size: 9.5px;
   }
 
   .latest-detail-row {
-    padding-left: 24px;
-    font-size: 9.8px;
+    grid-column: 2 / 4;
+    font-size: 10.5px;
   }
 }
 
 @media (max-width: 390px) {
   .latest-data-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
   }
 
   .latest-data-cell {
-    grid-template-columns: 18px minmax(0, 1fr) auto;
+    grid-template-columns: 16px minmax(0, 1fr) auto;
     gap: 3px;
+    padding: 5px;
+    min-height: 30px;
+  }
+
+  .latest-no {
+    width: 15px;
+    height: 15px;
+    font-size: 7.5px;
   }
 
   .latest-title {
-    font-size: 10.2px;
+    font-size: 9.8px;
   }
 
   .latest-status {
-    font-size: 8.3px;
+    min-height: 16px;
     padding: 2px 4px;
+    font-size: 7.8px;
+  }
+
+  .latest-detail-row {
+    grid-column: 2 / 4;
+    font-size: 8.8px;
   }
 }
     /************************************************************
@@ -961,17 +970,16 @@
   }).join('');
 }
 
-   function renderLatestCell(item, index) {
+ function renderLatestCell(item, index) {
   const isBad = !!item.isAbnormal;
   const rawValue = normalizeTrueText(item.finalText || item.value || '-');
   const detailText = buildItemDetailText(item, rawValue, isBad);
 
   return `
-    <div class="latest-data-cell ${isBad ? 'abnormal' : ''}">
+    <div class="latest-data-cell ${isBad ? 'abnormal' : ''}" title="${escapeHtml(item.title || '')}">
       <span class="latest-no">${escapeHtml(item.no || index + 1)}</span>
       <div class="latest-title">${escapeHtml(item.title || '-')}</div>
-      <span class="latest-status">${isBad ? 'ผิดปกติ' : 'ปกติ'}</span>
-      ${isBad && detailText ? `<div class="latest-detail-row">${escapeHtml(detailText)}</div>` : ''}
+      <span class="latest-status">${isBad ? escapeHtml(detailText || 'ผิดปกติ') : 'ปกติ'}</span>
     </div>
   `;
 }
