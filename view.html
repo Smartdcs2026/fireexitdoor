@@ -256,108 +256,164 @@
     }
 
     /************************************************************
-     * รายการตรวจล่าสุด: แถวข้อมูล
-     ************************************************************/
+ * รายการตรวจล่าสุด: แถวข้อมูลธรรมดา แถวละ 2 ข้อมูล
+ ************************************************************/
 
-    .latest-list {
-      display: grid;
-      gap: 7px;
-    }
+.latest-list {
+  display: grid;
+  gap: 6px;
+}
 
-    .latest-data-row {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 7px;
-    }
+.latest-data-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
 
-    .latest-data-cell {
-      border: 1px solid var(--line);
-      background: #fff;
-      border-radius: 14px;
-      padding: 8px;
-      min-height: 46px;
-      display: grid;
-      grid-template-columns: 24px minmax(0, 1fr) auto;
-      gap: 6px;
-      align-items: center;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-      overflow: hidden;
-    }
+.latest-data-cell {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 11px;
+  padding: 7px 8px;
+  min-height: 36px;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  gap: 5px;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.035);
+  overflow: hidden;
+}
 
-    .latest-data-cell.abnormal {
-      background: linear-gradient(90deg, var(--danger-soft), #fff 64%);
-      border-color: rgba(185, 28, 28, 0.28);
-    }
+.latest-data-cell.abnormal {
+  background: linear-gradient(90deg, var(--danger-soft), #fff 70%);
+  border-color: rgba(185, 28, 28, 0.28);
+}
 
-    .latest-no {
-      width: 22px;
-      height: 22px;
-      border-radius: 999px;
-      background: var(--primary);
-      color: #fff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 1000;
-      font-size: 10px;
-      flex: 0 0 auto;
-    }
+.latest-no {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 1000;
+  font-size: 9px;
+  flex: 0 0 auto;
+}
 
-    .latest-main {
-      min-width: 0;
-      display: grid;
-      gap: 2px;
-    }
+.latest-title {
+  min-width: 0;
+  color: #0f172a;
+  font-size: 11.5px;
+  line-height: 1.18;
+  font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-    .latest-title {
-      color: #0f172a;
-      font-size: 12px;
-      line-height: 1.2;
-      font-weight: 900;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+.latest-status {
+  min-height: 20px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 1000;
+  text-align: center;
+  background: var(--success-soft);
+  color: var(--success);
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
 
-    .latest-detail {
-      color: #7f1d1d;
-      font-size: 10.5px;
-      line-height: 1.2;
-      font-weight: 800;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+.latest-data-cell.abnormal .latest-status {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
 
-    .latest-status {
-      min-height: 22px;
-      padding: 3px 7px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 1000;
-      text-align: center;
-      background: var(--success-soft);
-      color: var(--success);
-      white-space: nowrap;
-      flex: 0 0 auto;
-    }
+.latest-detail-row {
+  grid-column: 1 / -1;
+  color: #7f1d1d;
+  font-size: 10.5px;
+  line-height: 1.25;
+  font-weight: 800;
+  padding-left: 27px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-    .latest-data-cell.abnormal .latest-status {
-      background: var(--danger-soft);
-      color: var(--danger);
-    }
+.abnormal-box {
+  background: var(--danger-soft);
+  border: 1px solid rgba(185, 28, 28, 0.26);
+  border-radius: 15px;
+  padding: 12px;
+  color: #7f1d1d;
+  white-space: pre-wrap;
+  line-height: 1.55;
+  font-weight: 700;
+}
 
-    .abnormal-box {
-      background: var(--danger-soft);
-      border: 1px solid rgba(185, 28, 28, 0.26);
-      border-radius: 15px;
-      padding: 12px;
-      color: #7f1d1d;
-      white-space: pre-wrap;
-      line-height: 1.55;
-      font-weight: 700;
-    }
+@media (max-width: 760px) {
+  .latest-list {
+    gap: 5px;
+  }
 
+  .latest-data-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .latest-data-cell {
+    min-height: 34px;
+    padding: 6px;
+    border-radius: 10px;
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+    gap: 4px;
+  }
+
+  .latest-no {
+    width: 18px;
+    height: 18px;
+    font-size: 8.5px;
+  }
+
+  .latest-title {
+    font-size: 10.8px;
+  }
+
+  .latest-status {
+    min-height: 18px;
+    padding: 2px 5px;
+    font-size: 8.8px;
+  }
+
+  .latest-detail-row {
+    padding-left: 24px;
+    font-size: 9.8px;
+  }
+}
+
+@media (max-width: 390px) {
+  .latest-data-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .latest-data-cell {
+    grid-template-columns: 18px minmax(0, 1fr) auto;
+    gap: 3px;
+  }
+
+  .latest-title {
+    font-size: 10.2px;
+  }
+
+  .latest-status {
+    font-size: 8.3px;
+    padding: 2px 4px;
+  }
+}
     /************************************************************
      * ประวัติย้อนหลัง: 1 ครั้งต่อ 1 แถว
      ************************************************************/
