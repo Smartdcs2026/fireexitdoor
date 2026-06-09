@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
   <title>บันทึกตรวจประตูหนีไฟ</title>
 
@@ -10,45 +10,84 @@
 
   <script src="config.js"></script>
   <script src="api.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
     /************************************************************
      * check.html
-     * ฟอร์มบันทึกตรวจประตูหนีไฟ + หมายเลขซีล
+     * Mobile-first Fire Exit Door Inspection Form
      ************************************************************/
+
+    body {
+      padding-bottom: 118px;
+    }
 
     .check-layout {
       display: grid;
-      gap: 14px;
+      gap: 12px;
     }
 
     .form-card {
       background: #fff;
       border: 1px solid var(--line);
-      border-radius: var(--radius);
+      border-radius: 18px;
       box-shadow: var(--shadow);
-      padding: 16px;
+      padding: 14px;
+    }
+
+    .section-title-row {
+      gap: 10px;
+      align-items: center;
+    }
+
+    .section-title-row h2 {
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    .section-title-row p {
+      font-size: 12px;
+      line-height: 1.35;
     }
 
     .form-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      gap: 10px;
     }
 
     .field.full {
       grid-column: 1 / -1;
     }
 
+    .field span {
+      font-size: 13px;
+      font-weight: 900;
+      color: #334155;
+      margin-bottom: 5px;
+    }
+
+    .field select,
+    .field input,
+    .field textarea {
+      min-height: 48px;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .field select {
+      cursor: pointer;
+    }
+
     .seal-box {
-      border: 1px solid rgba(15, 118, 110, 0.3);
-      background: linear-gradient(90deg, var(--primary-soft), #fff 68%);
+      grid-column: 1 / -1;
+      border: 1px solid rgba(15, 118, 110, 0.32);
+      background: linear-gradient(90deg, var(--primary-soft), #fff 70%);
       border-radius: 16px;
-      padding: 12px;
+      padding: 11px;
       display: grid;
-      gap: 8px;
+      gap: 6px;
     }
 
     .seal-box .field span {
@@ -57,11 +96,13 @@
     }
 
     .seal-box input {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 900;
-      letter-spacing: 1px;
+      letter-spacing: 1.2px;
       color: var(--primary-dark);
       text-align: center;
+      min-height: 54px;
+      background: #fff;
     }
 
     .seal-help {
@@ -69,57 +110,77 @@
       font-size: 12px;
       font-weight: 700;
       text-align: center;
+      line-height: 1.35;
     }
 
     .door-info-box {
       border: 1px solid rgba(15, 118, 110, 0.25);
       background: var(--primary-soft);
-      border-radius: 16px;
-      padding: 12px;
+      border-radius: 14px;
+      padding: 10px;
       display: grid;
-      gap: 4px;
-      margin-top: 12px;
+      gap: 3px;
+      margin-top: 10px;
     }
 
     .door-info-box strong {
-      font-size: 18px;
+      font-size: 17px;
       color: var(--primary-dark);
     }
 
     .door-info-box span {
       color: #334155;
-      font-size: 14px;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .top-action-mini {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .top-action-mini .btn {
+      min-height: 44px;
+      border-radius: 14px;
+      font-size: 13px;
     }
 
     .checklist-wrap {
       display: grid;
-      gap: 10px;
+      gap: 9px;
     }
 
     .check-item {
       border: 1px solid var(--line);
       background: #fff;
       border-radius: 16px;
-      padding: 12px;
+      padding: 11px;
       display: grid;
-      gap: 10px;
+      gap: 9px;
+    }
+
+    .check-item.done {
+      border-color: rgba(21, 128, 61, 0.25);
+      background: linear-gradient(90deg, var(--success-soft), #fff 45%);
     }
 
     .check-item.abnormal {
       border-color: rgba(185, 28, 28, 0.35);
-      background: linear-gradient(90deg, var(--danger-soft), #fff 42%);
+      background: linear-gradient(90deg, var(--danger-soft), #fff 45%);
     }
 
     .check-title-row {
       display: grid;
-      grid-template-columns: 38px minmax(0, 1fr);
+      grid-template-columns: 32px minmax(0, 1fr) auto;
       gap: 8px;
-      align-items: start;
+      align-items: center;
     }
 
     .check-no {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border-radius: 999px;
       background: var(--primary);
       color: #fff;
@@ -127,12 +188,40 @@
       align-items: center;
       justify-content: center;
       font-weight: 900;
-      font-size: 13px;
+      font-size: 12px;
     }
 
     .check-title {
       font-weight: 900;
-      line-height: 1.35;
+      line-height: 1.32;
+      font-size: 14px;
+      color: #0f172a;
+      overflow-wrap: anywhere;
+    }
+
+    .check-status-pill {
+      min-width: 58px;
+      min-height: 26px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+      text-align: center;
+      background: #e2e8f0;
+      color: #64748b;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .check-status-pill.ok {
+      background: var(--success-soft);
+      color: var(--success);
+    }
+
+    .check-status-pill.bad {
+      background: var(--danger-soft);
+      color: var(--danger);
     }
 
     .check-actions {
@@ -145,24 +234,28 @@
       border: 1px solid var(--line);
       background: #f8fafc;
       color: #0f172a;
-      min-height: 44px;
-      border-radius: 14px;
+      min-height: 50px;
+      border-radius: 15px;
       padding: 9px 10px;
       font-weight: 900;
-      font-size: 14px;
+      font-size: 15px;
       cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .choice-btn.normal.active {
       background: var(--success);
       border-color: var(--success);
       color: #fff;
+      box-shadow: 0 8px 18px rgba(21, 128, 61, 0.22);
     }
 
     .choice-btn.abnormal.active {
       background: var(--danger);
       border-color: var(--danger);
       color: #fff;
+      box-shadow: 0 8px 18px rgba(185, 28, 28, 0.22);
     }
 
     .detail-box {
@@ -182,13 +275,14 @@
 
     .detail-box textarea {
       width: 100%;
-      min-height: 78px;
+      min-height: 86px;
       resize: vertical;
       border: 1px solid rgba(185, 28, 28, 0.35);
       border-radius: 14px;
       padding: 10px;
       font-size: 15px;
       outline: none;
+      font-weight: 700;
     }
 
     .detail-box textarea:focus {
@@ -196,41 +290,52 @@
       box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.12);
     }
 
-    .sticky-save {
-      position: sticky;
-      bottom: 8px;
-      z-index: 10;
+    .bottom-save-bar {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: min(100%, 760px);
+      z-index: 50;
+      background: rgba(244, 247, 251, 0.96);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(217, 226, 236, 0.9);
+      box-shadow: 0 -8px 26px rgba(15, 23, 42, 0.13);
+      padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
       display: grid;
-      gap: 8px;
-      background: rgba(244, 247, 251, 0.9);
-      backdrop-filter: blur(10px);
-      padding: 10px;
-      border-radius: 18px;
-      border: 1px solid rgba(217, 226, 236, 0.8);
-      box-shadow: var(--shadow);
+      gap: 7px;
+    }
+
+    .progress-line {
+      font-size: 12px;
+      color: #334155;
+      text-align: center;
+      font-weight: 900;
+      line-height: 1.25;
     }
 
     .save-row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1.35fr 0.8fr;
       gap: 8px;
     }
 
-    .progress-line {
-      font-size: 13px;
-      color: var(--muted);
-      text-align: center;
-      font-weight: 800;
+    .save-row .btn {
+      min-height: 52px;
+      border-radius: 15px;
+      font-size: 15px;
+      font-weight: 900;
+      touch-action: manipulation;
     }
 
     .quick-nav {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
+      gap: 7px;
     }
 
     .page-link-btn {
-      min-height: 38px;
+      min-height: 34px;
       border-radius: 12px;
       background: #e2e8f0;
       color: #0f172a;
@@ -239,17 +344,31 @@
       align-items: center;
       justify-content: center;
       font-weight: 900;
-      font-size: 13px;
-      padding: 8px;
+      font-size: 12px;
+      padding: 6px;
+      text-align: center;
+    }
+
+    .swal2-popup {
+      border-radius: 18px !important;
     }
 
     @media (max-width: 640px) {
+      body {
+        padding-bottom: 128px;
+      }
+
+      .app-shell {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
       .check-layout {
         gap: 10px;
       }
 
       .form-card {
-        padding: 12px;
+        padding: 11px;
         border-radius: 16px;
       }
 
@@ -258,14 +377,25 @@
         gap: 8px;
       }
 
+      .field span {
+        font-size: 12px;
+      }
+
+      .field select,
+      .field input {
+        min-height: 46px;
+        font-size: 15px;
+        border-radius: 13px;
+      }
+
       .seal-box {
         padding: 10px;
         border-radius: 14px;
       }
 
       .seal-box input {
-        font-size: 18px;
-        min-height: 44px;
+        font-size: 20px;
+        min-height: 50px;
       }
 
       .check-item {
@@ -275,7 +405,7 @@
       }
 
       .check-title-row {
-        grid-template-columns: 32px minmax(0, 1fr);
+        grid-template-columns: 30px minmax(0, 1fr) auto;
         gap: 7px;
       }
 
@@ -289,16 +419,43 @@
         font-size: 14px;
       }
 
+      .check-status-pill {
+        min-width: 52px;
+        min-height: 24px;
+        font-size: 10.5px;
+        padding: 3px 7px;
+      }
+
       .choice-btn {
-        min-height: 40px;
-        border-radius: 12px;
-        font-size: 13px;
+        min-height: 48px;
+        border-radius: 14px;
+        font-size: 14px;
         padding: 8px;
       }
 
       .detail-box textarea {
-        min-height: 68px;
+        min-height: 76px;
         font-size: 14px;
+      }
+
+      .bottom-save-bar {
+        padding-left: 9px;
+        padding-right: 9px;
+      }
+
+      .save-row .btn {
+        min-height: 50px;
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .save-row {
+        grid-template-columns: 1fr 0.72fr;
       }
 
       .quick-nav {
@@ -306,21 +463,26 @@
       }
 
       .page-link-btn {
-        font-size: 12px;
+        font-size: 11px;
       }
     }
 
-    @media (max-width: 390px) {
-      .form-grid {
-        grid-template-columns: 1fr;
+    @media (max-width: 360px) {
+      .check-title-row {
+        grid-template-columns: 28px minmax(0, 1fr);
+      }
+
+      .check-status-pill {
+        grid-column: 2;
+        justify-self: start;
       }
 
       .save-row {
         grid-template-columns: 1fr;
       }
 
-      .quick-nav {
-        grid-template-columns: 1fr;
+      body {
+        padding-bottom: 176px;
       }
     }
   </style>
@@ -374,7 +536,7 @@
             <input id="locationInput" type="text" readonly />
           </label>
 
-          <div class="seal-box full">
+          <div class="seal-box">
             <label class="field">
               <span>หมายเลขซีล</span>
               <input
@@ -384,12 +546,10 @@
                 pattern="[0-9]*"
                 autocomplete="off"
                 maxlength="30"
-                placeholder="กรอกหมายเลขซีลเป็นตัวเลข"
+                placeholder="กรอกหมายเลขซีล"
               />
             </label>
-            <div class="seal-help">
-              กรณีเปลี่ยนซีล ให้กรอกหมายเลขซีลใหม่ก่อนบันทึก
-            </div>
+            <div class="seal-help">กรณีเปลี่ยนซีล ให้กรอกหมายเลขซีลใหม่ก่อนบันทึก</div>
           </div>
         </div>
 
@@ -397,18 +557,23 @@
           <strong id="doorInfoId">-</strong>
           <span id="doorInfoLocation">-</span>
         </div>
+
+        <div class="top-action-mini">
+          <button id="btnSetAllNormalTop" class="btn success" type="button">
+            ปกติทั้งหมด
+          </button>
+          <button id="btnScrollToMissing" class="btn" type="button">
+            ไปข้อที่ยังไม่เลือก
+          </button>
+        </div>
       </section>
 
       <section class="form-card">
         <div class="section-title-row">
           <div>
             <h2>รายการตรวจสอบ</h2>
-            <p>หากพบผิดปกติ ต้องกรอกรายละเอียดก่อนบันทึก</p>
+            <p>เลือกผลตรวจให้ครบทุกข้อ หากผิดปกติต้องกรอกรายละเอียด</p>
           </div>
-
-          <button id="btnSetAllNormal" class="btn small" type="button">
-            ตั้งค่าปกติทั้งหมด
-          </button>
         </div>
 
         <div id="checklistWrap" class="checklist-wrap">
@@ -416,29 +581,29 @@
         </div>
       </section>
 
-      <section class="sticky-save">
-        <div id="progressLine" class="progress-line">
-          ยังไม่ได้เลือกรายการตรวจ
-        </div>
-
-        <div class="save-row">
-          <button id="btnSave" class="btn primary" type="button">
-            บันทึกผลตรวจ
-          </button>
-
-          <button id="btnReset" class="btn" type="button">
-            ล้างฟอร์ม
-          </button>
-        </div>
-
-        <div class="quick-nav">
-          <a class="page-link-btn" href="index.html">หน้าหลัก</a>
-          <a id="viewDoorLink" class="page-link-btn" href="view.html">ดูผลประตู</a>
-          <a class="page-link-btn" href="report.html">รายงาน</a>
-        </div>
-      </section>
-
     </main>
+
+    <section class="bottom-save-bar">
+      <div id="progressLine" class="progress-line">
+        ยังไม่ได้เลือกรายการตรวจ
+      </div>
+
+      <div class="save-row">
+        <button id="btnSave" class="btn primary" type="button">
+          บันทึกผลตรวจ
+        </button>
+
+        <button id="btnReset" class="btn" type="button">
+          ล้าง
+        </button>
+      </div>
+
+      <div class="quick-nav">
+        <a class="page-link-btn" href="index.html">หน้าหลัก</a>
+        <a id="viewDoorLink" class="page-link-btn" href="view.html">ดูผลประตู</a>
+        <a class="page-link-btn" href="report.html">รายงาน</a>
+      </div>
+    </section>
 
     <footer class="app-footer">
       <span>Fire Exit Door Inspection System</span>
@@ -447,10 +612,6 @@
   </div>
 
   <script>
-    /************************************************************
-     * check.html app
-     ************************************************************/
-
     const CONFIG = window.APP_CONFIG;
     const API = window.FireExitAPI;
 
@@ -478,7 +639,8 @@
 
       checklistWrap: document.getElementById('checklistWrap'),
 
-      btnSetAllNormal: document.getElementById('btnSetAllNormal'),
+      btnSetAllNormalTop: document.getElementById('btnSetAllNormalTop'),
+      btnScrollToMissing: document.getElementById('btnScrollToMissing'),
       btnSave: document.getElementById('btnSave'),
       btnReset: document.getElementById('btnReset'),
 
@@ -510,7 +672,8 @@
         el.sealNoInput.value = el.sealNoInput.value.replace(/\D/g, '');
       });
 
-      el.btnSetAllNormal.addEventListener('click', setAllNormal);
+      el.btnSetAllNormalTop.addEventListener('click', setAllNormal);
+      el.btnScrollToMissing.addEventListener('click', scrollToFirstMissing);
       el.btnSave.addEventListener('click', saveInspection);
       el.btnReset.addEventListener('click', resetForm);
     }
@@ -599,6 +762,7 @@
             <div class="check-title-row">
               <span class="check-no">${escapeHtml(item.no || index + 1)}</span>
               <div class="check-title">${escapeHtml(item.title)}</div>
+              <span class="check-status-pill" data-status-index="${index}">ยังไม่เลือก</span>
             </div>
 
             <div class="check-actions">
@@ -653,7 +817,6 @@
       el.doorInfoId.textContent = door.doorId;
       el.doorInfoLocation.textContent = door.location || '-';
       el.doorInfoBox.style.display = 'grid';
-
       el.viewDoorLink.href = `${CONFIG.ROUTES.VIEW}?doorId=${encodeURIComponent(door.doorId)}`;
     }
 
@@ -664,16 +827,28 @@
       const itemEl = el.checklistWrap.querySelector(`.check-item[data-index="${index}"]`);
       const normalBtn = itemEl.querySelector('.choice-btn.normal');
       const abnormalBtn = itemEl.querySelector('.choice-btn.abnormal');
+      const status = itemEl.querySelector(`[data-status-index="${index}"]`);
 
       normalBtn.classList.remove('active');
       abnormalBtn.classList.remove('active');
-      itemEl.classList.remove('abnormal');
+      itemEl.classList.remove('done', 'abnormal');
+
+      if (status) {
+        status.className = 'check-status-pill';
+      }
 
       if (type === 'normal') {
         item.value = item.normalValue;
         item.isAbnormal = false;
         item.detail = '';
+
         normalBtn.classList.add('active');
+        itemEl.classList.add('done');
+
+        if (status) {
+          status.classList.add('ok');
+          status.textContent = 'ปกติ';
+        }
 
         const textarea = itemEl.querySelector('textarea');
         if (textarea) textarea.value = '';
@@ -681,8 +856,14 @@
       } else {
         item.value = item.abnormalValue;
         item.isAbnormal = true;
+
         abnormalBtn.classList.add('active');
         itemEl.classList.add('abnormal');
+
+        if (status) {
+          status.classList.add('bad');
+          status.textContent = 'ผิดปกติ';
+        }
 
         const textarea = itemEl.querySelector('textarea');
         if (textarea) {
@@ -715,20 +896,40 @@
       });
 
       Swal.fire({
+        toast: true,
+        position: 'top-end',
         icon: 'success',
         title: 'ตั้งค่าปกติทั้งหมดแล้ว',
-        timer: 900,
-        showConfirmButton: false
+        showConfirmButton: false,
+        timer: 1000
       });
+    }
+
+    function scrollToFirstMissing() {
+      const firstMissingIndex = state.items.findIndex(item => !item.value);
+
+      if (firstMissingIndex < 0) {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'เลือกครบทุกข้อแล้ว',
+          showConfirmButton: false,
+          timer: 1000
+        });
+        return;
+      }
+
+      focusItem(firstMissingIndex);
     }
 
     function resetForm() {
       Swal.fire({
         icon: 'question',
         title: 'ล้างฟอร์ม?',
-        text: 'ต้องการล้างค่ารายการตรวจและหมายเลขซีลหรือไม่',
+        text: 'ต้องการล้างรายการตรวจและหมายเลขซีลหรือไม่',
         showCancelButton: true,
-        confirmButtonText: 'ล้างฟอร์ม',
+        confirmButtonText: 'ล้าง',
         cancelButtonText: 'ยกเลิก',
         reverseButtons: true
       }).then(result => {
@@ -756,11 +957,13 @@
 
       if (!inspector) {
         showWarn('กรุณาเลือกชื่อผู้บันทึก');
+        el.inspectorSelect.focus();
         return;
       }
 
       if (!doorId) {
         showWarn('กรุณาเลือกหมายเลขประตูหนีไฟ');
+        el.doorSelect.focus();
         return;
       }
 
@@ -786,21 +989,19 @@
 
       const abnormalCount = state.items.filter(item => item.isAbnormal).length;
 
-      const html = `
-        <div style="text-align:left">
-          <div><b>ผู้บันทึก:</b> ${escapeHtml(inspector)}</div>
-          <div><b>ประตู:</b> ${escapeHtml(doorId)}</div>
-          <div><b>จุดติดตั้ง:</b> ${escapeHtml(location || '-')}</div>
-          <div><b>หมายเลขซีล:</b> ${escapeHtml(sealNo)}</div>
-          <div><b>ผลรวม:</b> ${abnormalCount ? '<span style="color:#b91c1c;font-weight:bold">ผิดปกติ</span>' : '<span style="color:#15803d;font-weight:bold">ปกติ</span>'}</div>
-          <div><b>รายการผิดปกติ:</b> ${abnormalCount} รายการ</div>
-        </div>
-      `;
-
       const confirm = await Swal.fire({
         icon: abnormalCount ? 'warning' : 'question',
         title: 'ยืนยันบันทึกผลตรวจ',
-        html,
+        html: `
+          <div style="text-align:left;font-size:14px;line-height:1.65">
+            <div><b>ผู้บันทึก:</b> ${escapeHtml(inspector)}</div>
+            <div><b>ประตู:</b> ${escapeHtml(doorId)}</div>
+            <div><b>จุดติดตั้ง:</b> ${escapeHtml(location || '-')}</div>
+            <div><b>หมายเลขซีล:</b> ${escapeHtml(sealNo)}</div>
+            <div><b>ผลรวม:</b> ${abnormalCount ? '<span style="color:#b91c1c;font-weight:bold">ผิดปกติ</span>' : '<span style="color:#15803d;font-weight:bold">ปกติ</span>'}</div>
+            <div><b>รายการผิดปกติ:</b> ${abnormalCount} รายการ</div>
+          </div>
+        `,
         showCancelButton: true,
         confirmButtonText: 'บันทึก',
         cancelButtonText: 'ยกเลิก',
@@ -834,7 +1035,7 @@
           icon: 'success',
           title: 'บันทึกสำเร็จ',
           html: `
-            <div style="text-align:left">
+            <div style="text-align:left;font-size:14px;line-height:1.65">
               <div><b>เวลา:</b> ${escapeHtml(data.timestamp || '-')}</div>
               <div><b>ประตู:</b> ${escapeHtml(data.doorId || doorId)}</div>
               <div><b>จุดติดตั้ง:</b> ${escapeHtml(data.location || location || '-')}</div>
@@ -842,7 +1043,7 @@
               <div><b>ผลรวม:</b> ${escapeHtml(data.result || '-')}</div>
             </div>
           `,
-          confirmButtonText: 'ตกลง'
+          confirmButtonText: 'ดูผลตรวจ'
         });
 
         window.location.href = `${CONFIG.ROUTES.VIEW}?doorId=${encodeURIComponent(doorId)}`;
@@ -884,9 +1085,7 @@
         }
       }
 
-      return {
-        ok: true
-      };
+      return { ok: true };
     }
 
     function focusItem(index) {
@@ -910,23 +1109,21 @@
       const total = state.items.length;
       const selected = state.items.filter(item => !!item.value).length;
       const abnormal = state.items.filter(item => item.isAbnormal).length;
+      const missing = Math.max(total - selected, 0);
 
-      el.progressLine.textContent = `เลือกแล้ว ${selected}/${total} รายการ | ผิดปกติ ${abnormal} รายการ`;
+      el.progressLine.textContent = `เลือกแล้ว ${selected}/${total} | เหลือ ${missing} | ผิดปกติ ${abnormal}`;
     }
 
     function setSaving(isSaving) {
       el.btnSave.disabled = isSaving;
       el.btnReset.disabled = isSaving;
-      el.btnSetAllNormal.disabled = isSaving;
+      el.btnSetAllNormalTop.disabled = isSaving;
+      el.btnScrollToMissing.disabled = isSaving;
       el.inspectorSelect.disabled = isSaving;
       el.doorSelect.disabled = isSaving;
       el.sealNoInput.disabled = isSaving;
 
-      if (isSaving) {
-        el.btnSave.textContent = 'กำลังบันทึก...';
-      } else {
-        el.btnSave.textContent = 'บันทึกผลตรวจ';
-      }
+      el.btnSave.textContent = isSaving ? 'กำลังบันทึก...' : 'บันทึกผลตรวจ';
     }
 
     function setFormDisabled(disabled) {
@@ -936,7 +1133,8 @@
       el.sealNoInput.disabled = disabled;
       el.btnSave.disabled = disabled;
       el.btnReset.disabled = disabled;
-      el.btnSetAllNormal.disabled = disabled;
+      el.btnSetAllNormalTop.disabled = disabled;
+      el.btnScrollToMissing.disabled = disabled;
     }
 
     function setApiStatus(type, text) {
