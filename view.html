@@ -262,45 +262,123 @@
     }
 
     .history-list {
-      display: grid;
-      gap: 8px;
-    }
+  display: grid;
+  gap: 8px;
+}
 
-    .history-row {
-      border: 1px solid var(--line);
-      border-radius: 15px;
-      padding: 10px 12px;
-      background: #fff;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 8px;
-      align-items: center;
-    }
+.history-row {
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  padding: 10px 12px;
+  background: #fff;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
 
-    .history-main {
-      display: grid;
-      gap: 3px;
-      min-width: 0;
-    }
+.history-main {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
 
-    .history-main strong {
-      font-size: 14px;
-      overflow-wrap: anywhere;
-    }
+.history-topline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
 
-    .history-main small {
-      color: var(--muted);
-      font-size: 12px;
-      overflow-wrap: anywhere;
-    }
+.history-time {
+  font-size: 13px;
+  font-weight: 900;
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
 
-    .history-actions {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
+.history-seal-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  background: #eaf4ff;
+  color: var(--primary-dark);
+  border: 1px solid rgba(15, 118, 110, 0.18);
+}
+
+.history-subline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.history-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.history-actions .btn.small {
+  min-height: 30px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .history-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 9px 10px;
+    gap: 8px;
+  }
+
+  .history-main {
+    gap: 5px;
+  }
+
+  .history-time {
+    font-size: 12px;
+  }
+
+  .history-seal-pill {
+    font-size: 11px;
+    min-height: 22px;
+    padding: 3px 7px;
+  }
+
+  .history-subline {
+    font-size: 11px;
+    gap: 5px;
+  }
+
+  .history-actions {
+    align-self: stretch;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  .history-actions .badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .history-actions .btn.small {
+    min-height: 28px;
+    padding: 4px 9px;
+    font-size: 11px;
+  }
+}
 
     .hidden-check-zone {
       display: flex;
@@ -748,46 +826,56 @@
     }
 
     function renderHistory() {
-      const list = state.history || [];
+  const list = state.history || [];
 
-      if (!list.length) {
-        el.historyList.innerHTML = `
-          <div class="empty-state">
-            ยังไม่มีประวัติการตรวจย้อนหลัง
+  if (!list.length) {
+    el.historyList.innerHTML = `
+      <div class="empty-state">
+        ยังไม่มีประวัติการตรวจย้อนหลัง
+      </div>
+    `;
+    return;
+  }
+
+  el.historyList.innerHTML = list.map((item, index) => {
+    const resultClass = item.result === 'ผิดปกติ' ? 'badge bad' : 'badge good';
+    const timestamp = normalizeTimestampDisplay(item.timestamp);
+    const sealNo = item.sealNo || '-';
+    const inspector = item.inspector || '-';
+    const device = item.device || '-';
+
+    return `
+      <div class="history-row">
+        <div class="history-main">
+          <div class="history-topline">
+            <span class="history-time">${escapeHtml(timestamp)}</span>
+            <span class="history-seal-pill">ซีล: ${escapeHtml(sealNo)}</span>
           </div>
-        `;
-        return;
-      }
 
-      el.historyList.innerHTML = list.map((item, index) => {
-        const resultClass = item.result === 'ผิดปกติ' ? 'badge bad' : 'badge good';
-
-        return `
-          <div class="history-row">
-            <div class="history-main">
-              <strong>${escapeHtml(normalizeTimestampDisplay(item.timestamp))}</strong>
-              <small>หมายเลขซีล: ${escapeHtml(item.sealNo || '-')}</small>
-              <small>ผู้ตรวจ: ${escapeHtml(item.inspector || '-')} | อุปกรณ์: ${escapeHtml(item.device || '-')}</small>
-              <small>จุดติดตั้ง: ${escapeHtml(item.location || '-')}</small>
-            </div>
-
-            <div class="history-actions">
-              <span class="${resultClass}">${escapeHtml(item.result || '-')}</span>
-              <button class="btn small" type="button" data-history-index="${index}">
-                ดู
-              </button>
-            </div>
+          <div class="history-subline">
+            <span>ผู้ตรวจ: ${escapeHtml(inspector)}</span>
+            <span>|</span>
+            <span>${escapeHtml(device)}</span>
           </div>
-        `;
-      }).join('');
+        </div>
 
-      el.historyList.querySelectorAll('button[data-history-index]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const index = Number(btn.dataset.historyIndex);
-          showHistoryDetail(list[index]);
-        });
-      });
-    }
+        <div class="history-actions">
+          <span class="${resultClass}">${escapeHtml(item.result || '-')}</span>
+          <button class="btn small" type="button" data-history-index="${index}">
+            ดู
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  el.historyList.querySelectorAll('button[data-history-index]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const index = Number(btn.dataset.historyIndex);
+      showHistoryDetail(list[index]);
+    });
+  });
+}
 
     function showHistoryDetail(record) {
       if (!record) return;
