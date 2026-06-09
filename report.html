@@ -632,28 +632,28 @@
         window.print();
       });
 
-      el.btnExportExcel.addEventListener('click', () => {
-        const month = el.monthInput.value;
+     el.btnExportExcel.addEventListener('click', async () => {
+  const month = el.monthInput.value;
 
-        if (!month) {
-          showWarn('กรุณาเลือกเดือน');
-          return;
-        }
+  if (!month) {
+    showWarn('กรุณาเลือกเดือน');
+    return;
+  }
 
-        Swal.fire({
-          icon: 'question',
-          title: 'Export Excel',
-          html: `ต้องการส่งออก Excel ทุกประตูของเดือน <b>${escapeHtml(month)}</b> ใช่หรือไม่`,
-          showCancelButton: true,
-          confirmButtonText: 'Export',
-          cancelButtonText: 'ยกเลิก',
-          reverseButtons: true
-        }).then(result => {
-          if (result.isConfirmed) {
-            API.exportExcel(month);
-          }
-        });
-      });
+  const confirm = await Swal.fire({
+    icon: 'question',
+    title: 'Export Excel',
+    html: `ต้องการส่งออก Excel ทุกประตูของเดือน <b>${escapeHtml(month)}</b> ใช่หรือไม่`,
+    showCancelButton: true,
+    confirmButtonText: 'Export',
+    cancelButtonText: 'ยกเลิก',
+    reverseButtons: true
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  await exportExcelWithProgress(month);
+});
 
       el.monthInput.addEventListener('change', () => {
         state.selectedMonth = el.monthInput.value;
@@ -769,7 +769,164 @@
         setControlsDisabled(false);
       }
     }
+async function exportExcelWithProgress(month) {
+  const startedAt = Date.now();
 
+  try {
+    setControlsDisabled(true);
+    setApiStatus('pending', 'กำลังส่งออก Excel...');
+
+    Swal.fire({
+      title: 'กำลังเตรียมไฟล์ Excel',
+      html: buildExportProgressHtml({
+        percent: 0,
+        title: 'เริ่มต้นส่งออกไฟล์',
+        detail: 'กรุณารอสักครู่ ห้ามปิดหน้านี้จนกว่าจะเสร็จ',
+        elapsed: '0 วินาที'
+      }),
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    const timer = setInterval(() => {
+      const elapsedText = formatElapsedTime(Date.now() - startedAt);
+      const elapsedEl = document.getElementById('exportElapsedText');
+
+      if (elapsedEl) {
+        elapsedEl.textContent = elapsedText;
+      }
+    }, 1000);
+
+    await API.exportExcel(month, progress => {
+      updateExportProgress(progress, startedAt);
+    });
+
+    clearInterval(timer);
+
+    updateExportProgress({
+      percent: 100,
+      title: 'ดาวน์โหลดสำเร็จ',
+      detail: 'ระบบดาวน์โหลดไฟล์ Excel เรียบร้อยแล้ว'
+    }, startedAt);
+
+    setApiStatus('ok', 'ส่งออก Excel สำเร็จ');
+
+    setTimeout(() => {
+      Swal.fire({
+        icon: 'success',
+        title: 'ส่งออกสำเร็จ',
+        text: 'ดาวน์โหลดไฟล์ Excel เรียบร้อยแล้ว',
+        confirmButtonText: 'ตกลง'
+      });
+    }, 500);
+
+  } catch (err) {
+    console.error(err);
+
+    setApiStatus('danger', 'ส่งออก Excel ไม่สำเร็จ');
+
+    Swal.fire({
+      icon: 'error',
+      title: 'ส่งออก Excel ไม่สำเร็จ',
+      html: `
+        <div style="text-align:left;line-height:1.55">
+          <div><b>สาเหตุ:</b> ${escapeHtml(err.message || 'ไม่ทราบสาเหตุ')}</div>
+          <div style="margin-top:8px;color:#64748b;font-size:13px;">
+            กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต หรือทดสอบ Export ใหม่อีกครั้ง
+          </div>
+        </div>
+      `,
+      confirmButtonText: 'ตกลง'
+    });
+
+  } finally {
+    setControlsDisabled(false);
+  }
+}
+
+function buildExportProgressHtml(info) {
+  const percent = Math.max(0, Math.min(100, Number(info.percent || 0)));
+
+  return `
+    <div style="text-align:left">
+      <div style="font-weight:900;font-size:15px;color:#0f172a;margin-bottom:6px;">
+        ${escapeHtml(info.title || 'กำลังดำเนินการ')}
+      </div>
+
+      <div style="font-size:13px;color:#475569;line-height:1.45;margin-bottom:10px;">
+        ${escapeHtml(info.detail || 'กรุณารอสักครู่...')}
+      </div>
+
+      <div style="width:100%;height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden;">
+        <div id="exportProgressBar"
+             style="height:100%;width:${percent}%;background:#0f766e;border-radius:999px;transition:width .25s ease;">
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:12px;color:#475569;">
+        <span>ความคืบหน้า: <b id="exportProgressText">${percent}%</b></span>
+        <span>ใช้เวลา: <b id="exportElapsedText">${escapeHtml(info.elapsed || '0 วินาที')}</b></span>
+      </div>
+
+      <div style="margin-top:10px;font-size:12px;color:#b45309;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:8px;">
+        ไฟล์ Excel อาจใช้เวลานาน หากมีจำนวนประตูหรือประวัติการตรวจจำนวนมาก
+      </div>
+    </div>
+  `;
+}
+
+function updateExportProgress(progress, startedAt) {
+  const percent = Math.max(0, Math.min(100, Number(progress.percent || 0)));
+  const title = progress.title || 'กำลังดำเนินการ';
+  const detail = progress.detail || 'กรุณารอสักครู่...';
+  const elapsed = formatElapsedTime(Date.now() - startedAt);
+
+  const titleEl = Swal.getTitle();
+  const htmlEl = Swal.getHtmlContainer();
+
+  if (!htmlEl) return;
+
+  if (titleEl) {
+    titleEl.textContent = title;
+  }
+
+  const bar = document.getElementById('exportProgressBar');
+  const percentText = document.getElementById('exportProgressText');
+  const elapsedText = document.getElementById('exportElapsedText');
+
+  if (bar) {
+    bar.style.width = `${percent}%`;
+  }
+
+  if (percentText) {
+    percentText.textContent = `${percent}%`;
+  }
+
+  if (elapsedText) {
+    elapsedText.textContent = elapsed;
+  }
+
+  const detailTarget = htmlEl.querySelector('div[style*="font-size:13px"]');
+  if (detailTarget) {
+    detailTarget.textContent = detail;
+  }
+}
+
+function formatElapsedTime(ms) {
+  const totalSeconds = Math.max(0, Math.floor(Number(ms || 0) / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  if (minutes > 0) {
+    return `${minutes} นาที ${seconds} วินาที`;
+  }
+
+  return `${seconds} วินาที`;
+}
     function renderReport(report) {
       if (!report || !report.ok) {
         el.reportContainer.innerHTML = `
