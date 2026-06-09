@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
   <title>ผลตรวจประตูหนีไฟ</title>
 
@@ -13,16 +13,21 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
+    /************************************************************
+     * view.html
+     * Compact Mobile View
+     ************************************************************/
+
     .view-layout {
       display: grid;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .door-hero {
+    .compact-hero {
       background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
       color: #fff;
-      border-radius: 22px;
-      padding: 16px;
+      border-radius: 20px;
+      padding: 14px;
       box-shadow: var(--shadow);
       display: grid;
       gap: 10px;
@@ -30,87 +35,113 @@
       overflow: hidden;
     }
 
-    .door-hero::after {
+    .compact-hero::after {
       content: "";
       position: absolute;
-      width: 160px;
-      height: 160px;
-      right: -56px;
-      bottom: -64px;
+      width: 150px;
+      height: 150px;
+      right: -58px;
+      bottom: -66px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.1);
     }
 
-    .door-hero-top {
-      display: grid;
-      grid-template-columns: 56px minmax(0, 1fr);
-      gap: 12px;
-      align-items: center;
+    .hero-main-line {
       position: relative;
       z-index: 1;
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
     }
 
-    .door-hero-logo {
-      width: 56px;
-      height: 56px;
+    .hero-logo {
+      width: 48px;
+      height: 48px;
       border-radius: 14px;
       background: #fff;
       object-fit: contain;
-      padding: 6px;
+      padding: 5px;
     }
 
-    .door-hero-text {
+    .hero-door {
       min-width: 0;
-    }
-
-    .door-hero-text span {
-      display: block;
-      font-size: 12px;
-      opacity: 0.88;
-      margin-bottom: 2px;
-    }
-
-    .door-hero-text strong {
-      display: block;
-      font-size: 28px;
-      line-height: 1.1;
-      word-break: break-word;
-    }
-
-    .door-location {
-      position: relative;
-      z-index: 1;
-      background: rgba(255,255,255,0.14);
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 14px;
-      padding: 10px 12px;
-      font-size: 15px;
-      line-height: 1.35;
-    }
-
-    .seal-hero {
-      position: relative;
-      z-index: 1;
-      background: rgba(255,255,255,0.95);
-      color: #0f172a;
-      border-radius: 14px;
-      padding: 10px 12px;
       display: grid;
-      grid-template-columns: auto minmax(0, 1fr);
-      gap: 8px;
-      align-items: center;
+      gap: 2px;
     }
 
-    .seal-hero span {
-      color: #64748b;
+    .hero-door span {
+      font-size: 11px;
+      opacity: 0.86;
+      font-weight: 800;
+    }
+
+    .hero-door strong {
+      font-size: 28px;
+      line-height: 1;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .hero-result {
+      min-width: 74px;
+      min-height: 34px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #fff;
+      font-weight: 900;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .hero-result.normal {
+      background: rgba(220, 252, 231, 0.95);
+      color: #15803d;
+    }
+
+    .hero-result.abnormal {
+      background: rgba(254, 226, 226, 0.95);
+      color: #b91c1c;
+    }
+
+    .hero-info-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .hero-info-pill {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 13px;
+      padding: 8px 9px;
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .hero-info-pill.full {
+      grid-column: 1 / -1;
+    }
+
+    .hero-info-pill span {
+      font-size: 10.5px;
+      font-weight: 800;
+      opacity: 0.82;
+    }
+
+    .hero-info-pill strong {
       font-size: 13px;
       font-weight: 900;
-    }
-
-    .seal-hero strong {
-      color: #0f766e;
-      font-size: 19px;
-      letter-spacing: 0.4px;
+      line-height: 1.25;
       overflow-wrap: anywhere;
     }
 
@@ -122,7 +153,7 @@
 
     .soft-link,
     .soft-btn {
-      min-height: 42px;
+      min-height: 40px;
       border-radius: 13px;
       background: #e2e8f0;
       color: #0f172a;
@@ -131,7 +162,7 @@
       align-items: center;
       justify-content: center;
       font-weight: 900;
-      font-size: 13px;
+      font-size: 12px;
       padding: 8px;
       text-align: center;
       border: 0;
@@ -143,67 +174,72 @@
       color: #fff;
     }
 
-    .latest-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
+    .latest-panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
     }
 
-    .latest-card {
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 15px;
-      padding: 12px;
-      box-shadow: var(--shadow);
-      display: grid;
-      gap: 4px;
-      min-height: 80px;
+    .latest-panel-head h2 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.2;
     }
 
-    .latest-card span {
+    .latest-panel-head p {
+      margin: 3px 0 0;
       color: var(--muted);
       font-size: 12px;
-      font-weight: 800;
+      line-height: 1.35;
     }
 
-    .latest-card strong {
-      font-size: 16px;
-      line-height: 1.25;
-      overflow-wrap: anywhere;
+    .latest-count-pill {
+      min-height: 30px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      color: #475569;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
     }
 
-    .result-normal {
-      color: var(--success);
-    }
-
-    .result-abnormal {
-      color: var(--danger);
-    }
-
-    .check-result-list {
+    .latest-items-grid {
       display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
     }
 
-    .check-result-row {
+    .latest-check-card {
       border: 1px solid var(--line);
-      border-radius: 15px;
-      padding: 10px 12px;
       background: #fff;
+      border-radius: 15px;
+      padding: 10px;
+      min-height: 94px;
       display: grid;
-      grid-template-columns: 30px minmax(0, 1fr) auto;
-      gap: 10px;
-      align-items: center;
+      grid-template-rows: auto 1fr auto;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
     }
 
-    .check-result-row.abnormal {
-      background: linear-gradient(90deg, var(--danger-soft), #fff 50%);
+    .latest-check-card.abnormal {
+      background: linear-gradient(180deg, var(--danger-soft), #fff 56%);
       border-color: rgba(185, 28, 28, 0.28);
     }
 
-    .check-result-no {
-      width: 28px;
-      height: 28px;
+    .latest-check-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .latest-check-no {
+      width: 24px;
+      height: 24px;
       border-radius: 999px;
       background: var(--primary);
       color: #fff;
@@ -211,48 +247,53 @@
       align-items: center;
       justify-content: center;
       font-weight: 900;
-      font-size: 12px;
+      font-size: 11px;
+      flex: 0 0 auto;
     }
 
-    .check-result-main {
-      min-width: 0;
-      display: grid;
-      gap: 4px;
-    }
-
-    .check-result-main strong {
-      font-size: 14px;
-      line-height: 1.3;
-      overflow-wrap: anywhere;
-    }
-
-    .check-result-detail {
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.35;
-      overflow-wrap: anywhere;
-    }
-
-    .check-result-value {
-      min-width: 82px;
-      text-align: center;
-      padding: 6px 10px;
+    .latest-check-status {
+      min-height: 23px;
+      padding: 4px 8px;
       border-radius: 999px;
+      font-size: 11px;
       font-weight: 900;
-      font-size: 13px;
       background: var(--success-soft);
       color: var(--success);
       white-space: nowrap;
     }
 
-    .check-result-row.abnormal .check-result-value {
+    .latest-check-card.abnormal .latest-check-status {
       background: var(--danger-soft);
       color: var(--danger);
     }
 
+    .latest-check-title {
+      color: #0f172a;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.28;
+      overflow-wrap: anywhere;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .latest-check-detail {
+      color: #7f1d1d;
+      font-size: 11.5px;
+      font-weight: 800;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
     .abnormal-box {
       background: var(--danger-soft);
-      border: 1px solid rgba(185,28,28,0.26);
+      border: 1px solid rgba(185, 28, 28, 0.26);
       border-radius: 15px;
       padding: 12px;
       color: #7f1d1d;
@@ -262,123 +303,85 @@
     }
 
     .history-list {
-  display: grid;
-  gap: 8px;
-}
+      display: grid;
+      gap: 7px;
+    }
 
-.history-row {
-  border: 1px solid var(--line);
-  border-radius: 15px;
-  padding: 10px 12px;
-  background: #fff;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: center;
-}
+    .history-row {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 9px;
+      background: #fff;
+      display: grid;
+      grid-template-columns: minmax(122px, 1.05fr) auto minmax(72px, 0.6fr) minmax(74px, 0.7fr) auto;
+      gap: 6px;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    }
 
-.history-main {
-  min-width: 0;
-  display: grid;
-  gap: 6px;
-}
+    .history-cell {
+      min-width: 0;
+      font-size: 12px;
+      font-weight: 900;
+      color: #334155;
+      overflow-wrap: anywhere;
+    }
 
-.history-topline {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
+    .history-cell.time {
+      color: #0f172a;
+      font-size: 12px;
+    }
 
-.history-time {
-  font-size: 13px;
-  font-weight: 900;
-  color: #0f172a;
-  overflow-wrap: anywhere;
-}
+    .history-cell.inspector {
+      color: #9a3412;
+      background: #fff7ed;
+      border: 1px solid rgba(234, 88, 12, 0.16);
+      border-radius: 999px;
+      padding: 4px 7px;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-.history-seal-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 24px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 900;
-  background: #eaf4ff;
-  color: var(--primary-dark);
-  border: 1px solid rgba(15, 118, 110, 0.18);
-}
+    .history-cell.seal {
+      color: var(--primary-dark);
+      background: #eaf4ff;
+      border: 1px solid rgba(15, 118, 110, 0.18);
+      border-radius: 999px;
+      padding: 4px 7px;
+      text-align: center;
+      white-space: nowrap;
+    }
 
-.history-subline {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 700;
-}
+    .history-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
 
-.history-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  flex-wrap: nowrap;
-}
+    .history-actions .btn.small {
+      min-height: 28px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
 
-.history-actions .btn.small {
-  min-height: 30px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-}
+    .history-head {
+      display: grid;
+      grid-template-columns: minmax(122px, 1.05fr) auto minmax(72px, 0.6fr) minmax(74px, 0.7fr) auto;
+      gap: 6px;
+      align-items: center;
+      padding: 0 4px 2px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
 
-@media (max-width: 640px) {
-  .history-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-    padding: 9px 10px;
-    gap: 8px;
-  }
-
-  .history-main {
-    gap: 5px;
-  }
-
-  .history-time {
-    font-size: 12px;
-  }
-
-  .history-seal-pill {
-    font-size: 11px;
-    min-height: 22px;
-    padding: 3px 7px;
-  }
-
-  .history-subline {
-    font-size: 11px;
-    gap: 5px;
-  }
-
-  .history-actions {
-    align-self: stretch;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-  }
-
-  .history-actions .badge {
-    font-size: 11px;
-    padding: 4px 8px;
-  }
-
-  .history-actions .btn.small {
-    min-height: 28px;
-    padding: 4px 9px;
-    font-size: 11px;
-  }
-}
+    .history-head span:last-child {
+      text-align: right;
+    }
 
     .hidden-check-zone {
       display: flex;
@@ -405,121 +408,191 @@
     }
 
     @media (max-width: 980px) {
-      .latest-grid {
+      .latest-items-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
     @media (max-width: 640px) {
+      .app-shell {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
       .view-layout {
-        gap: 10px;
+        gap: 9px;
       }
 
-      .door-hero {
+      .panel {
+        border-radius: 16px;
+        padding: 12px;
+      }
+
+      .compact-hero {
         border-radius: 18px;
-        padding: 14px;
+        padding: 12px;
+        gap: 8px;
       }
 
-      .door-hero-top {
-        grid-template-columns: 52px minmax(0, 1fr);
-        gap: 10px;
+      .hero-main-line {
+        grid-template-columns: 42px minmax(0, 1fr) auto;
+        gap: 8px;
       }
 
-      .door-hero-logo {
-        width: 52px;
-        height: 52px;
+      .hero-logo {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
       }
 
-      .door-hero-text strong {
-        font-size: 24px;
+      .hero-door strong {
+        font-size: 23px;
       }
 
-      .door-location {
-        font-size: 14px;
-        padding: 9px 10px;
+      .hero-result {
+        min-width: 64px;
+        min-height: 30px;
+        font-size: 12px;
+        padding: 5px 8px;
       }
 
-      .seal-hero {
-        grid-template-columns: 1fr;
-        gap: 2px;
-        padding: 9px 10px;
+      .hero-info-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
       }
 
-      .seal-hero strong {
-        font-size: 18px;
+      .hero-info-pill {
+        padding: 7px 8px;
+        border-radius: 12px;
+      }
+
+      .hero-info-pill span {
+        font-size: 10px;
+      }
+
+      .hero-info-pill strong {
+        font-size: 12px;
       }
 
       .top-action-row {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
       }
 
       .soft-link,
       .soft-btn {
-        min-height: 40px;
-        font-size: 12px;
+        min-height: 38px;
+        font-size: 11.5px;
+        padding: 6px;
       }
 
-      .latest-grid {
+      .latest-panel-head h2 {
+        font-size: 16px;
+      }
+
+      .latest-panel-head p {
+        font-size: 11.5px;
+      }
+
+      .latest-items-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
+        gap: 7px;
       }
 
-      .latest-card {
-        padding: 10px;
-        min-height: 74px;
+      .latest-check-card {
+        min-height: 86px;
+        padding: 9px;
+        border-radius: 14px;
       }
 
-      .latest-card strong {
-        font-size: 15px;
+      .latest-check-no {
+        width: 22px;
+        height: 22px;
+        font-size: 10px;
       }
 
-      .check-result-row {
-        grid-template-columns: 28px minmax(0, 1fr) auto;
-        padding: 10px;
-        gap: 8px;
+      .latest-check-status {
+        min-height: 21px;
+        font-size: 10.5px;
+        padding: 3px 7px;
       }
 
-      .check-result-main strong {
-        font-size: 14px;
-      }
-
-      .check-result-value {
-        min-width: 74px;
+      .latest-check-title {
         font-size: 12px;
-        padding: 5px 9px;
+        -webkit-line-clamp: 3;
+      }
+
+      .latest-check-detail {
+        font-size: 11px;
+      }
+
+      .history-head {
+        display: none;
       }
 
       .history-row {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(108px, 1fr) auto minmax(58px, auto) minmax(56px, auto) auto;
+        gap: 4px;
+        padding: 8px;
       }
 
-      .history-actions {
-        justify-content: flex-start;
+      .history-cell {
+        font-size: 10.5px;
+      }
+
+      .history-cell.time {
+        font-size: 10.5px;
+      }
+
+      .history-cell.seal,
+      .history-cell.inspector {
+        padding: 3px 6px;
+        font-size: 10px;
+      }
+
+      .history-actions .btn.small {
+        min-height: 26px;
+        padding: 3px 8px;
+        font-size: 10.5px;
+      }
+
+      .history-row .badge {
+        font-size: 10px;
+        padding: 3px 7px;
       }
     }
 
     @media (max-width: 390px) {
-      .top-action-row {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .soft-link,
-      .soft-btn {
-        font-size: 11px;
-        padding: 6px;
-      }
-
-      .latest-grid {
+      .hero-info-grid {
         grid-template-columns: 1fr 1fr;
       }
 
-      .check-result-row {
-        grid-template-columns: 28px minmax(0, 1fr);
+      .latest-items-grid {
+        grid-template-columns: 1fr 1fr;
       }
 
-      .check-result-value {
+      .history-row {
+        grid-template-columns: 1fr auto;
+      }
+
+      .history-cell.time {
+        grid-column: 1;
+      }
+
+      .history-row .badge {
         grid-column: 2;
-        justify-self: start;
+        grid-row: 1;
+        justify-self: end;
+      }
+
+      .history-cell.seal,
+      .history-cell.inspector {
+        grid-column: auto;
+      }
+
+      .history-actions {
+        grid-column: 2;
+        justify-content: flex-end;
       }
     }
   </style>
@@ -527,6 +600,7 @@
 
 <body>
   <div class="app-shell">
+
     <header class="app-header">
       <div class="brand">
         <img id="appLogo" class="brand-logo" alt="Logo" />
@@ -543,68 +617,69 @@
     </header>
 
     <main class="main-content view-layout">
-      <section class="door-hero">
-        <div class="door-hero-top">
-          <img id="heroLogo" class="door-hero-logo" alt="Logo" />
-          <div class="door-hero-text">
-            <span>หมายเลขประตูหนีไฟ</span>
+
+      <section class="compact-hero">
+        <div class="hero-main-line">
+          <img id="heroLogo" class="hero-logo" alt="Logo" />
+
+          <div class="hero-door">
+            <span>ประตูหนีไฟ</span>
             <strong id="doorIdText">-</strong>
           </div>
+
+          <div id="latestResult" class="hero-result">-</div>
         </div>
 
-        <div id="doorLocationText" class="door-location">
-          จุดติดตั้ง: -
-        </div>
+        <div class="hero-info-grid">
+          <div class="hero-info-pill full">
+            <span>จุดติดตั้ง</span>
+            <strong id="doorLocationText">-</strong>
+          </div>
 
-        <div class="seal-hero">
-          <span>หมายเลขซีลล่าสุด</span>
-          <strong id="heroSealNo">-</strong>
+          <div class="hero-info-pill">
+            <span>หมายเลขซีล</span>
+            <strong id="heroSealNo">-</strong>
+          </div>
+
+          <div class="hero-info-pill">
+            <span>วันที่/เวลา</span>
+            <strong id="latestTime">-</strong>
+          </div>
+
+          <div class="hero-info-pill">
+            <span>ผู้ตรวจ</span>
+            <strong id="latestInspector">-</strong>
+          </div>
+
+          <div class="hero-info-pill">
+            <span>อุปกรณ์</span>
+            <strong id="latestDevice">-</strong>
+          </div>
         </div>
       </section>
 
       <section class="top-action-row">
         <a class="soft-link" href="index.html">หน้าหลัก</a>
-        <a id="reportLink" class="soft-link" href="report.html">รายงานรายเดือน</a>
+        <a id="reportLink" class="soft-link" href="report.html">รายงาน</a>
         <button id="btnRefresh" class="soft-btn primary" type="button">รีเฟรช</button>
       </section>
 
-      <section class="latest-grid">
-        <article class="latest-card">
-          <span>ผลตรวจล่าสุด</span>
-          <strong id="latestResult">-</strong>
-        </article>
-
-        <article class="latest-card">
-          <span>วันที่/เวลา</span>
-          <strong id="latestTime">-</strong>
-        </article>
-
-        <article class="latest-card">
-          <span>ผู้ตรวจ</span>
-          <strong id="latestInspector">-</strong>
-        </article>
-
-        <article class="latest-card">
-          <span>อุปกรณ์</span>
-          <strong id="latestDevice">-</strong>
-        </article>
-      </section>
-
       <section class="panel">
-        <div class="section-title-row">
+        <div class="latest-panel-head">
           <div>
             <h2>รายการตรวจล่าสุด</h2>
-            <p>ข้อมูลจากการบันทึกล่าสุดของประตูนี้</p>
+            <p>แสดงแบบช่องย่อเพื่อดูง่ายบนมือถือ</p>
           </div>
+          <span id="latestCountPill" class="latest-count-pill">0 ข้อ</span>
         </div>
 
-        <div id="latestItems" class="check-result-list">
+        <div id="latestItems" class="latest-items-grid">
           <div class="empty-state">กำลังโหลดข้อมูล...</div>
         </div>
       </section>
 
       <section id="abnormalSection" class="panel" style="display:none;">
-        <div class="section-title-row">
+        <div class="latest-panel-head">
           <div>
             <h2>รายละเอียดผิดปกติ</h2>
             <p>รายการที่ต้องติดตาม/แก้ไข</p>
@@ -615,11 +690,19 @@
       </section>
 
       <section class="panel">
-        <div class="section-title-row">
+        <div class="latest-panel-head">
           <div>
-            <h2>ประวัติการตรวจย้อนหลัง</h2>
-            <p>แสดงรายการล่าสุดไม่เกิน 20 ครั้ง</p>
+            <h2>ประวัติย้อนหลัง</h2>
+            <p>หนึ่งครั้งต่อหนึ่งแถว</p>
           </div>
+        </div>
+
+        <div class="history-head">
+          <span>วันที่/เวลา</span>
+          <span>ผล</span>
+          <span>ซีล</span>
+          <span>ผู้ตรวจ</span>
+          <span>ดู</span>
         </div>
 
         <div id="historyList" class="history-list">
@@ -632,6 +715,7 @@
           ตรวจเช็คประตู
         </button>
       </section>
+
     </main>
 
     <footer class="app-footer">
@@ -668,6 +752,7 @@
       latestTime: document.getElementById('latestTime'),
       latestInspector: document.getElementById('latestInspector'),
       latestDevice: document.getElementById('latestDevice'),
+      latestCountPill: document.getElementById('latestCountPill'),
 
       latestItems: document.getElementById('latestItems'),
 
@@ -705,6 +790,7 @@
 
     function bindEvents() {
       el.btnRefresh.addEventListener('click', loadData);
+
       el.hiddenCheckBtn.addEventListener('click', () => {
         window.location.href = `${CONFIG.ROUTES.CHECK}?doorId=${encodeURIComponent(state.doorId)}`;
       });
@@ -725,6 +811,7 @@
         renderHistory();
 
         setApiStatus('ok', 'โหลดข้อมูลสำเร็จ');
+
       } catch (err) {
         console.error(err);
         setApiStatus('danger', 'โหลดข้อมูลไม่สำเร็จ');
@@ -739,12 +826,13 @@
 
       if (!latest) {
         el.latestResult.textContent = 'ยังไม่เคยตรวจ';
-        el.latestResult.className = 'result-abnormal';
+        el.latestResult.className = 'hero-result abnormal';
         el.heroSealNo.textContent = '-';
         el.latestTime.textContent = '-';
         el.latestInspector.textContent = '-';
         el.latestDevice.textContent = '-';
-        el.doorLocationText.textContent = 'จุดติดตั้ง: ไม่พบข้อมูลล่าสุด';
+        el.doorLocationText.textContent = 'ไม่พบข้อมูลล่าสุด';
+        el.latestCountPill.textContent = '0 ข้อ';
 
         el.latestItems.innerHTML = `
           <div class="empty-state">
@@ -757,15 +845,16 @@
       }
 
       el.doorIdText.textContent = latest.doorId || state.doorId;
-      el.doorLocationText.textContent = `จุดติดตั้ง: ${latest.location || '-'}`;
+      el.doorLocationText.textContent = latest.location || '-';
       el.heroSealNo.textContent = latest.sealNo || '-';
-
-      el.latestResult.textContent = latest.result || '-';
-      el.latestResult.className = latest.result === 'ผิดปกติ' ? 'result-abnormal' : 'result-normal';
-
       el.latestTime.textContent = normalizeTimestampDisplay(latest.timestamp);
       el.latestInspector.textContent = latest.inspector || '-';
       el.latestDevice.textContent = latest.device || '-';
+
+      el.latestResult.textContent = latest.result || '-';
+      el.latestResult.className = latest.result === 'ผิดปกติ'
+        ? 'hero-result abnormal'
+        : 'hero-result normal';
 
       renderLatestItems(latest.items || []);
 
@@ -779,7 +868,10 @@
     }
 
     function renderLatestItems(items) {
-      if (!items.length) {
+      const list = Array.isArray(items) ? items : [];
+      el.latestCountPill.textContent = `${list.length} ข้อ`;
+
+      if (!list.length) {
         el.latestItems.innerHTML = `
           <div class="empty-state">
             ไม่พบรายการตรวจล่าสุด
@@ -788,23 +880,23 @@
         return;
       }
 
-      el.latestItems.innerHTML = items.map((item, index) => {
+      el.latestItems.innerHTML = list.map((item, index) => {
         const isBad = !!item.isAbnormal;
         const rawValue = normalizeTrueText(item.finalText || item.value || '-');
         const detailText = buildItemDetailText(item, rawValue, isBad);
 
         return `
-          <div class="check-result-row ${isBad ? 'abnormal' : ''}">
-            <span class="check-result-no">${escapeHtml(item.no || index + 1)}</span>
-
-            <div class="check-result-main">
-              <strong>${escapeHtml(item.title || '-')}</strong>
-              ${detailText ? `<div class="check-result-detail">${escapeHtml(detailText)}</div>` : ''}
+          <div class="latest-check-card ${isBad ? 'abnormal' : ''}">
+            <div class="latest-check-top">
+              <span class="latest-check-no">${escapeHtml(item.no || index + 1)}</span>
+              <span class="latest-check-status">${isBad ? 'ผิดปกติ' : 'ปกติ'}</span>
             </div>
 
-            <div class="check-result-value">
-              ${isBad ? 'ผิดปกติ' : 'ปกติ'}
+            <div class="latest-check-title">
+              ${escapeHtml(item.title || '-')}
             </div>
+
+            ${detailText ? `<div class="latest-check-detail">${escapeHtml(detailText)}</div>` : ''}
           </div>
         `;
       }).join('');
@@ -815,6 +907,7 @@
         if (item.detail && String(item.detail).trim()) {
           return String(item.detail).trim();
         }
+
         return rawValue && rawValue !== 'ผิดปกติ' ? rawValue : 'พบสิ่งผิดปกติ';
       }
 
@@ -826,56 +919,45 @@
     }
 
     function renderHistory() {
-  const list = state.history || [];
+      const list = state.history || [];
 
-  if (!list.length) {
-    el.historyList.innerHTML = `
-      <div class="empty-state">
-        ยังไม่มีประวัติการตรวจย้อนหลัง
-      </div>
-    `;
-    return;
-  }
-
-  el.historyList.innerHTML = list.map((item, index) => {
-    const resultClass = item.result === 'ผิดปกติ' ? 'badge bad' : 'badge good';
-    const timestamp = normalizeTimestampDisplay(item.timestamp);
-    const sealNo = item.sealNo || '-';
-    const inspector = item.inspector || '-';
-    const device = item.device || '-';
-
-    return `
-      <div class="history-row">
-        <div class="history-main">
-          <div class="history-topline">
-            <span class="history-time">${escapeHtml(timestamp)}</span>
-            <span class="history-seal-pill">ซีล: ${escapeHtml(sealNo)}</span>
+      if (!list.length) {
+        el.historyList.innerHTML = `
+          <div class="empty-state">
+            ยังไม่มีประวัติการตรวจย้อนหลัง
           </div>
+        `;
+        return;
+      }
 
-          <div class="history-subline">
-            <span>ผู้ตรวจ: ${escapeHtml(inspector)}</span>
-            <span>|</span>
-            <span>${escapeHtml(device)}</span>
+      el.historyList.innerHTML = list.map((item, index) => {
+        const resultClass = item.result === 'ผิดปกติ' ? 'badge bad' : 'badge good';
+        const timestamp = normalizeTimestampDisplay(item.timestamp);
+        const sealNo = item.sealNo || '-';
+        const inspector = item.inspector || '-';
+
+        return `
+          <div class="history-row">
+            <div class="history-cell time">${escapeHtml(timestamp)}</div>
+            <span class="${resultClass}">${escapeHtml(item.result || '-')}</span>
+            <div class="history-cell seal">${escapeHtml(sealNo)}</div>
+            <div class="history-cell inspector">${escapeHtml(inspector)}</div>
+            <div class="history-actions">
+              <button class="btn small" type="button" data-history-index="${index}">
+                ดู
+              </button>
+            </div>
           </div>
-        </div>
+        `;
+      }).join('');
 
-        <div class="history-actions">
-          <span class="${resultClass}">${escapeHtml(item.result || '-')}</span>
-          <button class="btn small" type="button" data-history-index="${index}">
-            ดู
-          </button>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  el.historyList.querySelectorAll('button[data-history-index]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const index = Number(btn.dataset.historyIndex);
-      showHistoryDetail(list[index]);
-    });
-  });
-}
+      el.historyList.querySelectorAll('button[data-history-index]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const index = Number(btn.dataset.historyIndex);
+          showHistoryDetail(list[index]);
+        });
+      });
+    }
 
     function showHistoryDetail(record) {
       if (!record) return;
@@ -984,13 +1066,16 @@
 
     function normalizeTrueText(value) {
       const s = String(value ?? '').trim();
+
       if (s.toUpperCase() === 'TRUE') return '✓';
       if (s.toUpperCase() === 'FALSE') return '';
+
       return s;
     }
 
     function updateFooterTime() {
       const now = new Date();
+
       el.footerTime.textContent = now.toLocaleString('th-TH', {
         dateStyle: 'medium',
         timeStyle: 'short'
