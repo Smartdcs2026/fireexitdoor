@@ -43,42 +43,43 @@
   }
 
   async function requestJson(path, options) {
-    const opts = options || {};
-    const url = buildUrl(path, opts.params);
-    const timeoutMs = Number(opts.timeoutMs || DEFAULT_TIMEOUT_MS);
+  const opts = options || {};
+  const url = buildUrl(path, opts.params);
+  const timeoutMs = Number(opts.timeoutMs || DEFAULT_TIMEOUT_MS);
 
-    const fetchOptions = {
-      method: opts.method || 'GET',
-      headers: {
-        Accept: 'application/json'
-      }
-    };
-
-    if (opts.body) {
-      fetchOptions.headers['Content-Type'] = 'application/json; charset=utf-8';
-      fetchOptions.body = JSON.stringify(opts.body);
+  const fetchOptions = {
+    method: opts.method || 'GET',
+    headers: {
+      Accept: 'application/json'
     }
+  };
 
-    const res = await fetchWithTimeout(url, fetchOptions, timeoutMs);
-    const text = await res.text();
-
-    let data;
-
-    try {
-      data = JSON.parse(text);
-    } catch (err) {
-      throw new Error('API ไม่ได้ส่ง JSON กลับมา: ' + text.slice(0, 500));
-    }
-
-    if (!res.ok || data.ok === false) {
-      throw new Error(extractApiErrorMessage(data, res.status));
-    }
-
-    return data;
+  if (opts.body) {
+    fetchOptions.headers['Content-Type'] = 'application/json; charset=utf-8';
+    fetchOptions.body = JSON.stringify(opts.body);
   }
 
-  async function fetchWithTimeout(url, options, timeoutMs) {
+  const res = await fetchWithTimeout(url, fetchOptions, timeoutMs);
+  const text = await res.text();
+
+  let data;
+
+  try {
+    data = JSON.parse(text);
+  } catch (err) {
+    throw new Error('API ไม่ได้ส่ง JSON กลับมา กรุณาตรวจสอบ Worker/GAS: ' + text.slice(0, 500));
+  }
+
+  if (!res.ok || data.ok === false) {
+    throw new Error(extractApiErrorMessage(data, res.status));
+  }
+
+  return data;
+}
+
+ async function fetchWithTimeout(url, options, timeoutMs) {
   const controller = new AbortController();
+
   const timer = setTimeout(() => {
     try {
       controller.abort();
@@ -96,7 +97,7 @@
     const message = String(err && err.message || err || '').toLowerCase();
 
     if (name === 'aborterror' || message.includes('abort')) {
-      throw new Error('เชื่อมต่อระบบนานเกินไป กรุณารอสักครู่แล้วลองใหม่');
+      throw new Error('เชื่อมต่อระบบนานเกินไป กรุณาตรวจสอบสัญญาณอินเทอร์เน็ต แล้วลองบันทึกใหม่อีกครั้ง');
     }
 
     if (
@@ -104,7 +105,7 @@
       message.includes('network') ||
       message.includes('load failed')
     ) {
-      throw new Error('เชื่อมต่อ Worker/API ไม่สำเร็จชั่วคราว กรุณาลองใหม่ หรือรอระบบ Export ทำงานต่อ');
+      throw new Error('เชื่อมต่อ Worker/API ไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ต แล้วลองใหม่');
     }
 
     throw new Error(err.message || 'เชื่อมต่อ API ไม่สำเร็จ');
@@ -140,47 +141,188 @@
     }
   }
 
-  function validateSavePayload(payload) {
-    if (!payload || typeof payload !== 'object') {
-      throw new Error('ไม่พบข้อมูลสำหรับบันทึก');
-    }
+  function cleanText(value) {
+  if (value === null || value === undefined) return '';
+  return String(value).trim();
+}
 
-    if (!String(payload.doorId || '').trim()) {
-      throw new Error('ไม่พบหมายเลขประตูหนีไฟ');
-    }
+function normalizeInspectSource(value) {
+  const text = cleanText(value).toLowerCase();
 
-    if (!String(payload.inspector || '').trim()) {
-      throw new Error('ไม่พบชื่อผู้บันทึก');
-    }
+  if (text === 'qr' || text === 'qrcode' || text === 'qr_code') return 'qr';
+  if (text === 'home' || text === 'index' || text === 'dashboard') return 'home';
 
-    if (!String(payload.sealNo || '').trim()) {
-      throw new Error('ไม่พบหมายเลขซีล');
-    }
+  return text || 'manual';
+}
 
-    if (!Array.isArray(payload.items) || !payload.items.length) {
-      throw new Error('ไม่พบรายการตรวจ');
-    }
-
-    const gps = payload.gps || {};
-
-    if (!String(gps.lat || '').trim() || !String(gps.lng || '').trim()) {
-      throw new Error('ไม่พบข้อมูล GPS กรุณาเปิด GPS ก่อนบันทึก');
-    }
-
-    const evidence = payload.evidenceImage || {};
-
-    if (!String(evidence.base64 || '').trim()) {
-      throw new Error('ไม่พบภาพหลักฐาน กรุณาถ่ายภาพก่อนบันทึก');
-    }
-
-    const size = getPayloadSizeBytes(payload);
-
-    if (size > MAX_SAVE_PAYLOAD_BYTES) {
-      throw new Error(`ข้อมูลที่ส่งใหญ่เกินไป (${formatBytes(size)}) กรุณาถ่ายภาพใหม่หรือบีบอัดภาพให้เล็กลง`);
-    }
-
-    return true;
+function getGpsStatusForPayload(gps) {
+  if (!gps || !cleanText(gps.lat) || !cleanText(gps.lng)) {
+    return 'GPS_UNAVAILABLE';
   }
+
+  const accuracy = Number(gps.accuracy || 0);
+
+  if (accuracy && accuracy > 100) {
+    return 'GPS_LOW_ACCURACY';
+  }
+
+  return 'GPS_OK';
+}
+
+function normalizeSavePayload(payload) {
+  const next = payload && typeof payload === 'object'
+    ? payload
+    : {};
+
+  next.doorId = cleanText(next.doorId);
+  next.location = cleanText(next.location);
+  next.sealNo = cleanText(next.sealNo);
+  next.inspector = cleanText(next.inspector);
+  next.device = cleanText(next.device || navigator.userAgent || '');
+
+  next.inspectSource = normalizeInspectSource(next.inspectSource || next.source || next.formSource || '');
+
+  next.gps = next.gps || {};
+  next.gps.lat = cleanText(next.gps.lat);
+  next.gps.lng = cleanText(next.gps.lng);
+  next.gps.accuracy = cleanText(next.gps.accuracy);
+  next.gps.timestamp = cleanText(next.gps.timestamp);
+  next.gps.status = getGpsStatusForPayload(next.gps);
+
+  next.evidenceImage = next.evidenceImage || {};
+  next.evidenceImage.base64 = cleanText(next.evidenceImage.base64);
+  next.evidenceImage.mimeType = cleanText(next.evidenceImage.mimeType) || 'image/jpeg';
+  next.evidenceImage.filename = cleanText(next.evidenceImage.filename) || `fire_exit_evidence_${Date.now()}.jpg`;
+
+  next.items = Array.isArray(next.items)
+    ? next.items.map((item, index) => {
+        const no = item && item.no ? item.no : index + 1;
+        const value = cleanText(item && item.value);
+        const detail = cleanText(item && item.detail);
+        const isAbnormal = !!(item && item.isAbnormal);
+
+        let finalText = cleanText(item && item.finalText);
+
+        if (!finalText) {
+          finalText = value;
+          if (isAbnormal && detail) {
+            finalText += ' - ' + detail;
+          }
+        }
+
+        return {
+          no,
+          title: cleanText(item && item.title),
+          value,
+          detail,
+          finalText,
+          isAbnormal
+        };
+      })
+    : [];
+
+  return next;
+}
+  function validateSavePayload(payload) {
+  if (!payload || typeof payload !== 'object') {
+    throw new Error('ไม่พบข้อมูลสำหรับบันทึก');
+  }
+
+  const missing = [];
+
+  const doorId = cleanText(payload.doorId);
+  const inspector = cleanText(payload.inspector);
+  const sealNo = cleanText(payload.sealNo);
+
+  if (!doorId) missing.push('หมายเลขประตูหนีไฟ');
+  if (!inspector) missing.push('ชื่อผู้บันทึก');
+  if (!sealNo) missing.push('หมายเลขซีล');
+
+  if (missing.length) {
+    throw new Error('กรุณากรอกข้อมูลให้ครบ:\n- ' + missing.join('\n- '));
+  }
+
+  if (!/^[0-9]+$/.test(sealNo)) {
+    throw new Error('หมายเลขซีลต้องเป็นตัวเลขเท่านั้น');
+  }
+
+  const gps = payload.gps || {};
+
+  if (!cleanText(gps.lat) || !cleanText(gps.lng)) {
+    throw new Error('กรุณาเปิด GPS และอนุญาตตำแหน่งก่อนบันทึก');
+  }
+
+  const lat = Number(gps.lat);
+  const lng = Number(gps.lng);
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    throw new Error('ข้อมูล GPS ไม่ถูกต้อง กรุณากดเปิด GPS ใหม่อีกครั้ง');
+  }
+
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    throw new Error('ค่าพิกัด GPS ผิดรูปแบบ กรุณากดเปิด GPS ใหม่อีกครั้ง');
+  }
+
+  const gpsStatus = getGpsStatusForPayload(gps);
+  payload.gps.status = gpsStatus;
+
+  const evidence = payload.evidenceImage || {};
+
+  if (!cleanText(evidence.base64)) {
+    throw new Error('กรุณาถ่ายภาพหลักฐาน QR Code / ประตู / หมายเลขซีล อย่างน้อย 1 ภาพก่อนบันทึก');
+  }
+
+  if (!cleanText(evidence.mimeType)) {
+    payload.evidenceImage.mimeType = 'image/jpeg';
+  }
+
+  if (!cleanText(evidence.filename)) {
+    payload.evidenceImage.filename = `fire_exit_evidence_${Date.now()}.jpg`;
+  }
+
+  if (!Array.isArray(payload.items) || !payload.items.length) {
+    throw new Error('ไม่พบรายการตรวจ กรุณาโหลดหน้าใหม่แล้วลองอีกครั้ง');
+  }
+
+  const incomplete = [];
+  const abnormalWithoutDetail = [];
+
+  payload.items.forEach((item, index) => {
+    const no = item && item.no ? item.no : index + 1;
+    const title = cleanText(item && item.title) || `ข้อ ${no}`;
+    const value = cleanText(item && item.value);
+
+    if (!value) {
+      incomplete.push(`${no}. ${title}`);
+    }
+
+    if (item && item.isAbnormal && !cleanText(item.detail)) {
+      abnormalWithoutDetail.push(`${no}. ${title}`);
+    }
+  });
+
+  if (incomplete.length) {
+    throw new Error(
+      'กรุณาเลือกผลตรวจให้ครบทุกข้อ:\n- ' + incomplete.slice(0, 10).join('\n- ')
+    );
+  }
+
+  if (abnormalWithoutDetail.length) {
+    throw new Error(
+      'รายการที่ผิดปกติต้องกรอกรายละเอียด:\n- ' + abnormalWithoutDetail.slice(0, 10).join('\n- ')
+    );
+  }
+
+  payload.inspectSource = normalizeInspectSource(payload.inspectSource || payload.source || payload.formSource || '');
+
+  const size = getPayloadSizeBytes(payload);
+
+  if (size > MAX_SAVE_PAYLOAD_BYTES) {
+    throw new Error(`ข้อมูลที่ส่งใหญ่เกินไป (${formatBytes(size)}) กรุณาถ่ายภาพใหม่หรือบีบอัดภาพให้เล็กลง`);
+  }
+
+  return true;
+}
 
   /************************************************************
    * File Request Helper
@@ -512,16 +654,17 @@
     });
   }
 
-  function saveInspection(payload) {
-    validateSavePayload(payload);
+ function saveInspection(payload) {
+  const normalizedPayload = normalizeSavePayload(payload);
 
-    return requestJson('/api/save', {
-      method: 'POST',
-      body: payload,
-      timeoutMs: SAVE_TIMEOUT_MS
-    });
-  }
+  validateSavePayload(normalizedPayload);
 
+  return requestJson('/api/save', {
+    method: 'POST',
+    body: normalizedPayload,
+    timeoutMs: SAVE_TIMEOUT_MS
+  });
+}
   /************************************************************
    * Evidence Cleanup API
    ************************************************************/
@@ -639,42 +782,39 @@
    ************************************************************/
 
   window.FireExitAPI = {
-    buildUrl,
-    requestJson,
-    requestFile,
+  buildUrl,
+  requestJson,
+  requestFile,
 
-    downloadBase64File,
-    downloadBlob,
-    openDownloadUrl,
-    formatBytes,
-    getPayloadSizeBytes,
+  downloadBase64File,
+  downloadBlob,
+  openDownloadUrl,
+  formatBytes,
+  getPayloadSizeBytes,
 
-    getHealth,
-    getOptions,
-    getDoors,
-    getChecklist,
-    getDailyStatus,
-    getLatest,
-    getHistory,
-    getMonthlyReport,
-    getMonthlyReportAll,
-    saveInspection,
+  getHealth,
+  getOptions,
+  getDoors,
+  getChecklist,
+  getDailyStatus,
+  getLatest,
+  getHistory,
+  getMonthlyReport,
+  getMonthlyReportAll,
+  saveInspection,
 
-    cleanupEvidence,
-    setupEvidenceCleanupTrigger,
+  cleanupEvidence,
+  setupEvidenceCleanupTrigger,
 
-    exportCsv,
-    exportExcel,
+  exportCsv,
+  exportExcel,
 
-    startExportJob,
-    getExportJobStatus,
-    getExportJobDownload,
-    cancelExportJob,
-    downloadExportJob
-  };
+  startExportJob,
+  getExportJobStatus,
+  getExportJobDownload,
+  cancelExportJob,
+  downloadExportJob
+};
 
-  /*
-   * alias เผื่อไฟล์ HTML เดิมเรียก window.API
-   */
-  window.API = window.FireExitAPI;
+window.API = window.FireExitAPI;
 })();
