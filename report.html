@@ -776,6 +776,58 @@
         setControlsDisabled(false);
       }
     }
+    async function callExportApiWithRetry(fn, options) {
+  const opt = options || {};
+  const retries = Number(opt.retries || 8);
+  const delayMs = Number(opt.delayMs || 2500);
+  const startedAt = opt.startedAt || Date.now();
+  const label = opt.label || 'เชื่อมต่อระบบ Export';
+
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+
+    } catch (err) {
+      lastError = err;
+
+      const message = String(err && err.message ? err.message : err || '');
+      const retryable = isRetryableExportError_(message);
+
+      if (!retryable || attempt >= retries) {
+        throw err;
+      }
+
+      updateExportProgress({
+        percent: opt.percent || 0,
+        title: 'เชื่อมต่อระบบไม่สำเร็จ กำลังลองใหม่',
+        detail: `${label} ไม่สำเร็จชั่วคราว: ${message}`,
+        subDetail: `ลองใหม่ครั้งที่ ${attempt}/${retries} ในอีก ${Math.ceil(delayMs / 1000)} วินาที`
+      }, startedAt);
+
+      setApiStatus('pending', `เชื่อมต่อสะดุด กำลังลองใหม่ ${attempt}/${retries}`);
+
+      await waitMs(delayMs);
+    }
+  }
+
+  throw lastError || new Error('เชื่อมต่อระบบ Export ไม่สำเร็จ');
+}
+
+function isRetryableExportError_(message) {
+  const s = String(message || '').toLowerCase();
+
+  return (
+    s.includes('failed to fetch') ||
+    s.includes('network') ||
+    s.includes('timeout') ||
+    s.includes('abort') ||
+    s.includes('เชื่อมต่อ') ||
+    s.includes('นานเกินไป') ||
+    s.includes('load failed')
+  );
+}
 async function exportExcelJobWithProgress(month) {
   const startedAt = Date.now();
   let timer = null;
@@ -823,7 +875,16 @@ async function exportExcelJobWithProgress(month) {
       subDetail: 'ขั้นตอนนี้ระบบจะสร้างไฟล์งานชั่วคราวใน Google Drive'
     }, startedAt);
 
-    const startData = await API.startExportJob(month);
+    const startData = await callExportApiWithRetry(
+  () => API.startExportJob(month),
+  {
+    startedAt,
+    retries: 5,
+    delayMs: 2500,
+    percent: 2,
+    label: 'เริ่มสร้างงาน Export'
+  }
+);
 
     currentJobId = startData.jobId;
 
@@ -850,7 +911,16 @@ async function exportExcelJobWithProgress(month) {
 
       await waitMs(2500);
 
-      latestStatus = await API.getExportJobStatus(currentJobId);
+      latestStatus = await callExportApiWithRetry(
+  () => API.getExportJobStatus(currentJobId),
+  {
+    startedAt,
+    retries: 10,
+    delayMs: 3000,
+    percent: Number(latestStatus && latestStatus.percent ? latestStatus.percent : 0),
+    label: 'ตรวจสถานะงาน Export'
+  }
+);
 
       const status = String(latestStatus.status || '').toUpperCase();
       const percent = Number(latestStatus.percent || 0);
@@ -924,7 +994,16 @@ async function exportExcelJobWithProgress(month) {
     }).then(async result => {
       if (result.isConfirmed) {
         try {
-          await API.downloadExportJob(currentJobId);
+          await callExportApiWithRetry(
+  () => API.downloadExportJob(currentJobId),
+  {
+    startedAt,
+    retries: 5,
+    delayMs: 2500,
+    percent: 100,
+    label: 'ดาวน์โหลดไฟล์ Export'
+  }
+);
         } catch (err) {
           showError(err.message || 'ดาวน์โหลดไฟล์ไม่สำเร็จ');
         }
