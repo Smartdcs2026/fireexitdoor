@@ -16,11 +16,18 @@
     /************************************************************
      * check.html
      * Mobile-first Fire Exit Door Inspection Form
-     * Compact Version
+     * ปรับปรุง:
+     * - เข้าจาก QR ได้ / เข้าจากหน้าหลักได้
+     * - ถ้าเข้าจาก QR จะล็อกประตู
+     * - บังคับ GPS ก่อนบันทึก
+     * - บังคับภาพหลักฐานอย่างน้อย 1 ภาพ
+     * - แนะนำภาพ QR Code / ประตู / หมายเลขซีล
+     * - ส่ง inspectSource = qr / home / manual
+     * - แถบล่างมือถือเล็กลง ไม่รก
      ************************************************************/
 
     body {
-      padding-bottom: 118px;
+      padding-bottom: 104px;
     }
 
     .check-layout {
@@ -85,6 +92,40 @@
       cursor: pointer;
     }
 
+    .locked-by-qr {
+      background: #ecfdf5 !important;
+      color: #115e59 !important;
+      border-color: rgba(15, 118, 110, 0.35) !important;
+    }
+
+    .source-pill {
+      grid-column: 1 / -1;
+      min-height: 34px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: #475569;
+      font-size: 12px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6px 10px;
+    }
+
+    .source-pill.qr {
+      border-color: rgba(15, 118, 110, 0.30);
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+    }
+
+    .source-pill.home {
+      border-color: rgba(2, 132, 199, 0.25);
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
     .seal-box {
       border: 1px solid rgba(15, 118, 110, 0.32);
       background: linear-gradient(90deg, var(--primary-soft), #fff 70%);
@@ -117,10 +158,6 @@
       line-height: 1.35;
     }
 
-    /************************************************************
-     * Compact Door Info
-     ************************************************************/
-
     .door-info-box {
       border: 1px solid rgba(15, 118, 110, 0.25);
       background: var(--primary-soft);
@@ -147,10 +184,6 @@
       line-height: 1.25;
       overflow-wrap: anywhere;
     }
-
-    /************************************************************
-     * Evidence Compact UI
-     ************************************************************/
 
     .evidence-card {
       margin-top: 10px;
@@ -324,10 +357,6 @@
       line-height: 1.35;
     }
 
-    /************************************************************
-     * Top action
-     ************************************************************/
-
     .top-action-mini {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -340,10 +369,6 @@
       border-radius: 13px;
       font-size: 13px;
     }
-
-    /************************************************************
-     * Compact Checklist
-     ************************************************************/
 
     .checklist-wrap {
       display: grid;
@@ -488,78 +513,64 @@
       box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.12);
     }
 
-    /************************************************************
-     * Bottom Save Bar
-     ************************************************************/
-
     .bottom-save-bar {
       position: fixed;
       left: 50%;
       bottom: 0;
       transform: translateX(-50%);
-      width: min(100%, 760px);
+      width: min(1180px, 100%);
+      background: rgba(255, 255, 255, 0.96);
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -10px 28px rgba(15, 23, 42, 0.10);
+      padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
       z-index: 50;
-      background: rgba(244, 247, 251, 0.96);
-      backdrop-filter: blur(12px);
-      border-top: 1px solid rgba(217, 226, 236, 0.9);
-      box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.12);
-      padding: 7px 9px calc(7px + env(safe-area-inset-bottom));
-      display: grid;
-      gap: 6px;
+      backdrop-filter: blur(10px);
     }
 
     .progress-line {
-      font-size: 11px;
+      min-height: 28px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
       color: #334155;
-      text-align: center;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
       font-weight: 900;
-      line-height: 1.2;
+      text-align: center;
+      margin-bottom: 7px;
+      overflow-wrap: anywhere;
     }
 
     .save-row {
       display: grid;
-      grid-template-columns: 1.35fr 0.75fr;
-      gap: 7px;
+      grid-template-columns: minmax(0, 1fr) 86px;
+      gap: 8px;
     }
 
     .save-row .btn {
-      min-height: 46px;
-      border-radius: 13px;
+      min-height: 44px;
+      border-radius: 14px;
       font-size: 14px;
       font-weight: 900;
-      touch-action: manipulation;
+    }
+
+    #btnSave.ready {
+      box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.15);
     }
 
     .quick-nav {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 6px;
-    }
-
-    .page-link-btn {
-      min-height: 31px;
-      border-radius: 11px;
-      background: #e2e8f0;
-      color: #0f172a;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 11px;
-      padding: 5px;
-      text-align: center;
+      display: none;
     }
 
     .swal2-popup {
       border-radius: 18px !important;
     }
 
-    /************************************************************
-     * Compact Header
-     ************************************************************/
-
     @media (max-width: 640px) {
+      body {
+        padding-bottom: 98px;
+      }
+
       .app-header {
         padding: 10px 12px;
         border-radius: 0 0 18px 18px;
@@ -597,16 +608,6 @@
         width: 8px;
         height: 8px;
       }
-    }
-
-    /************************************************************
-     * Mobile Compact
-     ************************************************************/
-
-    @media (max-width: 640px) {
-      body {
-        padding-bottom: 118px;
-      }
 
       .app-shell {
         padding-left: 10px;
@@ -636,11 +637,6 @@
         min-height: 44px;
         font-size: 14px;
         border-radius: 12px;
-      }
-
-      .field.full,
-      .seal-box {
-        grid-column: 1 / -1;
       }
 
       .seal-box {
@@ -688,27 +684,27 @@
         max-height: 190px;
       }
 
-      .save-row .btn {
-        min-height: 44px;
-        font-size: 13px;
+      .bottom-save-bar {
+        padding-left: 8px;
+        padding-right: 8px;
       }
 
-      .page-link-btn {
-        min-height: 30px;
-        font-size: 10.5px;
+      .progress-line {
+        font-size: 11.5px;
+        padding: 5px 8px;
+      }
+
+      .save-row {
+        grid-template-columns: minmax(0, 1fr) 74px;
+      }
+
+      .save-row .btn {
+        min-height: 42px;
+        font-size: 13px;
       }
     }
 
     @media (max-width: 430px) {
-      .form-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .field.full,
-      .seal-box {
-        grid-column: 1 / -1;
-      }
-
       .door-info-box {
         grid-template-columns: 58px minmax(0, 1fr);
         padding: 7px 9px;
@@ -722,10 +718,6 @@
         font-size: 11px;
       }
 
-      .evidence-status-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
       .camera-control-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -736,7 +728,7 @@
       }
 
       .evidence-help {
-        display: none;
+        font-size: 10px;
       }
 
       .check-title-row {
@@ -757,40 +749,15 @@
         min-height: 40px;
         font-size: 12.5px;
       }
-
-      .save-row {
-        grid-template-columns: 1fr 0.72fr;
-      }
-
-      .quick-nav {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .page-link-btn {
-        font-size: 10.5px;
-      }
     }
 
     @media (max-width: 360px) {
       body {
-        padding-bottom: 150px;
-      }
-
-      .check-title-row {
-        grid-template-columns: 24px minmax(0, 1fr) auto;
-      }
-
-      .camera-control-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .camera-control-grid .btn {
-        min-height: 38px;
-        font-size: 10.5px;
+        padding-bottom: 104px;
       }
 
       .save-row {
-        grid-template-columns: 1fr 0.68fr;
+        grid-template-columns: 1fr 70px;
       }
     }
   </style>
@@ -825,6 +792,10 @@
         </div>
 
         <div class="form-grid">
+          <div id="sourcePill" class="source-pill home">
+            ช่องทาง: หน้าหลัก
+          </div>
+
           <label class="field">
             <span>ชื่อผู้บันทึก</span>
             <select id="inspectorSelect">
@@ -930,7 +901,7 @@
             </div>
 
             <div class="evidence-help">
-              กรณีเปิดกล้องในเว็บไม่ได้ ให้กด “ใช้กล้องของอุปกรณ์” ระบบจะเปิดกล้องของมือถือหรือให้เลือกภาพจากเครื่องแทน
+              ต้องถ่ายภาพหลักฐานอย่างน้อย 1 ภาพก่อนบันทึก แนะนำให้ถ่าย QR Code ของประตู / ประตูจริง / หมายเลขซีล
             </div>
           </div>
         </div>
@@ -962,7 +933,7 @@
 
     <section class="bottom-save-bar">
       <div id="progressLine" class="progress-line">
-        ยังไม่ได้เลือกรายการตรวจ
+        ประตู ✕ | GPS ✕ | ภาพ ✕ | ตรวจ 0/0
       </div>
 
       <div class="save-row">
@@ -999,6 +970,9 @@
       selectedDoorId: '',
       items: [],
 
+      inspectSource: 'home',
+      isQrMode: false,
+
       gps: null,
       evidenceImage: null,
       cameraStream: null,
@@ -1011,6 +985,7 @@
       apiStatusDot: document.getElementById('apiStatusDot'),
       apiStatusText: document.getElementById('apiStatusText'),
 
+      sourcePill: document.getElementById('sourcePill'),
       inspectorSelect: document.getElementById('inspectorSelect'),
       doorSelect: document.getElementById('doorSelect'),
       locationInput: document.getElementById('locationInput'),
@@ -1064,22 +1039,60 @@
       }
 
       updateFooterTime();
+      parseEntryParams();
       bindEvents();
-
-      const params = new URLSearchParams(window.location.search);
-      state.selectedDoorId = params.get('doorId') || params.get('door') || '';
 
       await loadOptions();
     }
 
+    function parseEntryParams() {
+      const params = new URLSearchParams(window.location.search);
+
+      state.selectedDoorId = String(params.get('doorId') || params.get('door') || '').trim();
+
+      const sourceParam = String(
+        params.get('source') ||
+        params.get('from') ||
+        params.get('mode') ||
+        ''
+      ).trim().toLowerCase();
+
+      /*
+       * กรณี QR เดิมอาจมีแค่ ?doorId=D01 ไม่มี source=qr
+       * ถ้ามี doorId แต่ไม่ระบุ source ให้ถือเป็น qr เพื่อป้องกันการเปลี่ยนประตู
+       */
+      state.inspectSource = normalizeInspectSourceForCheck(
+        sourceParam || (state.selectedDoorId ? 'qr' : 'home')
+      );
+
+      state.isQrMode = state.inspectSource === 'qr' && !!state.selectedDoorId;
+    }
+
     function bindEvents() {
       el.doorSelect.addEventListener('change', () => {
+        if (state.isQrMode) {
+          el.doorSelect.value = state.selectedDoorId;
+
+          Swal.fire({
+            icon: 'warning',
+            title: 'เปลี่ยนประตูไม่ได้',
+            text: 'หน้านี้เปิดจาก QR Code จึงล็อกหมายเลขประตูไว้',
+            confirmButtonText: 'ตกลง'
+          });
+
+          return;
+        }
+
         selectDoor(el.doorSelect.value);
+        updateProgress();
       });
 
       el.sealNoInput.addEventListener('input', () => {
         el.sealNoInput.value = el.sealNoInput.value.replace(/\D/g, '');
+        updateProgress();
       });
+
+      el.inspectorSelect.addEventListener('change', updateProgress);
 
       el.btnSetAllNormalTop.addEventListener('click', setAllNormal);
       el.btnScrollToMissing.addEventListener('click', scrollToFirstMissing);
@@ -1125,22 +1138,55 @@
         renderChecklist();
 
         if (state.selectedDoorId) {
-          const found = state.doors.find(d => d.doorId === state.selectedDoorId);
+          const found = state.doors.find(d => String(d.doorId) === String(state.selectedDoorId));
 
           if (found) {
-            el.doorSelect.value = state.selectedDoorId;
-            selectDoor(state.selectedDoorId);
+            el.doorSelect.value = found.doorId;
+            selectDoor(found.doorId);
+          } else {
+            Swal.fire({
+              icon: 'warning',
+              title: 'ไม่พบประตูจาก QR/URL',
+              text: `ไม่พบหมายเลขประตู ${state.selectedDoorId} ใน Sheet1`,
+              confirmButtonText: 'ตกลง'
+            });
+
+            state.isQrMode = false;
+            state.inspectSource = 'home';
           }
         }
 
+        applyEntryModeUI();
         setApiStatus('ok', 'พร้อมบันทึกข้อมูล');
         setFormDisabled(false);
+        applyEntryModeUI();
+        updateProgress();
 
       } catch (err) {
         console.error(err);
         setApiStatus('danger', 'โหลดข้อมูลไม่สำเร็จ');
         showError(err.message || 'โหลดข้อมูลไม่สำเร็จ');
+        setFormDisabled(false);
       }
+    }
+
+    function applyEntryModeUI() {
+      if (state.isQrMode) {
+        el.doorSelect.disabled = true;
+        el.doorSelect.classList.add('locked-by-qr');
+
+        el.sourcePill.className = 'source-pill qr';
+        el.sourcePill.textContent = `ช่องทาง: QR Code | ล็อกประตู ${state.selectedDoorId || '-'}`;
+
+      } else {
+        el.doorSelect.disabled = false;
+        el.doorSelect.classList.remove('locked-by-qr');
+
+        el.sourcePill.className = 'source-pill home';
+        el.sourcePill.textContent = 'ช่องทาง: หน้าหลัก / เลือกประตูเอง';
+      }
+
+      updateProgress();
     }
 
     function renderNames() {
@@ -1173,6 +1219,8 @@
     function renderChecklist() {
       if (!state.checklist.length) {
         el.checklistWrap.innerHTML = '<div class="empty-state">ไม่พบรายการตรวจในชีท Checklist</div>';
+        state.items = [];
+        updateProgress();
         return;
       }
 
@@ -1226,6 +1274,8 @@
       el.checklistWrap.querySelectorAll('textarea[data-detail-index]').forEach(textarea => {
         textarea.addEventListener('input', () => {
           const index = Number(textarea.dataset.detailIndex);
+          if (!state.items[index]) return;
+
           state.items[index].detail = textarea.value.trim();
           updateItemFinalText(index);
           updateProgress();
@@ -1236,12 +1286,15 @@
     }
 
     function selectDoor(doorId) {
-      const door = state.doors.find(d => d.doorId === doorId);
+      state.selectedDoorId = String(doorId || '').trim();
+
+      const door = state.doors.find(d => String(d.doorId) === String(doorId));
 
       if (!door) {
         el.locationInput.value = '';
         el.doorInfoBox.style.display = 'none';
         el.viewDoorLink.href = CONFIG.ROUTES && CONFIG.ROUTES.VIEW ? CONFIG.ROUTES.VIEW : 'view.html';
+        updateProgress();
         return;
       }
 
@@ -1252,6 +1305,8 @@
 
       const viewRoute = CONFIG.ROUTES && CONFIG.ROUTES.VIEW ? CONFIG.ROUTES.VIEW : 'view.html';
       el.viewDoorLink.href = `${viewRoute}?doorId=${encodeURIComponent(door.doorId)}`;
+
+      updateProgress();
     }
 
     function setItemValue(index, type) {
@@ -1376,8 +1431,10 @@
 
     async function requestGps() {
       if (!navigator.geolocation) {
+        state.gps = null;
         updateGpsStatus(false, 'อุปกรณ์นี้ไม่รองรับ GPS');
         showWarn('อุปกรณ์นี้ไม่รองรับ GPS');
+        updateProgress();
         return null;
       }
 
@@ -1393,19 +1450,24 @@
         });
 
         const coords = position.coords || {};
+        const accuracy = Number(coords.accuracy || 0);
 
         state.gps = {
           lat: String(coords.latitude || ''),
           lng: String(coords.longitude || ''),
           accuracy: String(coords.accuracy || ''),
-          timestamp: formatDateTimeForPayload(new Date())
+          timestamp: formatDateTimeForPayload(new Date()),
+          status: accuracy && accuracy > 100 ? 'GPS_LOW_ACCURACY' : 'GPS_OK'
         };
 
         updateGpsStatus(
           true,
-          `พร้อมใช้งาน | แม่นยำ ${Math.round(Number(coords.accuracy || 0)) || '-'} ม.`
+          accuracy && accuracy > 100
+            ? `เปิด GPS แล้ว | ความแม่นยำต่ำ ${Math.round(accuracy)} ม.`
+            : `เปิด GPS แล้ว | แม่นยำ ${Math.round(accuracy) || '-'} ม.`
         );
 
+        updateProgress();
         return state.gps;
 
       } catch (err) {
@@ -1423,6 +1485,7 @@
 
         state.gps = null;
         updateGpsStatus(false, message);
+        updateProgress();
         showWarn(message);
 
         return null;
@@ -1541,7 +1604,9 @@
 
         el.evidencePreview.src = dataUrl;
         el.evidencePreviewWrap.classList.add('show');
+
         updateEvidenceStatus(true, 'มีภาพหลักฐานแล้ว');
+        updateProgress();
 
         Swal.fire({
           toast: true,
@@ -1580,7 +1645,9 @@
 
         el.evidencePreview.src = dataUrl;
         el.evidencePreviewWrap.classList.add('show');
+
         updateEvidenceStatus(true, 'มีภาพหลักฐานแล้ว');
+        updateProgress();
 
       } catch (err) {
         console.error(err);
@@ -1674,70 +1741,25 @@
       });
     }
 
-    function formatDateTimeForPayload(date) {
-      const d = date || new Date();
-
-      const dd = String(d.getDate()).padStart(2, '0');
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const yyyy = String(d.getFullYear());
-
-      const hh = String(d.getHours()).padStart(2, '0');
-      const mi = String(d.getMinutes()).padStart(2, '0');
-      const ss = String(d.getSeconds()).padStart(2, '0');
-
-      return `${dd}/${mm}/${yyyy} ${hh}:${mi}:${ss}`;
-    }
-
     async function saveInspection() {
-      const inspector = el.inspectorSelect.value.trim();
-      const doorId = el.doorSelect.value.trim();
-      const sealNo = el.sealNoInput.value.trim();
-      const door = state.doors.find(d => d.doorId === doorId);
-      const location = door ? door.location : el.locationInput.value.trim();
-
-      if (!inspector) {
-        showWarn('กรุณาเลือกชื่อผู้บันทึก');
-        el.inspectorSelect.focus();
-        return;
-      }
-
-      if (!doorId) {
-        showWarn('กรุณาเลือกหมายเลขประตูหนีไฟ');
-        el.doorSelect.focus();
-        return;
-      }
-
-      if (!sealNo) {
-        showWarn('กรุณากรอกหมายเลขซีล');
-        el.sealNoInput.focus();
-        return;
-      }
-
-      if (!/^[0-9]+$/.test(sealNo)) {
-        showWarn('หมายเลขซีลต้องเป็นตัวเลขเท่านั้น');
-        el.sealNoInput.focus();
-        return;
-      }
+      const doorId = String(el.doorSelect.value || state.selectedDoorId || '').trim();
+      const location = String(el.locationInput.value || '').trim();
+      const sealNo = String(el.sealNoInput.value || '').trim();
+      const inspector = String(el.inspectorSelect.value || '').trim();
 
       if (!state.gps || !state.gps.lat || !state.gps.lng) {
         const gps = await requestGps();
 
         if (!gps || !gps.lat || !gps.lng) {
-          showWarn('กรุณาเปิด GPS ก่อนบันทึก');
+          showMissingList(['เปิด GPS และอนุญาตตำแหน่งก่อนบันทึก']);
           return;
         }
       }
 
-      if (!state.evidenceImage || !state.evidenceImage.base64) {
-        showWarn('กรุณาถ่ายภาพหลักฐาน QR Code / ประตู / หมายเลขซีล ก่อนบันทึก');
-        return;
-      }
+      const missing = getFormMissingList();
 
-      const validation = validateItems();
-
-      if (!validation.ok) {
-        showWarn(validation.message);
-        focusItem(validation.index);
+      if (missing.length) {
+        showMissingList(missing);
         return;
       }
 
@@ -1752,7 +1774,8 @@
             <b>จุดติดตั้ง:</b> ${escapeHtml(location || '-')}<br>
             <b>หมายเลขซีล:</b> ${escapeHtml(sealNo)}<br>
             <b>ผู้บันทึก:</b> ${escapeHtml(inspector)}<br>
-            <b>GPS:</b> ${state.gps ? 'พร้อม' : 'ไม่พร้อม'}<br>
+            <b>ช่องทาง:</b> ${state.inspectSource === 'qr' ? 'QR Code' : 'หน้าหลัก'}<br>
+            <b>GPS:</b> ${escapeHtml(state.gps ? state.gps.status || 'พร้อม' : 'ไม่พร้อม')}<br>
             <b>ภาพหลักฐาน:</b> ${state.evidenceImage ? 'มีแล้ว' : 'ไม่มี'}<br>
             <b>ผิดปกติ:</b> ${abnormalCount} รายการ
           </div>
@@ -1771,12 +1794,14 @@
         sealNo,
         inspector,
         device: navigator.userAgent || '',
+        inspectSource: state.inspectSource,
 
         gps: {
           lat: state.gps.lat,
           lng: state.gps.lng,
           accuracy: state.gps.accuracy || '',
-          timestamp: state.gps.timestamp || formatDateTimeForPayload(new Date())
+          timestamp: state.gps.timestamp || formatDateTimeForPayload(new Date()),
+          status: state.gps.status || ''
         },
 
         evidenceImage: {
@@ -1823,7 +1848,8 @@
               <b>ประตู:</b> ${escapeHtml(result.doorId || doorId)}<br>
               <b>เวลา:</b> ${escapeHtml(result.timestamp || '-')}<br>
               <b>ผลรวม:</b> ${escapeHtml(result.result || '-')}<br>
-              <b>GPS:</b> บันทึกแล้ว<br>
+              <b>GPS:</b> ${escapeHtml(result.gps && result.gps.status ? result.gps.status : 'บันทึกแล้ว')}<br>
+              <b>ช่องทาง:</b> ${escapeHtml(result.inspectSource || state.inspectSource)}<br>
               <b>รูปหลักฐาน ID:</b> ${escapeHtml(result.evidence && result.evidence.fileId ? result.evidence.fileId : '-')}
             </div>
           `,
@@ -1840,7 +1866,58 @@
 
       } finally {
         setFormDisabled(false);
+        applyEntryModeUI();
       }
+    }
+
+    function getFormMissingList() {
+      const missing = [];
+
+      const doorId = String(el.doorSelect.value || state.selectedDoorId || '').trim();
+      const inspector = String(el.inspectorSelect.value || '').trim();
+      const sealNo = String(el.sealNoInput.value || '').trim();
+
+      if (!doorId) missing.push('เลือกหมายเลขประตูหนีไฟ');
+      if (!inspector) missing.push('เลือกชื่อผู้บันทึก');
+      if (!sealNo) missing.push('กรอกหมายเลขซีล');
+
+      if (sealNo && !/^[0-9]+$/.test(sealNo)) {
+        missing.push('หมายเลขซีลต้องเป็นตัวเลขเท่านั้น');
+      }
+
+      if (!state.gps || !state.gps.lat || !state.gps.lng) {
+        missing.push('เปิด GPS และอนุญาตตำแหน่ง');
+      }
+
+      if (!state.evidenceImage || !state.evidenceImage.base64) {
+        missing.push('ถ่ายภาพหลักฐาน QR Code / ประตู / หมายเลขซีล อย่างน้อย 1 ภาพ');
+      }
+
+      const validation = validateItems();
+
+      if (!validation.ok) {
+        missing.push(validation.message);
+      }
+
+      return missing;
+    }
+
+    function showMissingList(items) {
+      const list = Array.isArray(items) ? items.filter(Boolean) : [];
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'ยังบันทึกไม่ได้',
+        html: `
+          <div style="text-align:left;line-height:1.65">
+            <div style="margin-bottom:8px;">กรุณาดำเนินการให้ครบก่อนบันทึก:</div>
+            <ul style="margin:0;padding-left:20px;">
+              ${list.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+            </ul>
+          </div>
+        `,
+        confirmButtonText: 'ตกลง'
+      });
     }
 
     function resetAfterSave() {
@@ -1866,6 +1943,7 @@
 
       renderChecklist();
       updateProgress();
+      applyEntryModeUI();
     }
 
     function validateItems() {
@@ -1888,7 +1966,7 @@
           };
         }
 
-        if (item.isAbnormal && item.requireDetail && !item.detail.trim()) {
+        if (item.isAbnormal && item.requireDetail && !String(item.detail || '').trim()) {
           return {
             ok: false,
             message: `กรุณาระบุรายละเอียดผิดปกติข้อ ${item.no || i + 1}: ${item.title}`,
@@ -1918,17 +1996,29 @@
     }
 
     function updateProgress() {
-      const total = state.items.length;
-      const selected = state.items.filter(item => !!item.value).length;
-      const abnormal = state.items.filter(item => item.isAbnormal).length;
-      const missing = Math.max(total - selected, 0);
+      const doorReady = !!String(el.doorSelect.value || state.selectedDoorId || '').trim();
+      const gpsReady = !!(state.gps && state.gps.lat && state.gps.lng);
+      const evidenceReady = !!(state.evidenceImage && state.evidenceImage.base64);
 
-      el.progressLine.textContent = `เลือกแล้ว ${selected}/${total} | เหลือ ${missing} | ผิดปกติ ${abnormal}`;
+      const total = state.items.length;
+      const checked = state.items.filter(item => !!item.value).length;
+
+      const parts = [
+        `ประตู ${doorReady ? '✓' : '✕'}`,
+        `GPS ${gpsReady ? '✓' : '✕'}`,
+        `ภาพ ${evidenceReady ? '✓' : '✕'}`,
+        `ตรวจ ${checked}/${total || 0}`
+      ];
+
+      el.progressLine.textContent = parts.join(' | ');
+
+      const ready = doorReady && gpsReady && evidenceReady && total > 0 && checked === total;
+      el.btnSave.classList.toggle('ready', ready);
     }
 
     function setFormDisabled(disabled) {
       el.inspectorSelect.disabled = disabled;
-      el.doorSelect.disabled = disabled;
+      el.doorSelect.disabled = disabled || state.isQrMode;
       el.locationInput.disabled = disabled;
       el.sealNoInput.disabled = disabled;
       el.btnSave.disabled = disabled;
@@ -1954,6 +2044,29 @@
       if (s.toUpperCase() === 'FALSE') return '';
 
       return s;
+    }
+
+    function normalizeInspectSourceForCheck(value) {
+      const text = String(value || '').trim().toLowerCase();
+
+      if (text === 'qr' || text === 'qrcode' || text === 'qr_code') return 'qr';
+      if (text === 'home' || text === 'index' || text === 'dashboard') return 'home';
+
+      return text || 'home';
+    }
+
+    function formatDateTimeForPayload(date) {
+      const d = date || new Date();
+
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = String(d.getFullYear());
+
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mi = String(d.getMinutes()).padStart(2, '0');
+      const ss = String(d.getSeconds()).padStart(2, '0');
+
+      return `${dd}/${mm}/${yyyy} ${hh}:${mi}:${ss}`;
     }
 
     function updateFooterTime() {
