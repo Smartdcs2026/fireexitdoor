@@ -9,6 +9,10 @@
   const CONFIG = window.APP_CONFIG || {};
   const API_BASE = CONFIG.API_BASE || '';
 
+  const DEFAULT_TIMEOUT_MS = 60000;
+  const SAVE_TIMEOUT_MS = 70000;
+  const MAX_SAVE_PAYLOAD_BYTES = 4 * 1024 * 1024;
+
   if (!API_BASE) {
     console.error('ไม่พบ APP_CONFIG.API_BASE');
   }
@@ -41,6 +45,7 @@
   async function requestJson(path, options) {
     const opts = options || {};
     const url = buildUrl(path, opts.params);
+    const timeoutMs = Number(opts.timeoutMs || DEFAULT_TIMEOUT_MS);
 
     const fetchOptions = {
       method: opts.method || 'GET',
@@ -54,7 +59,7 @@
       fetchOptions.body = JSON.stringify(opts.body);
     }
 
-    const res = await fetch(url, fetchOptions);
+    const res = await fetchWithTimeout(url, fetchOptions, timeoutMs);
     const text = await res.text();
 
     let data;
@@ -62,14 +67,110 @@
     try {
       data = JSON.parse(text);
     } catch (err) {
-      throw new Error('API ไม่ได้ส่ง JSON กลับมา: ' + text.slice(0, 300));
+      throw new Error('API ไม่ได้ส่ง JSON กลับมา: ' + text.slice(0, 500));
     }
 
     if (!res.ok || data.ok === false) {
-      throw new Error(data.message || data.error || 'เกิดข้อผิดพลาดจาก API');
+      throw new Error(extractApiErrorMessage(data, res.status));
     }
 
     return data;
+  }
+
+  async function fetchWithTimeout(url, options, timeoutMs) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      try {
+        controller.abort();
+      } catch (err) {}
+    }, timeoutMs || DEFAULT_TIMEOUT_MS);
+
+    try {
+      return await fetch(url, {
+        ...(options || {}),
+        signal: controller.signal
+      });
+
+    } catch (err) {
+      const name = String(err && err.name || '').toLowerCase();
+
+      if (name === 'aborterror') {
+        throw new Error('เชื่อมต่อระบบนานเกินไป กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
+      }
+
+      throw new Error(err.message || 'เชื่อมต่อ API ไม่สำเร็จ');
+
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  function extractApiErrorMessage(data, status) {
+    if (!data) {
+      return `เกิดข้อผิดพลาดจาก API (${status || '-'})`;
+    }
+
+    if (data.message) return data.message;
+    if (data.error) return data.error;
+
+    if (data.data && data.data.message) return data.data.message;
+    if (data.data && data.data.error) return data.data.error;
+
+    if (data.raw) {
+      return 'API ส่งข้อมูลผิดรูปแบบ: ' + String(data.raw).slice(0, 300);
+    }
+
+    return `เกิดข้อผิดพลาดจาก API (${status || '-'})`;
+  }
+
+  function getPayloadSizeBytes(payload) {
+    try {
+      return new TextEncoder().encode(JSON.stringify(payload || {})).length;
+    } catch (err) {
+      return 0;
+    }
+  }
+
+  function validateSavePayload(payload) {
+    if (!payload || typeof payload !== 'object') {
+      throw new Error('ไม่พบข้อมูลสำหรับบันทึก');
+    }
+
+    if (!String(payload.doorId || '').trim()) {
+      throw new Error('ไม่พบหมายเลขประตูหนีไฟ');
+    }
+
+    if (!String(payload.inspector || '').trim()) {
+      throw new Error('ไม่พบชื่อผู้บันทึก');
+    }
+
+    if (!String(payload.sealNo || '').trim()) {
+      throw new Error('ไม่พบหมายเลขซีล');
+    }
+
+    if (!Array.isArray(payload.items) || !payload.items.length) {
+      throw new Error('ไม่พบรายการตรวจ');
+    }
+
+    const gps = payload.gps || {};
+
+    if (!String(gps.lat || '').trim() || !String(gps.lng || '').trim()) {
+      throw new Error('ไม่พบข้อมูล GPS กรุณาเปิด GPS ก่อนบันทึก');
+    }
+
+    const evidence = payload.evidenceImage || {};
+
+    if (!String(evidence.base64 || '').trim()) {
+      throw new Error('ไม่พบภาพหลักฐาน กรุณาถ่ายภาพก่อนบันทึก');
+    }
+
+    const size = getPayloadSizeBytes(payload);
+
+    if (size > MAX_SAVE_PAYLOAD_BYTES) {
+      throw new Error(`ข้อมูลที่ส่งใหญ่เกินไป (${formatBytes(size)}) กรุณาถ่ายภาพใหม่หรือบีบอัดภาพให้เล็กลง`);
+    }
+
+    return true;
   }
 
   /************************************************************
@@ -91,12 +192,12 @@
       detail: 'กำลังส่งคำขอไปยังระบบรายงาน...'
     });
 
-    const res = await fetch(url, {
+    const res = await fetchWithTimeout(url, {
       method: 'GET',
       headers: {
         Accept: 'application/json, application/octet-stream, */*'
       }
-    });
+    }, DEFAULT_TIMEOUT_MS);
 
     const contentType = res.headers.get('content-type') || '';
     const contentLength = Number(res.headers.get('content-length') || 0);
@@ -128,7 +229,7 @@
       }
 
       if (!data || data.ok === false) {
-        throw new Error((data && (data.message || data.error)) || 'ส่งออกไฟล์ไม่สำเร็จ');
+        throw new Error(extractApiErrorMessage(data, res.status) || 'ส่งออกไฟล์ไม่สำเร็จ');
       }
 
       if (!data.base64) {
@@ -403,9 +504,28 @@
   }
 
   function saveInspection(payload) {
+    validateSavePayload(payload);
+
     return requestJson('/api/save', {
       method: 'POST',
-      body: payload
+      body: payload,
+      timeoutMs: SAVE_TIMEOUT_MS
+    });
+  }
+
+  /************************************************************
+   * Evidence Cleanup API
+   ************************************************************/
+
+  function cleanupEvidence() {
+    return requestJson('/api/cleanup-evidence', {
+      timeoutMs: DEFAULT_TIMEOUT_MS
+    });
+  }
+
+  function setupEvidenceCleanupTrigger() {
+    return requestJson('/api/setup-evidence-cleanup-trigger', {
+      timeoutMs: DEFAULT_TIMEOUT_MS
     });
   }
 
@@ -451,7 +571,8 @@
     }
 
     return requestJson('/api/export-job-start', {
-      params: { month }
+      params: { month },
+      timeoutMs: DEFAULT_TIMEOUT_MS
     });
   }
 
@@ -461,7 +582,8 @@
     }
 
     return requestJson('/api/export-job-status', {
-      params: { jobId }
+      params: { jobId },
+      timeoutMs: DEFAULT_TIMEOUT_MS
     });
   }
 
@@ -471,7 +593,8 @@
     }
 
     return requestJson('/api/export-job-download', {
-      params: { jobId }
+      params: { jobId },
+      timeoutMs: DEFAULT_TIMEOUT_MS
     });
   }
 
@@ -481,7 +604,8 @@
     }
 
     return requestJson('/api/export-job-cancel', {
-      params: { jobId }
+      params: { jobId },
+      timeoutMs: DEFAULT_TIMEOUT_MS
     });
   }
 
@@ -514,6 +638,7 @@
     downloadBlob,
     openDownloadUrl,
     formatBytes,
+    getPayloadSizeBytes,
 
     getHealth,
     getOptions,
@@ -526,6 +651,9 @@
     getMonthlyReportAll,
     saveInspection,
 
+    cleanupEvidence,
+    setupEvidenceCleanupTrigger,
+
     exportCsv,
     exportExcel,
 
@@ -535,4 +663,9 @@
     cancelExportJob,
     downloadExportJob
   };
+
+  /*
+   * alias เผื่อไฟล์ HTML เดิมเรียก window.API
+   */
+  window.API = window.FireExitAPI;
 })();
