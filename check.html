@@ -289,7 +289,169 @@
       border-color: var(--danger);
       box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.12);
     }
+        .evidence-card {
+      border: 1px solid rgba(15, 118, 110, 0.28);
+      background: linear-gradient(180deg, #f8fffe 0%, #fff 100%);
+    }
 
+    .evidence-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .evidence-status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .evidence-status-box {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 15px;
+      padding: 10px;
+      display: grid;
+      gap: 4px;
+      min-height: 64px;
+    }
+
+    .evidence-status-box span {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted);
+    }
+
+    .evidence-status-box strong {
+      font-size: 13px;
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .evidence-status-box.ok {
+      border-color: rgba(21, 128, 61, 0.28);
+      background: var(--success-soft);
+    }
+
+    .evidence-status-box.ok strong {
+      color: var(--success);
+    }
+
+    .evidence-status-box.bad {
+      border-color: rgba(185, 28, 28, 0.28);
+      background: var(--danger-soft);
+    }
+
+    .evidence-status-box.bad strong {
+      color: var(--danger);
+    }
+
+    .camera-control-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .camera-control-grid .wide {
+      grid-column: 1 / -1;
+    }
+
+    .camera-control-grid .btn {
+      min-height: 46px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .camera-select-wrap {
+      display: grid;
+      gap: 6px;
+    }
+
+    .camera-select-wrap span {
+      font-size: 13px;
+      font-weight: 900;
+      color: #334155;
+    }
+
+    .camera-select-wrap select {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 9px 10px;
+      font-size: 15px;
+      font-weight: 800;
+      background: #fff;
+      outline: none;
+    }
+
+    .camera-box {
+      display: none;
+      border: 1px solid var(--line);
+      background: #0f172a;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .camera-box.show {
+      display: block;
+    }
+
+    .camera-video {
+      width: 100%;
+      max-height: 360px;
+      object-fit: cover;
+      display: block;
+      background: #0f172a;
+    }
+
+    .evidence-preview-wrap {
+      display: none;
+      border: 1px solid rgba(21, 128, 61, 0.28);
+      background: var(--success-soft);
+      border-radius: 16px;
+      padding: 8px;
+      gap: 8px;
+    }
+
+    .evidence-preview-wrap.show {
+      display: grid;
+    }
+
+    .evidence-preview-wrap strong {
+      color: var(--success);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .evidence-preview {
+      width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid rgba(21, 128, 61, 0.25);
+    }
+
+    .evidence-help {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 430px) {
+      .evidence-status-grid,
+      .camera-control-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .camera-control-grid .wide {
+        grid-column: auto;
+      }
+    }
     .bottom-save-bar {
       position: fixed;
       left: 50%;
@@ -557,7 +719,74 @@
           <strong id="doorInfoId">-</strong>
           <span id="doorInfoLocation">-</span>
         </div>
+              <div class="form-card evidence-card" style="margin-top:10px;">
+          <div class="section-title-row">
+            <div>
+              <h2>หลักฐานการตรวจจริง</h2>
+              <p>ต้องเปิด GPS และถ่ายภาพ QR Code / ประตู / หมายเลขซีล ก่อนบันทึก</p>
+            </div>
+          </div>
 
+          <div class="evidence-grid">
+            <div class="evidence-status-grid">
+              <div id="gpsStatusBox" class="evidence-status-box bad">
+                <span>สถานะ GPS</span>
+                <strong id="gpsStatusText">ยังไม่ได้เปิด GPS</strong>
+              </div>
+
+              <div id="evidenceStatusBox" class="evidence-status-box bad">
+                <span>ภาพหลักฐาน</span>
+                <strong id="evidenceStatusText">ยังไม่มีภาพหลักฐาน</strong>
+              </div>
+            </div>
+
+            <div class="camera-select-wrap">
+              <span>เลือกกล้อง</span>
+              <select id="cameraSelect">
+                <option value="">ใช้กล้องหลัง / กล้องหลัก</option>
+              </select>
+            </div>
+
+            <div class="camera-control-grid">
+              <button id="btnRequestGps" class="btn warning" type="button">
+                เปิด GPS
+              </button>
+
+              <button id="btnOpenCamera" class="btn primary" type="button">
+                เปิดกล้องในเว็บ
+              </button>
+
+              <button id="btnCapturePhoto" class="btn success" type="button">
+                ถ่ายภาพจากกล้อง
+              </button>
+
+              <button id="btnUseDeviceCamera" class="btn" type="button">
+                ใช้กล้องของอุปกรณ์
+              </button>
+            </div>
+
+            <input
+              id="evidenceFileInput"
+              type="file"
+              accept="image/*"
+              capture="environment"
+              style="display:none;"
+            />
+
+            <div id="cameraBox" class="camera-box">
+              <video id="cameraVideo" class="camera-video" autoplay playsinline muted></video>
+            </div>
+
+            <div id="evidencePreviewWrap" class="evidence-preview-wrap">
+              <strong>บันทึกภาพหลักฐานแล้ว</strong>
+              <img id="evidencePreview" class="evidence-preview" alt="ภาพหลักฐาน" />
+            </div>
+
+            <div class="evidence-help">
+              กรณีเปิดกล้องในเว็บไม่ได้ ให้กด “ใช้กล้องของอุปกรณ์” ระบบจะเปิดกล้องของมือถือหรือให้เลือกภาพจากเครื่องแทน
+            </div>
+          </div>
+        </div>
         <div class="top-action-mini">
           <button id="btnSetAllNormalTop" class="btn success" type="button">
             ปกติทั้งหมด
@@ -615,14 +844,19 @@
     const CONFIG = window.APP_CONFIG;
     const API = window.FireExitAPI;
 
-    const state = {
+      const state = {
       names: [],
       doors: [],
       checklist: [],
       selectedDoorId: '',
-      items: []
-    };
+      items: [],
 
+      gps: null,
+      evidenceImage: null,
+      cameraStream: null,
+      cameras: [],
+      selectedCameraId: ''
+    };
     const el = {
       appLogo: document.getElementById('appLogo'),
       apiStatusDot: document.getElementById('apiStatusDot'),
@@ -644,13 +878,36 @@
       btnSave: document.getElementById('btnSave'),
       btnReset: document.getElementById('btnReset'),
 
-      progressLine: document.getElementById('progressLine'),
+            progressLine: document.getElementById('progressLine'),
       viewDoorLink: document.getElementById('viewDoorLink'),
+
+      gpsStatusBox: document.getElementById('gpsStatusBox'),
+      gpsStatusText: document.getElementById('gpsStatusText'),
+      evidenceStatusBox: document.getElementById('evidenceStatusBox'),
+      evidenceStatusText: document.getElementById('evidenceStatusText'),
+
+      cameraSelect: document.getElementById('cameraSelect'),
+      btnRequestGps: document.getElementById('btnRequestGps'),
+      btnOpenCamera: document.getElementById('btnOpenCamera'),
+      btnCapturePhoto: document.getElementById('btnCapturePhoto'),
+      btnUseDeviceCamera: document.getElementById('btnUseDeviceCamera'),
+      evidenceFileInput: document.getElementById('evidenceFileInput'),
+      cameraBox: document.getElementById('cameraBox'),
+      cameraVideo: document.getElementById('cameraVideo'),
+      evidencePreviewWrap: document.getElementById('evidencePreviewWrap'),
+      evidencePreview: document.getElementById('evidencePreview'),
 
       footerTime: document.getElementById('footerTime')
     };
 
     document.addEventListener('DOMContentLoaded', init);
+        window.addEventListener('beforeunload', stopCamera);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopCamera();
+      }
+    });
 
     async function init() {
       el.appLogo.src = CONFIG.LOGO_URL;
@@ -676,6 +933,22 @@
       el.btnScrollToMissing.addEventListener('click', scrollToFirstMissing);
       el.btnSave.addEventListener('click', saveInspection);
       el.btnReset.addEventListener('click', resetForm);
+            el.btnRequestGps.addEventListener('click', requestGps);
+      el.btnOpenCamera.addEventListener('click', openWebCamera);
+      el.btnCapturePhoto.addEventListener('click', capturePhotoFromVideo);
+
+      el.btnUseDeviceCamera.addEventListener('click', () => {
+        el.evidenceFileInput.click();
+      });
+
+      el.evidenceFileInput.addEventListener('change', handleEvidenceFileInput);
+
+      el.cameraSelect.addEventListener('change', () => {
+        state.selectedCameraId = el.cameraSelect.value || '';
+        if (state.cameraStream) {
+          openWebCamera();
+        }
+      });
     }
 
     async function loadOptions() {
@@ -936,6 +1209,16 @@
         if (!result.isConfirmed) return;
 
         el.sealNoInput.value = '';
+                stopCamera();
+
+        state.gps = null;
+        state.evidenceImage = null;
+
+        updateGpsStatus(false, 'ยังไม่ได้เปิด GPS');
+        updateEvidenceStatus(false, 'ยังไม่มีภาพหลักฐาน');
+
+        el.evidencePreview.src = '';
+        el.evidencePreviewWrap.classList.remove('show');
 
         state.items.forEach(item => {
           item.value = '';
@@ -947,8 +1230,328 @@
         renderChecklist();
       });
     }
+       async function requestGps() {
+      if (!navigator.geolocation) {
+        updateGpsStatus(false, 'อุปกรณ์นี้ไม่รองรับ GPS');
+        showWarn('อุปกรณ์นี้ไม่รองรับ GPS');
+        return null;
+      }
 
-    async function saveInspection() {
+      updateGpsStatus(false, 'กำลังขอตำแหน่ง GPS...');
+
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 0
+          });
+        });
+
+        const coords = position.coords || {};
+
+        state.gps = {
+          lat: String(coords.latitude || ''),
+          lng: String(coords.longitude || ''),
+          accuracy: String(coords.accuracy || ''),
+          timestamp: formatDateTimeForPayload(new Date())
+        };
+
+        updateGpsStatus(
+          true,
+          `พร้อมใช้งาน | ความแม่นยำประมาณ ${Math.round(Number(coords.accuracy || 0)) || '-'} เมตร`
+        );
+
+        return state.gps;
+
+      } catch (err) {
+        console.error(err);
+
+        let message = 'ไม่สามารถเปิด GPS ได้';
+
+        if (err && err.code === 1) {
+          message = 'ผู้ใช้งานปฏิเสธการเปิด GPS';
+        } else if (err && err.code === 2) {
+          message = 'ไม่สามารถระบุตำแหน่ง GPS ได้';
+        } else if (err && err.code === 3) {
+          message = 'ขอ GPS เกินเวลาที่กำหนด กรุณาลองใหม่';
+        }
+
+        state.gps = null;
+        updateGpsStatus(false, message);
+        showWarn(message);
+
+        return null;
+      }
+    }
+
+    function updateGpsStatus(ok, text) {
+      el.gpsStatusBox.classList.toggle('ok', !!ok);
+      el.gpsStatusBox.classList.toggle('bad', !ok);
+      el.gpsStatusText.textContent = text || (ok ? 'พร้อมใช้งาน' : 'ยังไม่ได้เปิด GPS');
+    }
+
+    function updateEvidenceStatus(ok, text) {
+      el.evidenceStatusBox.classList.toggle('ok', !!ok);
+      el.evidenceStatusBox.classList.toggle('bad', !ok);
+      el.evidenceStatusText.textContent = text || (ok ? 'มีภาพหลักฐานแล้ว' : 'ยังไม่มีภาพหลักฐาน');
+    }
+
+    async function openWebCamera() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showWarn('เบราว์เซอร์นี้ไม่รองรับการเปิดกล้องในเว็บ ให้ใช้ปุ่ม “ใช้กล้องของอุปกรณ์”');
+        return;
+      }
+
+      try {
+        stopCamera();
+
+        const video = {
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        };
+
+        if (state.selectedCameraId) {
+          video.deviceId = { exact: state.selectedCameraId };
+        } else {
+          video.facingMode = { ideal: 'environment' };
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video,
+          audio: false
+        });
+
+        state.cameraStream = stream;
+        el.cameraVideo.srcObject = stream;
+        el.cameraBox.classList.add('show');
+
+        await el.cameraVideo.play();
+
+        await loadCameraDevices();
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'เปิดกล้องแล้ว',
+          showConfirmButton: false,
+          timer: 1200
+        });
+
+      } catch (err) {
+        console.error(err);
+
+        stopCamera();
+
+        Swal.fire({
+          icon: 'warning',
+          title: 'เปิดกล้องในเว็บไม่ได้',
+          text: 'ให้ลองกด “ใช้กล้องของอุปกรณ์” แทน',
+          confirmButtonText: 'ตกลง'
+        });
+      }
+    }
+
+    async function loadCameraDevices() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+        return;
+      }
+
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        state.cameras = devices.filter(device => device.kind === 'videoinput');
+
+        const currentValue = el.cameraSelect.value || state.selectedCameraId || '';
+
+        el.cameraSelect.innerHTML = '<option value="">ใช้กล้องหลัง / กล้องหลัก</option>';
+
+        state.cameras.forEach((camera, index) => {
+          const opt = document.createElement('option');
+          opt.value = camera.deviceId;
+          opt.textContent = camera.label || `กล้อง ${index + 1}`;
+          el.cameraSelect.appendChild(opt);
+        });
+
+        if (currentValue) {
+          el.cameraSelect.value = currentValue;
+        }
+
+      } catch (err) {
+        console.warn('loadCameraDevices failed', err);
+      }
+    }
+
+    async function capturePhotoFromVideo() {
+      if (!state.cameraStream || !el.cameraVideo.videoWidth) {
+        showWarn('กรุณาเปิดกล้องก่อนถ่ายภาพ');
+        return;
+      }
+
+      try {
+        const dataUrl = await compressVideoFrameToJpeg(el.cameraVideo, 1280, 0.76);
+
+        state.evidenceImage = {
+          base64: dataUrl,
+          mimeType: 'image/jpeg',
+          filename: `fire_exit_evidence_${Date.now()}.jpg`
+        };
+
+        el.evidencePreview.src = dataUrl;
+        el.evidencePreviewWrap.classList.add('show');
+        updateEvidenceStatus(true, 'มีภาพหลักฐานแล้ว');
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'ถ่ายภาพหลักฐานแล้ว',
+          showConfirmButton: false,
+          timer: 1200
+        });
+
+      } catch (err) {
+        console.error(err);
+        showError(err.message || 'ถ่ายภาพไม่สำเร็จ');
+      }
+    }
+
+    async function handleEvidenceFileInput(event) {
+      const file = event.target.files && event.target.files[0];
+
+      if (!file) return;
+
+      if (!String(file.type || '').startsWith('image/')) {
+        showWarn('กรุณาเลือกไฟล์รูปภาพเท่านั้น');
+        event.target.value = '';
+        return;
+      }
+
+      try {
+        const dataUrl = await compressImageFileToJpeg(file, 1280, 0.76);
+
+        state.evidenceImage = {
+          base64: dataUrl,
+          mimeType: 'image/jpeg',
+          filename: `fire_exit_evidence_${Date.now()}.jpg`
+        };
+
+        el.evidencePreview.src = dataUrl;
+        el.evidencePreviewWrap.classList.add('show');
+        updateEvidenceStatus(true, 'มีภาพหลักฐานแล้ว');
+
+      } catch (err) {
+        console.error(err);
+        showError(err.message || 'เตรียมภาพหลักฐานไม่สำเร็จ');
+      } finally {
+        event.target.value = '';
+      }
+    }
+
+    function stopCamera() {
+      if (state.cameraStream) {
+        state.cameraStream.getTracks().forEach(track => {
+          try {
+            track.stop();
+          } catch (err) {}
+        });
+      }
+
+      state.cameraStream = null;
+
+      if (el.cameraVideo) {
+        el.cameraVideo.srcObject = null;
+      }
+
+      if (el.cameraBox) {
+        el.cameraBox.classList.remove('show');
+      }
+    }
+
+    function compressVideoFrameToJpeg(video, maxWidth, quality) {
+      return new Promise((resolve, reject) => {
+        try {
+          const sourceWidth = video.videoWidth;
+          const sourceHeight = video.videoHeight;
+
+          if (!sourceWidth || !sourceHeight) {
+            reject(new Error('ไม่พบภาพจากกล้อง'));
+            return;
+          }
+
+          const scale = Math.min(1, Number(maxWidth || 1280) / sourceWidth);
+          const targetWidth = Math.round(sourceWidth * scale);
+          const targetHeight = Math.round(sourceHeight * scale);
+
+          const canvas = document.createElement('canvas');
+          canvas.width = targetWidth;
+          canvas.height = targetHeight;
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0, targetWidth, targetHeight);
+
+          resolve(canvas.toDataURL('image/jpeg', Number(quality || 0.76)));
+
+        } catch (err) {
+          reject(err);
+        }
+      });
+    }
+
+    function compressImageFileToJpeg(file, maxWidth, quality) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          img.onload = () => {
+            try {
+              const sourceWidth = img.naturalWidth || img.width;
+              const sourceHeight = img.naturalHeight || img.height;
+
+              const scale = Math.min(1, Number(maxWidth || 1280) / sourceWidth);
+              const targetWidth = Math.round(sourceWidth * scale);
+              const targetHeight = Math.round(sourceHeight * scale);
+
+              const canvas = document.createElement('canvas');
+              canvas.width = targetWidth;
+              canvas.height = targetHeight;
+
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+              resolve(canvas.toDataURL('image/jpeg', Number(quality || 0.76)));
+
+            } catch (err) {
+              reject(err);
+            } finally {
+              URL.revokeObjectURL(img.src);
+            }
+          };
+
+          img.onerror = () => reject(new Error('อ่านรูปภาพไม่สำเร็จ'));
+          img.src = URL.createObjectURL(file);
+        };
+
+        reader.onerror = () => reject(new Error('อ่านไฟล์ไม่สำเร็จ'));
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    function formatDateTimeForPayload(date) {
+      const d = date || new Date();
+
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = String(d.getFullYear());
+
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mi = String(d.getMinutes()).padStart(2, '0');
+      const ss = String(d.getSeconds()).padStart(2, '0');
+
+      return `${dd}/${mm}/${yyyy} ${hh}:${mi}:${ss}`;
+    }
+        async function saveInspection() {
       const inspector = el.inspectorSelect.value.trim();
       const doorId = el.doorSelect.value.trim();
       const sealNo = el.sealNoInput.value.trim();
@@ -979,6 +1582,20 @@
         return;
       }
 
+      if (!state.gps || !state.gps.lat || !state.gps.lng) {
+        const gps = await requestGps();
+
+        if (!gps || !gps.lat || !gps.lng) {
+          showWarn('กรุณาเปิด GPS ก่อนบันทึก');
+          return;
+        }
+      }
+
+      if (!state.evidenceImage || !state.evidenceImage.base64) {
+        showWarn('กรุณาถ่ายภาพหลักฐาน QR Code / ประตู / หมายเลขซีล ก่อนบันทึก');
+        return;
+      }
+
       const validation = validateItems();
 
       if (!validation.ok) {
@@ -991,15 +1608,16 @@
 
       const confirm = await Swal.fire({
         icon: abnormalCount ? 'warning' : 'question',
-        title: 'ยืนยันบันทึกผลตรวจ',
+        title: 'ยืนยันบันทึกผลตรวจ?',
         html: `
-          <div style="text-align:left;font-size:14px;line-height:1.65">
-            <div><b>ผู้บันทึก:</b> ${escapeHtml(inspector)}</div>
-            <div><b>ประตู:</b> ${escapeHtml(doorId)}</div>
-            <div><b>จุดติดตั้ง:</b> ${escapeHtml(location || '-')}</div>
-            <div><b>หมายเลขซีล:</b> ${escapeHtml(sealNo)}</div>
-            <div><b>ผลรวม:</b> ${abnormalCount ? '<span style="color:#b91c1c;font-weight:bold">ผิดปกติ</span>' : '<span style="color:#15803d;font-weight:bold">ปกติ</span>'}</div>
-            <div><b>รายการผิดปกติ:</b> ${abnormalCount} รายการ</div>
+          <div style="text-align:left;line-height:1.7;">
+            <b>ประตู:</b> ${escapeHtml(doorId)}<br>
+            <b>จุดติดตั้ง:</b> ${escapeHtml(location || '-')}<br>
+            <b>หมายเลขซีล:</b> ${escapeHtml(sealNo)}<br>
+            <b>ผู้บันทึก:</b> ${escapeHtml(inspector)}<br>
+            <b>GPS:</b> ${state.gps ? 'พร้อม' : 'ไม่พร้อม'}<br>
+            <b>ภาพหลักฐาน:</b> ${state.evidenceImage ? 'มีแล้ว' : 'ไม่มี'}<br>
+            <b>ผิดปกติ:</b> ${abnormalCount} รายการ
           </div>
         `,
         showCancelButton: true,
@@ -1015,47 +1633,97 @@
         location,
         sealNo,
         inspector,
-        device: detectDevice(),
+        device: navigator.userAgent || '',
+
+        gps: {
+          lat: state.gps.lat,
+          lng: state.gps.lng,
+          accuracy: state.gps.accuracy || '',
+          timestamp: state.gps.timestamp || formatDateTimeForPayload(new Date())
+        },
+
+        evidenceImage: {
+          base64: state.evidenceImage.base64,
+          mimeType: state.evidenceImage.mimeType || 'image/jpeg',
+          filename: state.evidenceImage.filename || `fire_exit_evidence_${Date.now()}.jpg`
+        },
+
         items: state.items.map(item => ({
           no: item.no,
           title: item.title,
-          value: normalizeTrueText(item.value),
+          value: item.value,
           detail: item.detail || '',
-          finalText: normalizeTrueText(item.finalText || item.value),
+          finalText: item.finalText || item.value,
           isAbnormal: !!item.isAbnormal
         }))
       };
 
       try {
-        setSaving(true);
+        setFormDisabled(true);
+        setApiStatus('pending', 'กำลังบันทึกข้อมูลและอัปโหลดภาพหลักฐาน...');
 
-        const data = await API.saveInspection(payload);
+        Swal.fire({
+          title: 'กำลังบันทึก',
+          html: 'กำลังบันทึกผลตรวจ GPS และภาพหลักฐาน กรุณารอสักครู่...',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          didOpen: () => Swal.showLoading()
+        });
+
+        const result = await API.saveInspection(payload);
+
+        stopCamera();
 
         await Swal.fire({
           icon: 'success',
           title: 'บันทึกสำเร็จ',
           html: `
-            <div style="text-align:left;font-size:14px;line-height:1.65">
-              <div><b>เวลา:</b> ${escapeHtml(data.timestamp || '-')}</div>
-              <div><b>ประตู:</b> ${escapeHtml(data.doorId || doorId)}</div>
-              <div><b>จุดติดตั้ง:</b> ${escapeHtml(data.location || location || '-')}</div>
-              <div><b>หมายเลขซีล:</b> ${escapeHtml(data.sealNo || sealNo)}</div>
-              <div><b>ผลรวม:</b> ${escapeHtml(data.result || '-')}</div>
+            <div style="text-align:left;line-height:1.7;">
+              <b>ประตู:</b> ${escapeHtml(result.doorId || doorId)}<br>
+              <b>เวลา:</b> ${escapeHtml(result.timestamp || '-')}<br>
+              <b>ผลรวม:</b> ${escapeHtml(result.result || '-')}<br>
+              <b>GPS:</b> บันทึกแล้ว<br>
+              <b>รูปหลักฐาน ID:</b> ${escapeHtml(result.evidence && result.evidence.fileId ? result.evidence.fileId : '-')}
             </div>
           `,
-          confirmButtonText: 'ดูผลตรวจ'
+          confirmButtonText: 'ตกลง'
         });
 
-        window.location.href = `${CONFIG.ROUTES.VIEW}?doorId=${encodeURIComponent(doorId)}`;
+        resetAfterSave();
+        setApiStatus('ok', 'บันทึกสำเร็จ');
 
       } catch (err) {
         console.error(err);
+        setApiStatus('danger', 'บันทึกไม่สำเร็จ');
         showError(err.message || 'บันทึกไม่สำเร็จ');
+
       } finally {
-        setSaving(false);
+        setFormDisabled(false);
       }
     }
 
+        function resetAfterSave() {
+      el.sealNoInput.value = '';
+
+      state.items.forEach(item => {
+        item.value = '';
+        item.detail = '';
+        item.finalText = '';
+        item.isAbnormal = false;
+      });
+
+      state.gps = null;
+      state.evidenceImage = null;
+
+      updateGpsStatus(false, 'ยังไม่ได้เปิด GPS');
+      updateEvidenceStatus(false, 'ยังไม่มีภาพหลักฐาน');
+
+      el.evidencePreview.src = '';
+      el.evidencePreviewWrap.classList.remove('show');
+
+      renderChecklist();
+      updateProgress();
+    }
     function validateItems() {
       if (!state.items.length) {
         return {
