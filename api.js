@@ -78,32 +78,41 @@
   }
 
   async function fetchWithTimeout(url, options, timeoutMs) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => {
-      try {
-        controller.abort();
-      } catch (err) {}
-    }, timeoutMs || DEFAULT_TIMEOUT_MS);
-
+  const controller = new AbortController();
+  const timer = setTimeout(() => {
     try {
-      return await fetch(url, {
-        ...(options || {}),
-        signal: controller.signal
-      });
+      controller.abort();
+    } catch (err) {}
+  }, timeoutMs || DEFAULT_TIMEOUT_MS);
 
-    } catch (err) {
-      const name = String(err && err.name || '').toLowerCase();
+  try {
+    return await fetch(url, {
+      ...(options || {}),
+      signal: controller.signal
+    });
 
-      if (name === 'aborterror') {
-        throw new Error('เชื่อมต่อระบบนานเกินไป กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
-      }
+  } catch (err) {
+    const name = String(err && err.name || '').toLowerCase();
+    const message = String(err && err.message || err || '').toLowerCase();
 
-      throw new Error(err.message || 'เชื่อมต่อ API ไม่สำเร็จ');
-
-    } finally {
-      clearTimeout(timer);
+    if (name === 'aborterror' || message.includes('abort')) {
+      throw new Error('เชื่อมต่อระบบนานเกินไป กรุณารอสักครู่แล้วลองใหม่');
     }
+
+    if (
+      message.includes('failed to fetch') ||
+      message.includes('network') ||
+      message.includes('load failed')
+    ) {
+      throw new Error('เชื่อมต่อ Worker/API ไม่สำเร็จชั่วคราว กรุณาลองใหม่ หรือรอระบบ Export ทำงานต่อ');
+    }
+
+    throw new Error(err.message || 'เชื่อมต่อ API ไม่สำเร็จ');
+
+  } finally {
+    clearTimeout(timer);
   }
+}
 
   function extractApiErrorMessage(data, status) {
     if (!data) {
