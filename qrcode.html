@@ -2,7 +2,10 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
 
   <title>พิมพ์ QR Code ประตูหนีไฟ</title>
 
@@ -17,8 +20,21 @@
   <style>
     /************************************************************
      * qrcode.html
-     * ป้าย QR Code ขนาด 7.5 x 11.5 cm
-     * A4 แนวตั้ง 2 x 2 = 4 ป้ายต่อหน้า
+     * ป้าย QR Code ประตูหนีไฟ
+     *
+     * ขนาดป้าย:
+     * - กว้าง 7.5 cm
+     * - สูง 11.5 cm
+     *
+     * รูปแบบพิมพ์:
+     * - กระดาษ A4 แนวตั้ง
+     * - 2 คอลัมน์ x 2 แถว
+     * - 4 ป้ายต่อหน้า
+     *
+     * QR Code:
+     * - เปิด check.html
+     * - ส่ง doorId
+     * - ส่ง source=qr
      ************************************************************/
 
     .qr-page-layout {
@@ -38,7 +54,12 @@
 
     .qr-control-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+      grid-template-columns:
+        minmax(0, 1fr)
+        auto
+        auto
+        auto
+        auto;
       gap: 10px;
       align-items: end;
     }
@@ -66,7 +87,9 @@
 
     .search-box input:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+      box-shadow:
+        0 0 0 4px
+        rgba(15, 118, 110, 0.12);
     }
 
     .qr-status-row {
@@ -94,15 +117,31 @@
       background: #fff;
       padding: 10px;
       display: grid;
-      grid-template-columns: auto minmax(0, 1fr);
+      grid-template-columns:
+        auto
+        minmax(0, 1fr);
       gap: 10px;
       align-items: center;
+      cursor: pointer;
+    }
+
+    .door-select-row:hover {
+      border-color:
+        rgba(15, 118, 110, 0.35);
+      background: #f8fffe;
+    }
+
+    .door-select-row:has(input:checked) {
+      border-color:
+        rgba(15, 118, 110, 0.45);
+      background: var(--primary-soft);
     }
 
     .door-select-row input {
       width: 20px;
       height: 20px;
       accent-color: var(--primary);
+      cursor: pointer;
     }
 
     .door-select-main {
@@ -114,6 +153,7 @@
     .door-select-main strong {
       font-size: 15px;
       color: var(--text);
+      overflow-wrap: anywhere;
     }
 
     .door-select-main span {
@@ -161,10 +201,14 @@
       min-height: 29.7cm;
       background: #fff;
       border: 1px solid #cbd5e1;
-      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.12);
+      box-shadow:
+        0 8px 22px
+        rgba(15, 23, 42, 0.12);
       padding: 2.05cm 2.4cm;
       display: grid;
-      grid-template-columns: 7.5cm 7.5cm;
+      grid-template-columns:
+        7.5cm
+        7.5cm;
       grid-auto-rows: 11.5cm;
       column-gap: 1.2cm;
       row-gap: 1.25cm;
@@ -180,7 +224,11 @@
       background: #fff;
       padding: 0.34cm;
       display: grid;
-      grid-template-rows: auto auto 1fr auto;
+      grid-template-rows:
+        auto
+        auto
+        1fr
+        auto;
       gap: 0.16cm;
       overflow: hidden;
       position: relative;
@@ -190,7 +238,9 @@
       content: "";
       position: absolute;
       inset: 0.12cm;
-      border: 1px solid rgba(15, 118, 110, 0.32);
+      border:
+        1px solid
+        rgba(15, 118, 110, 0.32);
       border-radius: 0.25cm;
       pointer-events: none;
     }
@@ -199,10 +249,13 @@
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: 1.15cm minmax(0, 1fr);
+      grid-template-columns:
+        1.15cm
+        minmax(0, 1fr);
       gap: 0.18cm;
       align-items: center;
-      border-bottom: 1px solid #d9e2ec;
+      border-bottom:
+        1px solid #d9e2ec;
       padding-bottom: 0.16cm;
     }
 
@@ -294,6 +347,7 @@
     .qr-code-box canvas {
       width: 4.35cm !important;
       height: 4.35cm !important;
+      display: block;
     }
 
     .qr-card-footer {
@@ -302,7 +356,8 @@
       display: grid;
       gap: 0.08cm;
       text-align: center;
-      border-top: 1px solid #d9e2ec;
+      border-top:
+        1px solid #d9e2ec;
       padding-top: 0.15cm;
     }
 
@@ -327,7 +382,8 @@
 
     @media (max-width: 900px) {
       .qr-control-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
       }
 
       .search-box {
@@ -350,7 +406,8 @@
       }
 
       .qr-control-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
         gap: 8px;
       }
 
@@ -421,7 +478,9 @@
         box-shadow: none;
         padding: 2.05cm 2.4cm;
         display: grid;
-        grid-template-columns: 7.5cm 7.5cm;
+        grid-template-columns:
+          7.5cm
+          7.5cm;
         grid-auto-rows: 11.5cm;
         column-gap: 1.2cm;
         row-gap: 1.25cm;
@@ -449,7 +508,12 @@
 
     <header class="app-header">
       <div class="brand">
-        <img id="appLogo" class="brand-logo" alt="Logo" />
+        <img
+          id="appLogo"
+          class="brand-logo"
+          alt="Logo"
+        />
+
         <div class="brand-text">
           <h1>พิมพ์ QR Code ประตูหนีไฟ</h1>
           <p>Fire Exit Door QR Code Print</p>
@@ -457,8 +521,14 @@
       </div>
 
       <div class="header-status">
-        <span id="apiStatusDot" class="status-dot pending"></span>
-        <span id="apiStatusText">กำลังโหลดรายการประตู...</span>
+        <span
+          id="apiStatusDot"
+          class="status-dot pending"
+        ></span>
+
+        <span id="apiStatusText">
+          กำลังโหลดรายการประตู...
+        </span>
       </div>
     </header>
 
@@ -467,30 +537,79 @@
       <section class="qr-control-panel">
         <div class="section-title-row">
           <div>
-            <h2>เลือกประตูสำหรับพิมพ์ QR Code</h2>
-            <p>ขนาดป้าย 7.5 x 11.5 cm จัดวางบนกระดาษ A4 แบบ 2 x 2</p>
+            <h2>
+              เลือกประตูสำหรับพิมพ์ QR Code
+            </h2>
+
+            <p>
+              ขนาดป้าย 7.5 x 11.5 cm
+              จัดวางบนกระดาษ A4 แบบ 2 x 2
+            </p>
           </div>
         </div>
 
         <div class="qr-control-grid">
           <label class="search-box">
             <span>ค้นหา</span>
-            <input id="searchInput" type="search" placeholder="ค้นหาหมายเลขประตูหรือจุดติดตั้ง" />
+
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="ค้นหาหมายเลขประตูหรือจุดติดตั้ง"
+              autocomplete="off"
+            />
           </label>
 
-          <button id="btnSelectAll" class="btn primary" type="button">เลือกทั้งหมด</button>
-          <button id="btnClearAll" class="btn" type="button">ล้างเลือก</button>
-          <button id="btnPreview" class="btn" type="button">รีเฟรชตัวอย่าง</button>
-          <button id="btnPrint" class="btn success" type="button">พิมพ์ QR</button>
+          <button
+            id="btnSelectAll"
+            class="btn primary"
+            type="button"
+          >
+            เลือกทั้งหมด
+          </button>
+
+          <button
+            id="btnClearAll"
+            class="btn"
+            type="button"
+          >
+            ล้างเลือก
+          </button>
+
+          <button
+            id="btnPreview"
+            class="btn"
+            type="button"
+          >
+            รีเฟรชตัวอย่าง
+          </button>
+
+          <button
+            id="btnPrint"
+            class="btn success"
+            type="button"
+          >
+            พิมพ์ QR
+          </button>
         </div>
 
         <div class="qr-status-row">
-          <span id="doorCountText">กำลังโหลดรายการประตู...</span>
-          <span id="selectedCountText">เลือก 0 รายการ</span>
+          <span id="doorCountText">
+            กำลังโหลดรายการประตู...
+          </span>
+
+          <span id="selectedCountText">
+            เลือก 0 รายการ
+          </span>
         </div>
 
-        <div id="doorSelectList" class="door-select-list">
-          <div class="empty-state">กำลังโหลดข้อมูล...</div>
+        <div
+          id="doorSelectList"
+          class="door-select-list"
+        >
+          <div class="empty-state">
+            กำลังโหลดข้อมูล...
+          </div>
         </div>
       </section>
 
@@ -498,13 +617,21 @@
         <div class="preview-header">
           <div>
             <h2>ตัวอย่างก่อนพิมพ์</h2>
-            <p>ระบบจะแสดง 4 ป้ายต่อ 1 หน้า A4</p>
+
+            <p>
+              ระบบจะแสดง 4 ป้ายต่อ 1 หน้า A4
+              และ QR จะเปิดหน้าบันทึกผลตรวจโดยตรง
+            </p>
           </div>
         </div>
 
-        <div id="a4Stack" class="a4-stack">
+        <div
+          id="a4Stack"
+          class="a4-stack"
+        >
           <div class="empty-state">
-            กรุณาเลือกประตูที่ต้องการพิมพ์ QR Code แล้วกด “รีเฟรชตัวอย่าง”
+            กรุณาเลือกประตูที่ต้องการพิมพ์
+            QR Code แล้วกด “รีเฟรชตัวอย่าง”
           </div>
         </div>
       </section>
@@ -512,18 +639,26 @@
     </main>
 
     <footer class="app-footer">
-      <span>Fire Exit Door Inspection System</span>
+      <span>
+        Fire Exit Door Inspection System
+      </span>
+
       <span id="footerTime"></span>
     </footer>
   </div>
 
   <script>
     /************************************************************
-     * qrcode.html app
+     * qrcode.html Application
      ************************************************************/
 
-    const CONFIG = window.APP_CONFIG;
-    const API = window.FireExitAPI;
+    'use strict';
+
+    const CONFIG =
+      window.APP_CONFIG || {};
+
+    const API =
+      window.FireExitAPI || null;
 
     const state = {
       doors: [],
@@ -533,294 +668,1037 @@
     };
 
     const el = {
-      appLogo: document.getElementById('appLogo'),
-      apiStatusDot: document.getElementById('apiStatusDot'),
-      apiStatusText: document.getElementById('apiStatusText'),
+      appLogo:
+        document.getElementById(
+          'appLogo'
+        ),
 
-      searchInput: document.getElementById('searchInput'),
-      btnSelectAll: document.getElementById('btnSelectAll'),
-      btnClearAll: document.getElementById('btnClearAll'),
-      btnPreview: document.getElementById('btnPreview'),
-      btnPrint: document.getElementById('btnPrint'),
+      apiStatusDot:
+        document.getElementById(
+          'apiStatusDot'
+        ),
 
-      doorCountText: document.getElementById('doorCountText'),
-      selectedCountText: document.getElementById('selectedCountText'),
-      doorSelectList: document.getElementById('doorSelectList'),
-      a4Stack: document.getElementById('a4Stack'),
+      apiStatusText:
+        document.getElementById(
+          'apiStatusText'
+        ),
 
-      footerTime: document.getElementById('footerTime')
+      searchInput:
+        document.getElementById(
+          'searchInput'
+        ),
+
+      btnSelectAll:
+        document.getElementById(
+          'btnSelectAll'
+        ),
+
+      btnClearAll:
+        document.getElementById(
+          'btnClearAll'
+        ),
+
+      btnPreview:
+        document.getElementById(
+          'btnPreview'
+        ),
+
+      btnPrint:
+        document.getElementById(
+          'btnPrint'
+        ),
+
+      doorCountText:
+        document.getElementById(
+          'doorCountText'
+        ),
+
+      selectedCountText:
+        document.getElementById(
+          'selectedCountText'
+        ),
+
+      doorSelectList:
+        document.getElementById(
+          'doorSelectList'
+        ),
+
+      a4Stack:
+        document.getElementById(
+          'a4Stack'
+        ),
+
+      footerTime:
+        document.getElementById(
+          'footerTime'
+        )
     };
 
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener(
+      'DOMContentLoaded',
+      init
+    );
+
+    /************************************************************
+     * INITIALIZE
+     ************************************************************/
 
     async function init() {
-      el.appLogo.src = CONFIG.LOGO_URL;
-      state.baseUrl = getBaseUrl();
-      updateFooterTime();
-      bindEvents();
-
-      await loadDoors();
-    }
-
-    function bindEvents() {
-      el.searchInput.addEventListener('input', () => {
-        filterDoors();
-        renderDoorList();
-      });
-
-      el.btnSelectAll.addEventListener('click', () => {
-        state.filteredDoors.forEach(door => {
-          state.selected.add(door.doorId);
-        });
-
-        renderDoorList();
-        updateSelectedText();
-
-        showToast(`เลือก ${state.selected.size} รายการแล้ว`);
-      });
-
-      el.btnClearAll.addEventListener('click', () => {
-        state.selected.clear();
-
-        renderDoorList();
-        updateSelectedText();
-
-        el.a4Stack.innerHTML = `
-          <div class="empty-state">
-            กรุณาเลือกประตูที่ต้องการพิมพ์ QR Code แล้วกด “รีเฟรชตัวอย่าง”
-          </div>
-        `;
-      });
-
-      el.btnPreview.addEventListener('click', renderPreview);
-
-      el.btnPrint.addEventListener('click', () => {
-        if (!state.selected.size) {
-          showWarn('กรุณาเลือกประตูอย่างน้อย 1 รายการ');
-          return;
-        }
-
-        renderPreview();
-
-        setTimeout(() => {
-          window.print();
-        }, 500);
-      });
-    }
-
-    async function loadDoors() {
       try {
-        setApiStatus('pending', 'กำลังโหลดรายการประตู...');
+        validateDependencies();
+
+        el.appLogo.src =
+          String(
+            CONFIG.LOGO_URL || ''
+          );
+
+        state.baseUrl =
+          getBaseUrl();
+
+        updateFooterTime();
+        bindEvents();
+
+        await loadDoors();
+
+      } catch (error) {
+        console.error(
+          '[QRCodePage] Initialize failed',
+          error
+        );
+
+        setApiStatus(
+          'danger',
+          'เปิดหน้าสร้าง QR ไม่สำเร็จ'
+        );
+
         setControlsDisabled(true);
 
-        const data = await API.getDoors();
-
-        state.doors = Array.isArray(data.doors) ? data.doors : [];
-        state.filteredDoors = [...state.doors];
-
-        renderDoorList();
-        updateSelectedText();
-
-        setApiStatus('ok', 'พร้อมพิมพ์ QR Code');
-        setControlsDisabled(false);
-
-      } catch (err) {
-        console.error(err);
-        setApiStatus('danger', 'โหลดข้อมูลไม่สำเร็จ');
-
-        el.doorSelectList.innerHTML = `
-          <div class="empty-state">
-            โหลดข้อมูลไม่สำเร็จ: ${escapeHtml(err.message || 'ไม่ทราบสาเหตุ')}
-          </div>
-        `;
-
-        showError(err.message || 'โหลดข้อมูลไม่สำเร็จ');
+        showError(
+          error &&
+          error.message
+            ? error.message
+            : 'เปิดหน้าสร้าง QR ไม่สำเร็จ'
+        );
       }
     }
 
-    function filterDoors() {
-      const q = el.searchInput.value.trim().toLowerCase();
+    function validateDependencies() {
+      if (!CONFIG) {
+        throw new Error(
+          'ไม่พบการตั้งค่า APP_CONFIG'
+        );
+      }
 
-      if (!q) {
-        state.filteredDoors = [...state.doors];
+      if (
+        !API ||
+        typeof API.getDoors !== 'function'
+      ) {
+        throw new Error(
+          'ไม่พบ FireExitAPI.getDoors กรุณาตรวจสอบไฟล์ api.js'
+        );
+      }
+
+      if (
+        typeof window.QRCode !== 'function'
+      ) {
+        throw new Error(
+          'โหลดไลบรารี QR Code ไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ต'
+        );
+      }
+
+      if (
+        typeof window.Swal === 'undefined'
+      ) {
+        throw new Error(
+          'โหลด SweetAlert2 ไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ต'
+        );
+      }
+    }
+
+    /************************************************************
+     * EVENTS
+     ************************************************************/
+
+    function bindEvents() {
+      el.searchInput.addEventListener(
+        'input',
+        function () {
+          filterDoors();
+          renderDoorList();
+        }
+      );
+
+      el.btnSelectAll.addEventListener(
+        'click',
+        function () {
+          state.filteredDoors.forEach(
+            function (door) {
+              const doorId =
+                cleanText(
+                  door && door.doorId
+                );
+
+              if (doorId) {
+                state.selected.add(
+                  doorId
+                );
+              }
+            }
+          );
+
+          renderDoorList();
+          updateSelectedText();
+
+          showToast(
+            `เลือก ${
+              state.selected.size
+                .toLocaleString('th-TH')
+            } รายการแล้ว`
+          );
+        }
+      );
+
+      el.btnClearAll.addEventListener(
+        'click',
+        function () {
+          state.selected.clear();
+
+          renderDoorList();
+          updateSelectedText();
+
+          el.a4Stack.innerHTML = `
+            <div class="empty-state">
+              กรุณาเลือกประตูที่ต้องการพิมพ์
+              QR Code แล้วกด “รีเฟรชตัวอย่าง”
+            </div>
+          `;
+
+          setApiStatus(
+            'ok',
+            'พร้อมพิมพ์ QR Code'
+          );
+        }
+      );
+
+      el.btnPreview.addEventListener(
+        'click',
+        renderPreview
+      );
+
+      el.btnPrint.addEventListener(
+        'click',
+        handlePrint
+      );
+
+      window.addEventListener(
+        'afterprint',
+        function () {
+          setApiStatus(
+            'ok',
+            'พิมพ์ QR Code เสร็จแล้ว'
+          );
+        }
+      );
+    }
+
+    async function handlePrint() {
+      if (!state.selected.size) {
+        showWarn(
+          'กรุณาเลือกประตูอย่างน้อย 1 รายการ'
+        );
         return;
       }
 
-      state.filteredDoors = state.doors.filter(door => {
-        const text = `${door.doorId || ''} ${door.location || ''}`.toLowerCase();
-        return text.includes(q);
-      });
+      try {
+        setControlsDisabled(true);
+
+        const created =
+          await renderPreview();
+
+        if (!created) {
+          return;
+        }
+
+        setApiStatus(
+          'pending',
+          'กำลังเตรียมหน้าพิมพ์...'
+        );
+
+        await waitForQrImages();
+
+        setApiStatus(
+          'ok',
+          `พร้อมพิมพ์ ${
+            state.selected.size
+              .toLocaleString('th-TH')
+          } ป้าย`
+        );
+
+        window.print();
+
+      } catch (error) {
+        console.error(
+          '[QRCodePage] Print failed',
+          error
+        );
+
+        setApiStatus(
+          'danger',
+          'เตรียมหน้าพิมพ์ไม่สำเร็จ'
+        );
+
+        showError(
+          error &&
+          error.message
+            ? error.message
+            : 'เตรียมหน้าพิมพ์ไม่สำเร็จ'
+        );
+
+      } finally {
+        setControlsDisabled(false);
+      }
+    }
+
+    /************************************************************
+     * LOAD DATA
+     ************************************************************/
+
+    async function loadDoors() {
+      try {
+        setApiStatus(
+          'pending',
+          'กำลังโหลดรายการประตู...'
+        );
+
+        setControlsDisabled(true);
+
+        const data =
+          await API.getDoors();
+
+        const rawDoors =
+          data &&
+          Array.isArray(data.doors)
+            ? data.doors
+            : [];
+
+        state.doors =
+          normalizeDoors(rawDoors);
+
+        state.filteredDoors =
+          [...state.doors];
+
+        removeInvalidSelections();
+
+        renderDoorList();
+        updateSelectedText();
+
+        setApiStatus(
+          'ok',
+          `พร้อมพิมพ์ QR Code ${
+            state.doors.length
+              .toLocaleString('th-TH')
+          } ประตู`
+        );
+
+      } catch (error) {
+        console.error(
+          '[QRCodePage] Load doors failed',
+          error
+        );
+
+        setApiStatus(
+          'danger',
+          'โหลดข้อมูลไม่สำเร็จ'
+        );
+
+        el.doorSelectList.innerHTML = `
+          <div class="empty-state">
+            โหลดข้อมูลไม่สำเร็จ:
+            ${escapeHtml(
+              error &&
+              error.message
+                ? error.message
+                : 'ไม่ทราบสาเหตุ'
+            )}
+          </div>
+        `;
+
+        showError(
+          error &&
+          error.message
+            ? error.message
+            : 'โหลดข้อมูลไม่สำเร็จ'
+        );
+
+      } finally {
+        setControlsDisabled(false);
+      }
+    }
+
+    function normalizeDoors(rawDoors) {
+      const seen =
+        new Set();
+
+      const result = [];
+
+      rawDoors.forEach(
+        function (door) {
+          const doorId =
+            cleanText(
+              door && door.doorId
+            );
+
+          const location =
+            cleanText(
+              door && door.location
+            );
+
+          if (
+            !doorId ||
+            seen.has(doorId)
+          ) {
+            return;
+          }
+
+          seen.add(doorId);
+
+          result.push({
+            doorId,
+            location
+          });
+        }
+      );
+
+      return result;
+    }
+
+    function removeInvalidSelections() {
+      const validDoorIds =
+        new Set(
+          state.doors.map(
+            function (door) {
+              return door.doorId;
+            }
+          )
+        );
+
+      Array.from(
+        state.selected
+      ).forEach(
+        function (doorId) {
+          if (
+            !validDoorIds.has(doorId)
+          ) {
+            state.selected.delete(
+              doorId
+            );
+          }
+        }
+      );
+    }
+
+    /************************************************************
+     * FILTER / LIST
+     ************************************************************/
+
+    function filterDoors() {
+      const query =
+        cleanText(
+          el.searchInput.value
+        ).toLowerCase();
+
+      if (!query) {
+        state.filteredDoors =
+          [...state.doors];
+
+        return;
+      }
+
+      state.filteredDoors =
+        state.doors.filter(
+          function (door) {
+            const searchText =
+              [
+                door.doorId || '',
+                door.location || ''
+              ]
+                .join(' ')
+                .toLowerCase();
+
+            return searchText.includes(
+              query
+            );
+          }
+        );
     }
 
     function renderDoorList() {
-      el.doorCountText.textContent = `พบ ${state.filteredDoors.length.toLocaleString('th-TH')} จากทั้งหมด ${state.doors.length.toLocaleString('th-TH')} ประตู`;
+      el.doorCountText.textContent =
+        `พบ ${
+          state.filteredDoors.length
+            .toLocaleString('th-TH')
+        } จากทั้งหมด ${
+          state.doors.length
+            .toLocaleString('th-TH')
+        } ประตู`;
 
-      if (!state.filteredDoors.length) {
+      if (
+        !state.filteredDoors.length
+      ) {
         el.doorSelectList.innerHTML = `
           <div class="empty-state">
             ไม่พบประตูตามคำค้นหา
           </div>
         `;
+
         return;
       }
 
-      el.doorSelectList.innerHTML = state.filteredDoors.map(door => {
-        const checked = state.selected.has(door.doorId) ? 'checked' : '';
-        const id = `door_${safeId(door.doorId)}`;
+      el.doorSelectList.innerHTML =
+        state.filteredDoors
+          .map(
+            function (door, index) {
+              const doorId =
+                cleanText(
+                  door.doorId
+                );
 
-        return `
-          <label class="door-select-row" for="${id}">
-            <input
-              id="${id}"
-              type="checkbox"
-              value="${escapeAttr(door.doorId)}"
-              ${checked}
-              data-door-id="${escapeAttr(door.doorId)}"
-            />
+              const checked =
+                state.selected.has(
+                  doorId
+                )
+                  ? 'checked'
+                  : '';
 
-            <span class="door-select-main">
-              <strong>${escapeHtml(door.doorId)}</strong>
-              <span>${escapeHtml(door.location || '-')}</span>
-            </span>
-          </label>
-        `;
-      }).join('');
+              const inputId =
+                `door_${index}_${safeId(
+                  doorId
+                )}`;
 
-      el.doorSelectList.querySelectorAll('input[type="checkbox"]').forEach(chk => {
-        chk.addEventListener('change', () => {
-          const doorId = chk.dataset.doorId;
+              return `
+                <label
+                  class="door-select-row"
+                  for="${inputId}"
+                >
+                  <input
+                    id="${inputId}"
+                    type="checkbox"
+                    value="${escapeAttr(doorId)}"
+                    ${checked}
+                    data-door-id="${escapeAttr(doorId)}"
+                  />
 
-          if (chk.checked) {
-            state.selected.add(doorId);
-          } else {
-            state.selected.delete(doorId);
+                  <span class="door-select-main">
+                    <strong>
+                      ${escapeHtml(doorId)}
+                    </strong>
+
+                    <span>
+                      ${escapeHtml(
+                        door.location || '-'
+                      )}
+                    </span>
+                  </span>
+                </label>
+              `;
+            }
+          )
+          .join('');
+
+      el.doorSelectList
+        .querySelectorAll(
+          'input[type="checkbox"]'
+        )
+        .forEach(
+          function (checkbox) {
+            checkbox.addEventListener(
+              'change',
+              function () {
+                const doorId =
+                  cleanText(
+                    checkbox.dataset.doorId
+                  );
+
+                if (!doorId) {
+                  return;
+                }
+
+                if (checkbox.checked) {
+                  state.selected.add(
+                    doorId
+                  );
+                } else {
+                  state.selected.delete(
+                    doorId
+                  );
+                }
+
+                updateSelectedText();
+              }
+            );
           }
-
-          updateSelectedText();
-        });
-      });
+        );
     }
 
     function updateSelectedText() {
-      el.selectedCountText.textContent = `เลือก ${state.selected.size.toLocaleString('th-TH')} รายการ`;
+      el.selectedCountText.textContent =
+        `เลือก ${
+          state.selected.size
+            .toLocaleString('th-TH')
+        } รายการ`;
     }
 
-    function renderPreview() {
-      const selectedDoors = state.doors.filter(door => state.selected.has(door.doorId));
+    /************************************************************
+     * PREVIEW
+     ************************************************************/
+
+    async function renderPreview() {
+      const selectedDoors =
+        getSelectedDoors();
 
       if (!selectedDoors.length) {
         el.a4Stack.innerHTML = `
           <div class="empty-state">
-            กรุณาเลือกประตูที่ต้องการพิมพ์ QR Code
+            กรุณาเลือกประตูที่ต้องการพิมพ์
+            QR Code
           </div>
         `;
-        return;
+
+        showWarn(
+          'กรุณาเลือกประตูอย่างน้อย 1 รายการ'
+        );
+
+        return false;
       }
 
-      setApiStatus('pending', 'กำลังสร้างตัวอย่าง QR...');
+      try {
+        setApiStatus(
+          'pending',
+          'กำลังสร้างตัวอย่าง QR...'
+        );
 
-      const pages = chunkArray(selectedDoors, 4);
+        const pages =
+          chunkArray(
+            selectedDoors,
+            4
+          );
 
-      el.a4Stack.innerHTML = pages.map((pageDoors, pageIndex) => {
-        const cards = pageDoors.map(door => createQrCardHtml(door)).join('');
+        el.a4Stack.innerHTML =
+          pages
+            .map(
+              function (
+                pageDoors,
+                pageIndex
+              ) {
+                const cards =
+                  pageDoors
+                    .map(
+                      function (
+                        door,
+                        cardIndex
+                      ) {
+                        return createQrCardHtml(
+                          door,
+                          pageIndex,
+                          cardIndex
+                        );
+                      }
+                    )
+                    .join('');
 
-        return `
-          <section class="a4-sheet" data-page="${pageIndex + 1}">
-            ${cards}
-          </section>
-        `;
-      }).join('');
+                return `
+                  <section
+                    class="a4-sheet"
+                    data-page="${pageIndex + 1}"
+                  >
+                    ${cards}
+                  </section>
+                `;
+              }
+            )
+            .join('');
 
-      setTimeout(() => {
-        buildQrCodes(selectedDoors);
-        setApiStatus('ok', `สร้างตัวอย่างแล้ว ${selectedDoors.length} รายการ`);
-      }, 50);
+        await nextFrame();
+        buildQrCodes();
+
+        setApiStatus(
+          'ok',
+          `สร้างตัวอย่างแล้ว ${
+            selectedDoors.length
+              .toLocaleString('th-TH')
+          } รายการ`
+        );
+
+        return true;
+
+      } catch (error) {
+        console.error(
+          '[QRCodePage] Render preview failed',
+          error
+        );
+
+        setApiStatus(
+          'danger',
+          'สร้าง QR Code ไม่สำเร็จ'
+        );
+
+        showError(
+          error &&
+          error.message
+            ? error.message
+            : 'สร้าง QR Code ไม่สำเร็จ'
+        );
+
+        return false;
+      }
     }
 
-    function createQrCardHtml(door) {
-      const viewUrl = buildViewUrl(door.doorId);
-      const qrId = `qr_${safeId(door.doorId)}`;
+    function getSelectedDoors() {
+      return state.doors.filter(
+        function (door) {
+          return state.selected.has(
+            door.doorId
+          );
+        }
+      );
+    }
+
+    function createQrCardHtml(
+      door,
+      pageIndex,
+      cardIndex
+    ) {
+      const doorId =
+        cleanText(
+          door && door.doorId
+        );
+
+      const location =
+        cleanText(
+          door && door.location
+        );
+
+      const checkUrl =
+        buildCheckUrl(
+          doorId
+        );
+
+      const qrId =
+        [
+          'qr',
+          pageIndex,
+          cardIndex,
+          safeId(doorId)
+        ].join('_');
 
       return `
         <article class="qr-card">
+
           <div class="qr-card-head">
-            <img class="qr-card-logo" src="${escapeAttr(CONFIG.LOGO_URL)}" alt="Logo" />
+            <img
+              class="qr-card-logo"
+              src="${escapeAttr(
+                CONFIG.LOGO_URL || ''
+              )}"
+              alt="Logo"
+            />
+
             <div class="qr-card-title">
-              <strong>ประตูหนีไฟ</strong>
-              <span>Fire Exit Door Inspection</span>
+              <strong>
+                ประตูหนีไฟ
+              </strong>
+
+              <span>
+                Fire Exit Door Inspection
+              </span>
             </div>
           </div>
 
           <div class="qr-door-info">
-            <div class="door-label">หมายเลขประตูหนีไฟ</div>
-            <div class="door-id">${escapeHtml(door.doorId)}</div>
-            <div class="door-location">${escapeHtml(door.location || '-')}</div>
+            <div class="door-label">
+              หมายเลขประตูหนีไฟ
+            </div>
+
+            <div class="door-id">
+              ${escapeHtml(doorId)}
+            </div>
+
+            <div class="door-location">
+              ${escapeHtml(
+                location || '-'
+              )}
+            </div>
           </div>
 
           <div class="qr-center">
-            <div id="${qrId}" class="qr-code-box" data-url="${escapeAttr(viewUrl)}"></div>
+            <div
+              id="${qrId}"
+              class="qr-code-box"
+              data-url="${escapeAttr(checkUrl)}"
+              data-door-id="${escapeAttr(doorId)}"
+            ></div>
           </div>
 
           <div class="qr-card-footer">
-            <strong>สแกนเพื่อดูผลตรวจประตูนี้</strong>
-            <span>${escapeHtml(shortUrlText(viewUrl))}</span>
-            <small>ขนาดป้าย 7.5 x 11.5 cm</small>
+            <strong>
+              สแกนเพื่อบันทึกผลตรวจประตูนี้
+            </strong>
+
+            <span>
+              ${escapeHtml(
+                shortUrlText(checkUrl)
+              )}
+            </span>
+
+            <small>
+              ขนาดป้าย 7.5 x 11.5 cm
+            </small>
           </div>
+
         </article>
       `;
     }
 
-    function buildQrCodes(selectedDoors) {
-      selectedDoors.forEach(door => {
-        const qrId = `qr_${safeId(door.doorId)}`;
-        const box = document.getElementById(qrId);
+    function buildQrCodes() {
+      const boxes =
+        el.a4Stack.querySelectorAll(
+          '.qr-code-box[data-url]'
+        );
 
-        if (!box) return;
+      boxes.forEach(
+        function (box) {
+          const url =
+            cleanText(
+              box.dataset.url
+            );
 
-        const url = box.dataset.url;
-        box.innerHTML = '';
+          if (!url) {
+            throw new Error(
+              'ไม่พบ URL สำหรับสร้าง QR Code'
+            );
+          }
 
-        new QRCode(box, {
-          text: url,
-          width: 260,
-          height: 260,
-          correctLevel: QRCode.CorrectLevel.H
-        });
-      });
+          box.innerHTML = '';
+
+          new QRCode(box, {
+            text: url,
+            width: 260,
+            height: 260,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel:
+              QRCode.CorrectLevel.H
+          });
+        }
+      );
     }
 
-    function buildViewUrl(doorId) {
-      const base = state.baseUrl.replace(/\/+$/, '');
-      return `${base}/${CONFIG.ROUTES.VIEW}?doorId=${encodeURIComponent(doorId)}`;
+    /************************************************************
+     * QR URL
+     ************************************************************/
+
+    function buildCheckUrl(doorId) {
+      const cleanDoorId =
+        cleanText(doorId);
+
+      if (!cleanDoorId) {
+        throw new Error(
+          'ไม่พบหมายเลขประตูสำหรับสร้าง QR Code'
+        );
+      }
+
+      const checkRoute =
+        getCheckRoute();
+
+      /*
+       * ใช้ URL constructor เพื่อรองรับทั้ง:
+       * - check.html
+       * - /check.html
+       * - URL แบบเต็ม
+       * - GitHub Pages ที่อยู่ภายในโฟลเดอร์โครงการ
+       */
+      const checkUrl =
+        new URL(
+          checkRoute,
+          ensureTrailingSlash(
+            state.baseUrl
+          )
+        );
+
+      checkUrl.searchParams.set(
+        'doorId',
+        cleanDoorId
+      );
+
+      checkUrl.searchParams.set(
+        'source',
+        'qr'
+      );
+
+      return checkUrl.toString();
+    }
+
+    function getCheckRoute() {
+      const routes =
+        CONFIG &&
+        CONFIG.ROUTES &&
+        typeof CONFIG.ROUTES === 'object'
+          ? CONFIG.ROUTES
+          : {};
+
+      return cleanText(
+        routes.CHECK ||
+        routes.CHECK_PAGE ||
+        routes.check ||
+        'check.html'
+      );
     }
 
     function getBaseUrl() {
-      const path = window.location.pathname || '';
-      const folder = path.substring(0, path.lastIndexOf('/') + 1);
+      const currentUrl =
+        new URL(
+          window.location.href
+        );
 
-      return `${window.location.origin}${folder}`;
+      currentUrl.hash = '';
+      currentUrl.search = '';
+
+      const pathname =
+        currentUrl.pathname || '/';
+
+      const lastSlashIndex =
+        pathname.lastIndexOf('/');
+
+      currentUrl.pathname =
+        lastSlashIndex >= 0
+          ? pathname.slice(
+              0,
+              lastSlashIndex + 1
+            )
+          : '/';
+
+      return currentUrl.toString();
+    }
+
+    function ensureTrailingSlash(url) {
+      const text =
+        String(url || '');
+
+      return text.endsWith('/')
+        ? text
+        : text + '/';
     }
 
     function shortUrlText(url) {
       try {
-        const u = new URL(url);
-        return `${u.hostname}${u.pathname}`;
-      } catch (err) {
-        return url;
+        const parsed =
+          new URL(url);
+
+        const doorId =
+          parsed.searchParams.get(
+            'doorId'
+          );
+
+        return (
+          parsed.hostname +
+          parsed.pathname +
+          (
+            doorId
+              ? `?doorId=${doorId}&source=qr`
+              : ''
+          )
+        );
+
+      } catch (error) {
+        return String(url || '');
       }
     }
 
-    function setControlsDisabled(disabled) {
-      el.searchInput.disabled = disabled;
-      el.btnSelectAll.disabled = disabled;
-      el.btnClearAll.disabled = disabled;
-      el.btnPreview.disabled = disabled;
-      el.btnPrint.disabled = disabled;
+    /************************************************************
+     * PRINT WAIT
+     ************************************************************/
+
+    async function waitForQrImages() {
+      const startedAt =
+        Date.now();
+
+      const timeoutMs =
+        5000;
+
+      while (
+        Date.now() - startedAt <
+        timeoutMs
+      ) {
+        const boxes =
+          Array.from(
+            el.a4Stack.querySelectorAll(
+              '.qr-code-box'
+            )
+          );
+
+        const ready =
+          boxes.length > 0 &&
+          boxes.every(
+            function (box) {
+              return Boolean(
+                box.querySelector(
+                  'img, canvas'
+                )
+              );
+            }
+          );
+
+        if (ready) {
+          await delay(150);
+          return true;
+        }
+
+        await delay(50);
+      }
+
+      throw new Error(
+        'สร้างภาพ QR Code ไม่เสร็จภายในเวลาที่กำหนด'
+      );
     }
 
-    function setApiStatus(type, text) {
-      el.apiStatusDot.className = `status-dot ${type}`;
-      el.apiStatusText.textContent = text;
+    /************************************************************
+     * UI
+     ************************************************************/
+
+    function setControlsDisabled(
+      disabled
+    ) {
+      const value =
+        Boolean(disabled);
+
+      el.searchInput.disabled =
+        value;
+
+      el.btnSelectAll.disabled =
+        value;
+
+      el.btnClearAll.disabled =
+        value;
+
+      el.btnPreview.disabled =
+        value;
+
+      el.btnPrint.disabled =
+        value;
+    }
+
+    function setApiStatus(
+      type,
+      text
+    ) {
+      el.apiStatusDot.className =
+        `status-dot ${
+          cleanText(type) ||
+          'pending'
+        }`;
+
+      el.apiStatusText.textContent =
+        cleanText(text) || '-';
     }
 
     function showToast(message) {
@@ -830,7 +1708,8 @@
         icon: 'success',
         title: message,
         showConfirmButton: false,
-        timer: 1000
+        timer: 1200,
+        timerProgressBar: true
       });
     }
 
@@ -839,7 +1718,8 @@
         icon: 'warning',
         title: 'แจ้งเตือน',
         text: message,
-        confirmButtonText: 'ตกลง'
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#0f766e'
       });
     }
 
@@ -848,46 +1728,150 @@
         icon: 'error',
         title: 'เกิดข้อผิดพลาด',
         text: message,
-        confirmButtonText: 'ตกลง'
+        confirmButtonText: 'ตกลง',
+        confirmButtonColor: '#b91c1c'
       });
     }
 
     function updateFooterTime() {
-      const now = new Date();
+      const now =
+        new Date();
 
-      el.footerTime.textContent = now.toLocaleString('th-TH', {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-      });
+      el.footerTime.textContent =
+        now.toLocaleString(
+          'th-TH',
+          {
+            timeZone:
+              'Asia/Bangkok',
+            dateStyle:
+              'medium',
+            timeStyle:
+              'short'
+          }
+        );
     }
 
-    function chunkArray(arr, size) {
-      const out = [];
+    /************************************************************
+     * COMMON HELPERS
+     ************************************************************/
 
-      for (let i = 0; i < arr.length; i += size) {
-        out.push(arr.slice(i, i + size));
+    function chunkArray(
+      array,
+      size
+    ) {
+      const source =
+        Array.isArray(array)
+          ? array
+          : [];
+
+      const chunkSize =
+        Math.max(
+          1,
+          Number(size || 1)
+        );
+
+      const output = [];
+
+      for (
+        let index = 0;
+        index < source.length;
+        index += chunkSize
+      ) {
+        output.push(
+          source.slice(
+            index,
+            index + chunkSize
+          )
+        );
       }
 
-      return out;
+      return output;
+    }
+
+    function cleanText(value) {
+      if (
+        value === null ||
+        value === undefined
+      ) {
+        return '';
+      }
+
+      return String(value).trim();
     }
 
     function safeId(value) {
-      return String(value ?? '')
-        .replace(/[^a-zA-Z0-9_-]/g, '_')
-        .replace(/_+/g, '_');
+      return String(
+        value ?? ''
+      )
+        .replace(
+          /[^a-zA-Z0-9_-]/g,
+          '_'
+        )
+        .replace(
+          /_+/g,
+          '_'
+        );
     }
 
     function escapeHtml(value) {
-      return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+      return String(
+        value ?? ''
+      )
+        .replace(
+          /&/g,
+          '&amp;'
+        )
+        .replace(
+          /</g,
+          '&lt;'
+        )
+        .replace(
+          />/g,
+          '&gt;'
+        )
+        .replace(
+          /"/g,
+          '&quot;'
+        )
+        .replace(
+          /'/g,
+          '&#039;'
+        );
     }
 
     function escapeAttr(value) {
-      return escapeHtml(value).replace(/`/g, '&#096;');
+      return escapeHtml(value)
+        .replace(
+          /`/g,
+          '&#096;'
+        );
+    }
+
+    function delay(milliseconds) {
+      return new Promise(
+        function (resolve) {
+          setTimeout(
+            resolve,
+            Number(
+              milliseconds || 0
+            )
+          );
+        }
+      );
+    }
+
+    function nextFrame() {
+      return new Promise(
+        function (resolve) {
+          requestAnimationFrame(
+            function () {
+              requestAnimationFrame(
+                resolve
+              );
+            }
+          );
+        }
+      );
     }
   </script>
 </body>
