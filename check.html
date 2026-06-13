@@ -2,7 +2,10 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
 
   <title>บันทึกตรวจประตูหนีไฟ</title>
 
@@ -16,14 +19,13 @@
     /************************************************************
      * check.html
      * Mobile-first Fire Exit Door Inspection Form
-     * ปรับปรุง:
+     *
      * - เข้าจาก QR ได้ / เข้าจากหน้าหลักได้
      * - ถ้าเข้าจาก QR จะล็อกประตู
+     * - โหมด QR ซ่อนปุ่มนำทางทั้งหมด
      * - บังคับ GPS ก่อนบันทึก
      * - บังคับภาพหลักฐานอย่างน้อย 1 ภาพ
-     * - แนะนำภาพ QR Code / ประตู / หมายเลขซีล
      * - ส่ง inspectSource = qr / home / manual
-     * - แถบล่างมือถือเล็กลง ไม่รก
      ************************************************************/
 
     body {
@@ -559,20 +561,36 @@
     }
 
     .quick-nav {
-  display: none;
-}
+      margin-top: 7px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
 
-/*
- * ซ่อนองค์ประกอบนำทางเฉพาะเมื่อเปิดจาก QR Code
- * ไม่กระทบปุ่ม GPS กล้อง Checklist บันทึก และล้างแบบฟอร์ม
- */
-[data-hide-in-qr] {
-  display: revert;
-}
+    .quick-nav .page-link-btn {
+      min-height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #f8fafc;
+      color: #334155;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 8px;
+      font-size: 11px;
+      font-weight: 900;
+      text-align: center;
+    }
 
-body.qr-entry-mode [data-hide-in-qr] {
-  display: none !important;
-}
+    /*
+     * ปิดเมนูนำทางหลายชั้นในโหมด QR
+     */
+    .quick-nav[hidden],
+    body.qr-entry-mode [data-hide-in-qr] {
+      display: none !important;
+    }
+
     .swal2-popup {
       border-radius: 18px !important;
     }
@@ -780,6 +798,7 @@ body.qr-entry-mode [data-hide-in-qr] {
     <header class="app-header">
       <div class="brand">
         <img id="appLogo" class="brand-logo" alt="Logo" />
+
         <div class="brand-text">
           <h1>บันทึกตรวจประตูหนีไฟ</h1>
           <p>Daily Fire Exit Door Inspection Form</p>
@@ -809,6 +828,7 @@ body.qr-entry-mode [data-hide-in-qr] {
 
           <label class="field">
             <span>ชื่อผู้บันทึก</span>
+
             <select id="inspectorSelect">
               <option value="">กำลังโหลด...</option>
             </select>
@@ -816,6 +836,7 @@ body.qr-entry-mode [data-hide-in-qr] {
 
           <label class="field">
             <span>หมายเลขประตูหนีไฟ</span>
+
             <select id="doorSelect">
               <option value="">กำลังโหลด...</option>
             </select>
@@ -829,6 +850,7 @@ body.qr-entry-mode [data-hide-in-qr] {
           <div class="seal-box">
             <label class="field">
               <span>หมายเลขซีล</span>
+
               <input
                 id="sealNoInput"
                 type="text"
@@ -839,11 +861,18 @@ body.qr-entry-mode [data-hide-in-qr] {
                 placeholder="กรอกหมายเลขซีล"
               />
             </label>
-            <div class="seal-help">กรณีเปลี่ยนซีล ให้กรอกหมายเลขซีลใหม่ก่อนบันทึก</div>
+
+            <div class="seal-help">
+              กรณีเปลี่ยนซีล ให้กรอกหมายเลขซีลใหม่ก่อนบันทึก
+            </div>
           </div>
         </div>
 
-        <div id="doorInfoBox" class="door-info-box" style="display:none;">
+        <div
+          id="doorInfoBox"
+          class="door-info-box"
+          style="display:none;"
+        >
           <strong id="doorInfoId">-</strong>
           <span id="doorInfoLocation">-</span>
         </div>
@@ -852,18 +881,28 @@ body.qr-entry-mode [data-hide-in-qr] {
           <div class="section-title-row">
             <div>
               <h2>หลักฐานการตรวจจริง</h2>
-              <p>ต้องเปิด GPS และถ่ายภาพ QR Code / ประตู / หมายเลขซีล ก่อนบันทึก</p>
+
+              <p>
+                ต้องเปิด GPS และถ่ายภาพ QR Code /
+                ประตู / หมายเลขซีล ก่อนบันทึก
+              </p>
             </div>
           </div>
 
           <div class="evidence-grid">
             <div class="evidence-status-grid">
-              <div id="gpsStatusBox" class="evidence-status-box bad">
+              <div
+                id="gpsStatusBox"
+                class="evidence-status-box bad"
+              >
                 <span>สถานะ GPS</span>
                 <strong id="gpsStatusText">ยังไม่ได้เปิด GPS</strong>
               </div>
 
-              <div id="evidenceStatusBox" class="evidence-status-box bad">
+              <div
+                id="evidenceStatusBox"
+                class="evidence-status-box bad"
+              >
                 <span>ภาพหลักฐาน</span>
                 <strong id="evidenceStatusText">ยังไม่มีภาพหลักฐาน</strong>
               </div>
@@ -871,25 +910,42 @@ body.qr-entry-mode [data-hide-in-qr] {
 
             <div class="camera-select-wrap">
               <span>เลือกกล้อง</span>
+
               <select id="cameraSelect">
                 <option value="">ใช้กล้องหลัง / กล้องหลัก</option>
               </select>
             </div>
 
             <div class="camera-control-grid">
-              <button id="btnRequestGps" class="btn warning" type="button">
+              <button
+                id="btnRequestGps"
+                class="btn warning"
+                type="button"
+              >
                 เปิด GPS
               </button>
 
-              <button id="btnOpenCamera" class="btn primary" type="button">
+              <button
+                id="btnOpenCamera"
+                class="btn primary"
+                type="button"
+              >
                 เปิดกล้องในเว็บ
               </button>
 
-              <button id="btnCapturePhoto" class="btn success" type="button">
+              <button
+                id="btnCapturePhoto"
+                class="btn success"
+                type="button"
+              >
                 ถ่ายภาพจากกล้อง
               </button>
 
-              <button id="btnUseDeviceCamera" class="btn" type="button">
+              <button
+                id="btnUseDeviceCamera"
+                class="btn"
+                type="button"
+              >
                 ใช้กล้องของอุปกรณ์
               </button>
             </div>
@@ -903,25 +959,50 @@ body.qr-entry-mode [data-hide-in-qr] {
             />
 
             <div id="cameraBox" class="camera-box">
-              <video id="cameraVideo" class="camera-video" autoplay playsinline muted></video>
+              <video
+                id="cameraVideo"
+                class="camera-video"
+                autoplay
+                playsinline
+                muted
+              ></video>
             </div>
 
-            <div id="evidencePreviewWrap" class="evidence-preview-wrap">
+            <div
+              id="evidencePreviewWrap"
+              class="evidence-preview-wrap"
+            >
               <strong>บันทึกภาพหลักฐานแล้ว</strong>
-              <img id="evidencePreview" class="evidence-preview" alt="ภาพหลักฐาน" />
+
+              <img
+                id="evidencePreview"
+                class="evidence-preview"
+                alt="ภาพหลักฐาน"
+              />
             </div>
 
             <div class="evidence-help">
-              ต้องถ่ายภาพหลักฐานอย่างน้อย 1 ภาพก่อนบันทึก แนะนำให้ถ่าย QR Code ของประตู / ประตูจริง / หมายเลขซีล
+              ต้องถ่ายภาพหลักฐานอย่างน้อย 1 ภาพก่อนบันทึก
+              แนะนำให้ถ่าย QR Code ของประตู /
+              ประตูจริง / หมายเลขซีล
             </div>
           </div>
         </div>
 
         <div class="top-action-mini">
-          <button id="btnSetAllNormalTop" class="btn success" type="button">
+          <button
+            id="btnSetAllNormalTop"
+            class="btn success"
+            type="button"
+          >
             ปกติทั้งหมด
           </button>
-          <button id="btnScrollToMissing" class="btn" type="button">
+
+          <button
+            id="btnScrollToMissing"
+            class="btn"
+            type="button"
+          >
             ไปข้อที่ยังไม่เลือก
           </button>
         </div>
@@ -931,12 +1012,18 @@ body.qr-entry-mode [data-hide-in-qr] {
         <div class="section-title-row">
           <div>
             <h2>รายการตรวจสอบ</h2>
-            <p>เลือกผลตรวจให้ครบทุกข้อ หากผิดปกติต้องกรอกรายละเอียด</p>
+
+            <p>
+              เลือกผลตรวจให้ครบทุกข้อ
+              หากผิดปกติต้องกรอกรายละเอียด
+            </p>
           </div>
         </div>
 
         <div id="checklistWrap" class="checklist-wrap">
-          <div class="empty-state">กำลังโหลดรายการตรวจ...</div>
+          <div class="empty-state">
+            กำลังโหลดรายการตรวจ...
+          </div>
         </div>
       </section>
 
@@ -948,32 +1035,59 @@ body.qr-entry-mode [data-hide-in-qr] {
       </div>
 
       <div class="save-row">
-        <button id="btnSave" class="btn primary" type="button">
+        <button
+          id="btnSave"
+          class="btn primary"
+          type="button"
+        >
           บันทึกผลตรวจ
         </button>
 
-        <button id="btnReset" class="btn" type="button">
+        <button
+          id="btnReset"
+          class="btn"
+          type="button"
+        >
           ล้าง
         </button>
       </div>
 
-     <div id="quickNav" class="quick-nav" data-hide-in-qr>
-  <a class="page-link-btn" href="index.html">
-    หน้าหลัก
-  </a>
+      <!--
+        ซ่อนไว้เป็นค่าเริ่มต้นเพื่อไม่ให้กะพริบแสดง
+        JavaScript จะเปิดเมื่อเข้าจากหน้าหลักเท่านั้น
+      -->
+      <div
+        id="quickNav"
+        class="quick-nav"
+        data-hide-in-qr
+        hidden
+        aria-hidden="true"
+      >
+        <a
+          class="page-link-btn"
+          href="index.html"
+          data-navigation-link
+        >
+          หน้าหลัก
+        </a>
 
-  <a
-    id="viewDoorLink"
-    class="page-link-btn"
-    href="view.html"
-  >
-    ดูผลประตู
-  </a>
+        <a
+          id="viewDoorLink"
+          class="page-link-btn"
+          href="view.html"
+          data-navigation-link
+        >
+          ดูผลประตู
+        </a>
 
-  <a class="page-link-btn" href="report.html">
-    รายงาน
-  </a>
-</div>
+        <a
+          class="page-link-btn"
+          href="report.html"
+          data-navigation-link
+        >
+          รายงาน
+        </a>
+      </div>
     </section>
 
     <footer class="app-footer">
@@ -983,6 +1097,8 @@ body.qr-entry-mode [data-hide-in-qr] {
   </div>
 
   <script>
+    'use strict';
+
     const CONFIG = window.APP_CONFIG || {};
     const API = window.FireExitAPI || window.API;
 
@@ -1004,58 +1120,127 @@ body.qr-entry-mode [data-hide-in-qr] {
     };
 
     const el = {
-      appLogo: document.getElementById('appLogo'),
-      apiStatusDot: document.getElementById('apiStatusDot'),
-      apiStatusText: document.getElementById('apiStatusText'),
+      appLogo:
+        document.getElementById('appLogo'),
 
-      sourcePill: document.getElementById('sourcePill'),
-      inspectorSelect: document.getElementById('inspectorSelect'),
-      doorSelect: document.getElementById('doorSelect'),
-      locationInput: document.getElementById('locationInput'),
-      sealNoInput: document.getElementById('sealNoInput'),
+      apiStatusDot:
+        document.getElementById('apiStatusDot'),
 
-      doorInfoBox: document.getElementById('doorInfoBox'),
-      doorInfoId: document.getElementById('doorInfoId'),
-      doorInfoLocation: document.getElementById('doorInfoLocation'),
+      apiStatusText:
+        document.getElementById('apiStatusText'),
 
-      checklistWrap: document.getElementById('checklistWrap'),
+      sourcePill:
+        document.getElementById('sourcePill'),
 
-      btnSetAllNormalTop: document.getElementById('btnSetAllNormalTop'),
-      btnScrollToMissing: document.getElementById('btnScrollToMissing'),
-      btnSave: document.getElementById('btnSave'),
-      btnReset: document.getElementById('btnReset'),
+      inspectorSelect:
+        document.getElementById('inspectorSelect'),
 
-      progressLine: document.getElementById('progressLine'),
-quickNav: document.getElementById('quickNav'),
-viewDoorLink: document.getElementById('viewDoorLink'),
+      doorSelect:
+        document.getElementById('doorSelect'),
 
-      gpsStatusBox: document.getElementById('gpsStatusBox'),
-      gpsStatusText: document.getElementById('gpsStatusText'),
-      evidenceStatusBox: document.getElementById('evidenceStatusBox'),
-      evidenceStatusText: document.getElementById('evidenceStatusText'),
+      locationInput:
+        document.getElementById('locationInput'),
 
-      cameraSelect: document.getElementById('cameraSelect'),
-      btnRequestGps: document.getElementById('btnRequestGps'),
-      btnOpenCamera: document.getElementById('btnOpenCamera'),
-      btnCapturePhoto: document.getElementById('btnCapturePhoto'),
-      btnUseDeviceCamera: document.getElementById('btnUseDeviceCamera'),
-      evidenceFileInput: document.getElementById('evidenceFileInput'),
-      cameraBox: document.getElementById('cameraBox'),
-      cameraVideo: document.getElementById('cameraVideo'),
-      evidencePreviewWrap: document.getElementById('evidencePreviewWrap'),
-      evidencePreview: document.getElementById('evidencePreview'),
+      sealNoInput:
+        document.getElementById('sealNoInput'),
 
-      footerTime: document.getElementById('footerTime')
+      doorInfoBox:
+        document.getElementById('doorInfoBox'),
+
+      doorInfoId:
+        document.getElementById('doorInfoId'),
+
+      doorInfoLocation:
+        document.getElementById('doorInfoLocation'),
+
+      checklistWrap:
+        document.getElementById('checklistWrap'),
+
+      btnSetAllNormalTop:
+        document.getElementById('btnSetAllNormalTop'),
+
+      btnScrollToMissing:
+        document.getElementById('btnScrollToMissing'),
+
+      btnSave:
+        document.getElementById('btnSave'),
+
+      btnReset:
+        document.getElementById('btnReset'),
+
+      progressLine:
+        document.getElementById('progressLine'),
+
+      quickNav:
+        document.getElementById('quickNav'),
+
+      viewDoorLink:
+        document.getElementById('viewDoorLink'),
+
+      gpsStatusBox:
+        document.getElementById('gpsStatusBox'),
+
+      gpsStatusText:
+        document.getElementById('gpsStatusText'),
+
+      evidenceStatusBox:
+        document.getElementById('evidenceStatusBox'),
+
+      evidenceStatusText:
+        document.getElementById('evidenceStatusText'),
+
+      cameraSelect:
+        document.getElementById('cameraSelect'),
+
+      btnRequestGps:
+        document.getElementById('btnRequestGps'),
+
+      btnOpenCamera:
+        document.getElementById('btnOpenCamera'),
+
+      btnCapturePhoto:
+        document.getElementById('btnCapturePhoto'),
+
+      btnUseDeviceCamera:
+        document.getElementById('btnUseDeviceCamera'),
+
+      evidenceFileInput:
+        document.getElementById('evidenceFileInput'),
+
+      cameraBox:
+        document.getElementById('cameraBox'),
+
+      cameraVideo:
+        document.getElementById('cameraVideo'),
+
+      evidencePreviewWrap:
+        document.getElementById('evidencePreviewWrap'),
+
+      evidencePreview:
+        document.getElementById('evidencePreview'),
+
+      footerTime:
+        document.getElementById('footerTime')
     };
 
-    document.addEventListener('DOMContentLoaded', init);
-    window.addEventListener('beforeunload', stopCamera);
+    document.addEventListener(
+      'DOMContentLoaded',
+      init
+    );
 
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        stopCamera();
+    window.addEventListener(
+      'beforeunload',
+      stopCamera
+    );
+
+    document.addEventListener(
+      'visibilitychange',
+      () => {
+        if (document.hidden) {
+          stopCamera();
+        }
       }
-    });
+    );
 
     async function init() {
       if (CONFIG.LOGO_URL) {
@@ -1064,114 +1249,261 @@ viewDoorLink: document.getElementById('viewDoorLink'),
 
       updateFooterTime();
       parseEntryParams();
+
+      /*
+       * ซ่อนหรือแสดงเมนูทันที
+       * ไม่ต้องรอ API โหลดเสร็จ
+       */
+      applyNavigationVisibility();
+
       bindEvents();
 
       await loadOptions();
     }
 
     function parseEntryParams() {
-      const params = new URLSearchParams(window.location.search);
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
 
-      state.selectedDoorId = String(params.get('doorId') || params.get('door') || '').trim();
+      state.selectedDoorId =
+        String(
+          params.get('doorId') ||
+          params.get('door') ||
+          ''
+        ).trim();
 
-      const sourceParam = String(
-        params.get('source') ||
-        params.get('from') ||
-        params.get('mode') ||
-        ''
-      ).trim().toLowerCase();
+      const sourceParam =
+        String(
+          params.get('source') ||
+          params.get('from') ||
+          params.get('mode') ||
+          ''
+        )
+          .trim()
+          .toLowerCase();
 
       /*
-       * กรณี QR เดิมอาจมีแค่ ?doorId=D01 ไม่มี source=qr
-       * ถ้ามี doorId แต่ไม่ระบุ source ให้ถือเป็น qr เพื่อป้องกันการเปลี่ยนประตู
+       * รองรับ QR รุ่นเก่าที่มีเพียง doorId
        */
-      state.inspectSource = normalizeInspectSourceForCheck(
-        sourceParam || (state.selectedDoorId ? 'qr' : 'home')
-      );
+      state.inspectSource =
+        normalizeInspectSourceForCheck(
+          sourceParam ||
+          (
+            state.selectedDoorId
+              ? 'qr'
+              : 'home'
+          )
+        );
 
-      state.isQrMode = state.inspectSource === 'qr' && !!state.selectedDoorId;
+      state.isQrMode =
+        state.inspectSource === 'qr' &&
+        Boolean(state.selectedDoorId);
     }
 
     function bindEvents() {
-      el.doorSelect.addEventListener('change', () => {
-        if (state.isQrMode) {
-          el.doorSelect.value = state.selectedDoorId;
+      el.doorSelect.addEventListener(
+        'change',
+        () => {
+          if (state.isQrMode) {
+            el.doorSelect.value =
+              state.selectedDoorId;
 
-          Swal.fire({
-            icon: 'warning',
-            title: 'เปลี่ยนประตูไม่ได้',
-            text: 'หน้านี้เปิดจาก QR Code จึงล็อกหมายเลขประตูไว้',
-            confirmButtonText: 'ตกลง'
-          });
+            Swal.fire({
+              icon: 'warning',
+              title: 'เปลี่ยนประตูไม่ได้',
+              text:
+                'หน้านี้เปิดจาก QR Code ' +
+                'จึงล็อกหมายเลขประตูไว้',
+              confirmButtonText: 'ตกลง'
+            });
 
-          return;
+            return;
+          }
+
+          selectDoor(
+            el.doorSelect.value
+          );
+
+          updateProgress();
         }
+      );
 
-        selectDoor(el.doorSelect.value);
-        updateProgress();
-      });
+      el.sealNoInput.addEventListener(
+        'input',
+        () => {
+          el.sealNoInput.value =
+            el.sealNoInput.value.replace(
+              /\D/g,
+              ''
+            );
 
-      el.sealNoInput.addEventListener('input', () => {
-        el.sealNoInput.value = el.sealNoInput.value.replace(/\D/g, '');
-        updateProgress();
-      });
-
-      el.inspectorSelect.addEventListener('change', updateProgress);
-
-      el.btnSetAllNormalTop.addEventListener('click', setAllNormal);
-      el.btnScrollToMissing.addEventListener('click', scrollToFirstMissing);
-      el.btnSave.addEventListener('click', saveInspection);
-      el.btnReset.addEventListener('click', resetForm);
-
-      el.btnRequestGps.addEventListener('click', requestGps);
-      el.btnOpenCamera.addEventListener('click', openWebCamera);
-      el.btnCapturePhoto.addEventListener('click', capturePhotoFromVideo);
-
-      el.btnUseDeviceCamera.addEventListener('click', () => {
-        el.evidenceFileInput.click();
-      });
-
-      el.evidenceFileInput.addEventListener('change', handleEvidenceFileInput);
-
-      el.cameraSelect.addEventListener('change', () => {
-        state.selectedCameraId = el.cameraSelect.value || '';
-
-        if (state.cameraStream) {
-          openWebCamera();
+          updateProgress();
         }
-      });
+      );
+
+      el.inspectorSelect.addEventListener(
+        'change',
+        updateProgress
+      );
+
+      el.btnSetAllNormalTop.addEventListener(
+        'click',
+        setAllNormal
+      );
+
+      el.btnScrollToMissing.addEventListener(
+        'click',
+        scrollToFirstMissing
+      );
+
+      el.btnSave.addEventListener(
+        'click',
+        saveInspection
+      );
+
+      el.btnReset.addEventListener(
+        'click',
+        resetForm
+      );
+
+      el.btnRequestGps.addEventListener(
+        'click',
+        requestGps
+      );
+
+      el.btnOpenCamera.addEventListener(
+        'click',
+        openWebCamera
+      );
+
+      el.btnCapturePhoto.addEventListener(
+        'click',
+        capturePhotoFromVideo
+      );
+
+      el.btnUseDeviceCamera.addEventListener(
+        'click',
+        () => {
+          el.evidenceFileInput.click();
+        }
+      );
+
+      el.evidenceFileInput.addEventListener(
+        'change',
+        handleEvidenceFileInput
+      );
+
+      el.cameraSelect.addEventListener(
+        'change',
+        () => {
+          state.selectedCameraId =
+            el.cameraSelect.value || '';
+
+          if (state.cameraStream) {
+            openWebCamera();
+          }
+        }
+      );
+
+      /*
+       * ชั้นป้องกันเพิ่มเติม
+       * แม้ปุ่มถูก CSS ภายนอกเปิดกลับมา
+       * ก็ห้ามเปลี่ยนหน้าในโหมด QR
+       */
+      document
+        .querySelectorAll(
+          '[data-navigation-link]'
+        )
+        .forEach(link => {
+          link.addEventListener(
+            'click',
+            event => {
+              if (!state.isQrMode) {
+                return;
+              }
+
+              event.preventDefault();
+              event.stopPropagation();
+
+              Swal.fire({
+                icon: 'info',
+                title:
+                  'อยู่ในโหมดสแกน QR Code',
+                text:
+                  'กรุณาบันทึกผลตรวจของประตูนี้จากหน้านี้',
+                confirmButtonText: 'ตกลง'
+              });
+            }
+          );
+        });
     }
 
     async function loadOptions() {
       try {
-        if (!API || typeof API.getOptions !== 'function') {
-          throw new Error('ไม่พบ API.getOptions กรุณาตรวจสอบ api.js หรือ config.js');
+        if (
+          !API ||
+          typeof API.getOptions !== 'function'
+        ) {
+          throw new Error(
+            'ไม่พบ API.getOptions ' +
+            'กรุณาตรวจสอบ api.js หรือ config.js'
+          );
         }
 
-        setApiStatus('pending', 'กำลังโหลดข้อมูล...');
+        setApiStatus(
+          'pending',
+          'กำลังโหลดข้อมูล...'
+        );
+
         setFormDisabled(true);
 
-        const data = await API.getOptions();
+        const data =
+          await API.getOptions();
 
-        state.names = Array.isArray(data.names) ? data.names : [];
-        state.doors = Array.isArray(data.doors) ? data.doors : [];
-        state.checklist = Array.isArray(data.checklist) ? data.checklist : [];
+        state.names =
+          Array.isArray(data.names)
+            ? data.names
+            : [];
+
+        state.doors =
+          Array.isArray(data.doors)
+            ? data.doors
+            : [];
+
+        state.checklist =
+          Array.isArray(data.checklist)
+            ? data.checklist
+            : [];
 
         renderNames();
         renderDoors();
         renderChecklist();
 
         if (state.selectedDoorId) {
-          const found = state.doors.find(d => String(d.doorId) === String(state.selectedDoorId));
+          const found =
+            state.doors.find(
+              door =>
+                String(door.doorId) ===
+                String(state.selectedDoorId)
+            );
 
           if (found) {
-            el.doorSelect.value = found.doorId;
-            selectDoor(found.doorId);
+            el.doorSelect.value =
+              found.doorId;
+
+            selectDoor(
+              found.doorId
+            );
+
           } else {
-            Swal.fire({
+            await Swal.fire({
               icon: 'warning',
               title: 'ไม่พบประตูจาก QR/URL',
-              text: `ไม่พบหมายเลขประตู ${state.selectedDoorId} ใน Sheet1`,
+              text:
+                `ไม่พบหมายเลขประตู ` +
+                `${state.selectedDoorId} ใน Sheet1`,
               confirmButtonText: 'ตกลง'
             });
 
@@ -1180,260 +1512,498 @@ viewDoorLink: document.getElementById('viewDoorLink'),
           }
         }
 
-        applyEntryModeUI();
-        setApiStatus('ok', 'พร้อมบันทึกข้อมูล');
+        setApiStatus(
+          'ok',
+          'พร้อมบันทึกข้อมูล'
+        );
+
         setFormDisabled(false);
         applyEntryModeUI();
         updateProgress();
 
-      } catch (err) {
-        console.error(err);
-        setApiStatus('danger', 'โหลดข้อมูลไม่สำเร็จ');
-        showError(err.message || 'โหลดข้อมูลไม่สำเร็จ');
+      } catch (error) {
+        console.error(error);
+
+        setApiStatus(
+          'danger',
+          'โหลดข้อมูลไม่สำเร็จ'
+        );
+
+        showError(
+          error.message ||
+          'โหลดข้อมูลไม่สำเร็จ'
+        );
+
         setFormDisabled(false);
+        applyEntryModeUI();
       }
     }
 
-   function applyEntryModeUI() {
-  const isQrMode =
-    state.isQrMode === true &&
-    String(state.selectedDoorId || '').trim() !== '';
+    function applyNavigationVisibility() {
+      const isQrMode =
+        state.isQrMode === true &&
+        String(
+          state.selectedDoorId || ''
+        ).trim() !== '';
 
-  /*
-   * เพิ่ม class ที่ body เพื่อควบคุมองค์ประกอบทั้งหมด
-   * ที่กำหนด data-hide-in-qr
-   */
-  document.body.classList.toggle(
-    'qr-entry-mode',
-    isQrMode
-  );
-
-  /*
-   * ป้องกันกรณี browser หรือ CSS ภายนอกทำให้เมนูกลับมาแสดง
-   */
-  document
-    .querySelectorAll('[data-hide-in-qr]')
-    .forEach(element => {
-      element.hidden = isQrMode;
-      element.setAttribute(
-        'aria-hidden',
-        isQrMode ? 'true' : 'false'
+      document.body.classList.toggle(
+        'qr-entry-mode',
+        isQrMode
       );
-    });
 
-  if (isQrMode) {
-    /*
-     * โหมดสแกน QR:
-     * - ล็อกประตู
-     * - ซ่อนปุ่มไปหน้าอื่น
-     * - คงปุ่มตรวจและบันทึกทั้งหมด
-     */
-    el.doorSelect.value =
-      state.selectedDoorId;
+      if (el.quickNav) {
+        el.quickNav.hidden =
+          isQrMode;
 
-    el.doorSelect.disabled = true;
-    el.doorSelect.classList.add(
-      'locked-by-qr'
-    );
+        el.quickNav.setAttribute(
+          'aria-hidden',
+          isQrMode ? 'true' : 'false'
+        );
 
-    el.sourcePill.className =
-      'source-pill qr';
+        if (isQrMode) {
+          el.quickNav.style.setProperty(
+            'display',
+            'none',
+            'important'
+          );
+        } else {
+          el.quickNav.style.removeProperty(
+            'display'
+          );
+        }
+      }
 
-    el.sourcePill.textContent =
-      `ช่องทาง: QR Code | ล็อกประตู ${
-        state.selectedDoorId || '-'
-      }`;
+      document
+        .querySelectorAll(
+          '[data-navigation-link]'
+        )
+        .forEach(link => {
+          link.tabIndex =
+            isQrMode ? -1 : 0;
 
-  } else {
-    /*
-     * โหมดเข้าจากหน้าหลัก:
-     * แสดงปุ่มและใช้งานตามเดิมทั้งหมด
-     */
-    el.doorSelect.disabled = false;
-    el.doorSelect.classList.remove(
-      'locked-by-qr'
-    );
+          link.setAttribute(
+            'aria-hidden',
+            isQrMode ? 'true' : 'false'
+          );
+        });
 
-    el.sourcePill.className =
-      'source-pill home';
+      return isQrMode;
+    }
 
-    el.sourcePill.textContent =
-      'ช่องทาง: หน้าหลัก / เลือกประตูเอง';
-  }
+    function applyEntryModeUI() {
+      const isQrMode =
+        applyNavigationVisibility();
 
-  updateProgress();
-}
+      if (isQrMode) {
+        el.doorSelect.value =
+          state.selectedDoorId;
+
+        el.doorSelect.disabled =
+          true;
+
+        el.doorSelect.classList.add(
+          'locked-by-qr'
+        );
+
+        el.sourcePill.className =
+          'source-pill qr';
+
+        el.sourcePill.textContent =
+          `ช่องทาง: QR Code | ล็อกประตู ${
+            state.selectedDoorId || '-'
+          }`;
+
+      } else {
+        el.doorSelect.disabled =
+          false;
+
+        el.doorSelect.classList.remove(
+          'locked-by-qr'
+        );
+
+        el.sourcePill.className =
+          'source-pill home';
+
+        el.sourcePill.textContent =
+          'ช่องทาง: หน้าหลัก / เลือกประตูเอง';
+      }
+
+      updateProgress();
+    }
 
     function renderNames() {
       if (!state.names.length) {
-        el.inspectorSelect.innerHTML = '<option value="">ไม่พบรายชื่อในชีท Name</option>';
+        el.inspectorSelect.innerHTML =
+          '<option value="">' +
+          'ไม่พบรายชื่อในชีท Name' +
+          '</option>';
+
         return;
       }
 
       el.inspectorSelect.innerHTML = [
-        '<option value="">เลือกชื่อผู้บันทึก</option>',
-        ...state.names.map(name => `<option value="${escapeAttr(name)}">${escapeHtml(name)}</option>`)
+        '<option value="">' +
+        'เลือกชื่อผู้บันทึก' +
+        '</option>',
+
+        ...state.names.map(
+          name =>
+            `<option value="${escapeAttr(name)}">` +
+            `${escapeHtml(name)}` +
+            `</option>`
+        )
       ].join('');
     }
 
     function renderDoors() {
       if (!state.doors.length) {
-        el.doorSelect.innerHTML = '<option value="">ไม่พบข้อมูลประตูใน Sheet1</option>';
+        el.doorSelect.innerHTML =
+          '<option value="">' +
+          'ไม่พบข้อมูลประตูใน Sheet1' +
+          '</option>';
+
         return;
       }
 
       el.doorSelect.innerHTML = [
-        '<option value="">เลือกประตูหนีไฟ</option>',
+        '<option value="">' +
+        'เลือกประตูหนีไฟ' +
+        '</option>',
+
         ...state.doors.map(door => {
-          const text = `${door.doorId} | ${door.location || '-'}`;
-          return `<option value="${escapeAttr(door.doorId)}">${escapeHtml(text)}</option>`;
+          const text =
+            `${door.doorId} | ` +
+            `${door.location || '-'}`;
+
+          return (
+            `<option value="${escapeAttr(door.doorId)}">` +
+            `${escapeHtml(text)}` +
+            `</option>`
+          );
         })
       ].join('');
     }
 
     function renderChecklist() {
       if (!state.checklist.length) {
-        el.checklistWrap.innerHTML = '<div class="empty-state">ไม่พบรายการตรวจในชีท Checklist</div>';
+        el.checklistWrap.innerHTML =
+          '<div class="empty-state">' +
+          'ไม่พบรายการตรวจในชีท Checklist' +
+          '</div>';
+
         state.items = [];
         updateProgress();
+
         return;
       }
 
-      state.items = state.checklist.map(item => ({
-        no: item.no,
-        title: item.title,
-        normalValue: item.normalValue || 'ปกติ',
-        abnormalValue: item.abnormalValue || 'ผิดปกติ',
-        requireDetail: item.requireDetail !== false,
-        value: '',
-        detail: '',
-        finalText: '',
-        isAbnormal: false
-      }));
+      state.items =
+        state.checklist.map(item => ({
+          no: item.no,
+          title: item.title,
+          normalValue:
+            item.normalValue || 'ปกติ',
+          abnormalValue:
+            item.abnormalValue || 'ผิดปกติ',
+          requireDetail:
+            item.requireDetail !== false,
+          value: '',
+          detail: '',
+          finalText: '',
+          isAbnormal: false
+        }));
 
-      el.checklistWrap.innerHTML = state.items.map((item, index) => {
-        return `
-          <div class="check-item" data-index="${index}">
-            <div class="check-title-row">
-              <span class="check-no">${escapeHtml(item.no || index + 1)}</span>
-              <div class="check-title">${escapeHtml(item.title)}</div>
-              <span class="check-status-pill" data-status-index="${index}">ยังไม่เลือก</span>
-            </div>
+      el.checklistWrap.innerHTML =
+        state.items.map(
+          (item, index) => {
+            return `
+              <div
+                class="check-item"
+                data-index="${index}"
+              >
+                <div class="check-title-row">
+                  <span class="check-no">
+                    ${escapeHtml(
+                      item.no || index + 1
+                    )}
+                  </span>
 
-            <div class="check-actions">
-              <button class="choice-btn normal" type="button" data-type="normal" data-index="${index}">
-                ${escapeHtml(item.normalValue)}
-              </button>
+                  <div class="check-title">
+                    ${escapeHtml(item.title)}
+                  </div>
 
-              <button class="choice-btn abnormal" type="button" data-type="abnormal" data-index="${index}">
-                ${escapeHtml(item.abnormalValue)}
-              </button>
-            </div>
+                  <span
+                    class="check-status-pill"
+                    data-status-index="${index}"
+                  >
+                    ยังไม่เลือก
+                  </span>
+                </div>
 
-            <div class="detail-box">
-              <label>รายละเอียดกรณีผิดปกติ</label>
-              <textarea data-detail-index="${index}" placeholder="ระบุรายละเอียด เช่น มีสิ่งกีดขวาง / ไฟดับ / ชำรุด"></textarea>
-            </div>
-          </div>
-        `;
-      }).join('');
+                <div class="check-actions">
+                  <button
+                    class="choice-btn normal"
+                    type="button"
+                    data-type="normal"
+                    data-index="${index}"
+                  >
+                    ${escapeHtml(
+                      item.normalValue
+                    )}
+                  </button>
 
-      el.checklistWrap.querySelectorAll('.choice-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const index = Number(btn.dataset.index);
-          const type = btn.dataset.type;
-          setItemValue(index, type);
+                  <button
+                    class="choice-btn abnormal"
+                    type="button"
+                    data-type="abnormal"
+                    data-index="${index}"
+                  >
+                    ${escapeHtml(
+                      item.abnormalValue
+                    )}
+                  </button>
+                </div>
+
+                <div class="detail-box">
+                  <label>
+                    รายละเอียดกรณีผิดปกติ
+                  </label>
+
+                  <textarea
+                    data-detail-index="${index}"
+                    placeholder="ระบุรายละเอียด เช่น มีสิ่งกีดขวาง / ไฟดับ / ชำรุด"
+                  ></textarea>
+                </div>
+              </div>
+            `;
+          }
+        ).join('');
+
+      el.checklistWrap
+        .querySelectorAll(
+          '.choice-btn'
+        )
+        .forEach(button => {
+          button.addEventListener(
+            'click',
+            () => {
+              const index =
+                Number(
+                  button.dataset.index
+                );
+
+              const type =
+                button.dataset.type;
+
+              setItemValue(
+                index,
+                type
+              );
+            }
+          );
         });
-      });
 
-      el.checklistWrap.querySelectorAll('textarea[data-detail-index]').forEach(textarea => {
-        textarea.addEventListener('input', () => {
-          const index = Number(textarea.dataset.detailIndex);
-          if (!state.items[index]) return;
+      el.checklistWrap
+        .querySelectorAll(
+          'textarea[data-detail-index]'
+        )
+        .forEach(textarea => {
+          textarea.addEventListener(
+            'input',
+            () => {
+              const index =
+                Number(
+                  textarea.dataset.detailIndex
+                );
 
-          state.items[index].detail = textarea.value.trim();
-          updateItemFinalText(index);
-          updateProgress();
+              if (!state.items[index]) {
+                return;
+              }
+
+              state.items[index].detail =
+                textarea.value.trim();
+
+              updateItemFinalText(index);
+              updateProgress();
+            }
+          );
         });
-      });
 
       updateProgress();
     }
 
     function selectDoor(doorId) {
-      state.selectedDoorId = String(doorId || '').trim();
+      state.selectedDoorId =
+        String(doorId || '').trim();
 
-      const door = state.doors.find(d => String(d.doorId) === String(doorId));
+      const door =
+        state.doors.find(
+          item =>
+            String(item.doorId) ===
+            String(doorId)
+        );
 
       if (!door) {
         el.locationInput.value = '';
-        el.doorInfoBox.style.display = 'none';
-        el.viewDoorLink.href = CONFIG.ROUTES && CONFIG.ROUTES.VIEW ? CONFIG.ROUTES.VIEW : 'view.html';
+        el.doorInfoBox.style.display =
+          'none';
+
+        const viewRoute =
+          CONFIG.ROUTES &&
+          CONFIG.ROUTES.VIEW
+            ? CONFIG.ROUTES.VIEW
+            : 'view.html';
+
+        el.viewDoorLink.href =
+          viewRoute;
+
         updateProgress();
         return;
       }
 
-      el.locationInput.value = door.location || '';
-      el.doorInfoId.textContent = door.doorId;
-      el.doorInfoLocation.textContent = door.location || '-';
-      el.doorInfoBox.style.display = 'grid';
+      el.locationInput.value =
+        door.location || '';
 
-      const viewRoute = CONFIG.ROUTES && CONFIG.ROUTES.VIEW ? CONFIG.ROUTES.VIEW : 'view.html';
-      el.viewDoorLink.href = `${viewRoute}?doorId=${encodeURIComponent(door.doorId)}`;
+      el.doorInfoId.textContent =
+        door.doorId;
+
+      el.doorInfoLocation.textContent =
+        door.location || '-';
+
+      el.doorInfoBox.style.display =
+        'grid';
+
+      const viewRoute =
+        CONFIG.ROUTES &&
+        CONFIG.ROUTES.VIEW
+          ? CONFIG.ROUTES.VIEW
+          : 'view.html';
+
+      el.viewDoorLink.href =
+        `${viewRoute}?doorId=${
+          encodeURIComponent(
+            door.doorId
+          )
+        }`;
 
       updateProgress();
     }
 
-    function setItemValue(index, type) {
-      const item = state.items[index];
-      if (!item) return;
+    function setItemValue(
+      index,
+      type
+    ) {
+      const item =
+        state.items[index];
 
-      const itemEl = el.checklistWrap.querySelector(`.check-item[data-index="${index}"]`);
-      if (!itemEl) return;
+      if (!item) {
+        return;
+      }
 
-      const normalBtn = itemEl.querySelector('.choice-btn.normal');
-      const abnormalBtn = itemEl.querySelector('.choice-btn.abnormal');
-      const status = itemEl.querySelector(`[data-status-index="${index}"]`);
+      const itemElement =
+        el.checklistWrap.querySelector(
+          `.check-item[data-index="${index}"]`
+        );
 
-      normalBtn.classList.remove('active');
-      abnormalBtn.classList.remove('active');
-      itemEl.classList.remove('done', 'abnormal');
+      if (!itemElement) {
+        return;
+      }
+
+      const normalButton =
+        itemElement.querySelector(
+          '.choice-btn.normal'
+        );
+
+      const abnormalButton =
+        itemElement.querySelector(
+          '.choice-btn.abnormal'
+        );
+
+      const status =
+        itemElement.querySelector(
+          `[data-status-index="${index}"]`
+        );
+
+      normalButton.classList.remove(
+        'active'
+      );
+
+      abnormalButton.classList.remove(
+        'active'
+      );
+
+      itemElement.classList.remove(
+        'done',
+        'abnormal'
+      );
 
       if (status) {
-        status.className = 'check-status-pill';
+        status.className =
+          'check-status-pill';
       }
 
       if (type === 'normal') {
-        item.value = item.normalValue;
-        item.isAbnormal = false;
+        item.value =
+          item.normalValue;
+
+        item.isAbnormal =
+          false;
+
         item.detail = '';
 
-        normalBtn.classList.add('active');
-        itemEl.classList.add('done');
+        normalButton.classList.add(
+          'active'
+        );
+
+        itemElement.classList.add(
+          'done'
+        );
 
         if (status) {
           status.classList.add('ok');
           status.textContent = 'ปกติ';
         }
 
-        const textarea = itemEl.querySelector('textarea');
-        if (textarea) textarea.value = '';
+        const textarea =
+          itemElement.querySelector(
+            'textarea'
+          );
+
+        if (textarea) {
+          textarea.value = '';
+        }
 
       } else {
-        item.value = item.abnormalValue;
-        item.isAbnormal = true;
+        item.value =
+          item.abnormalValue;
 
-        abnormalBtn.classList.add('active');
-        itemEl.classList.add('abnormal');
+        item.isAbnormal =
+          true;
+
+        abnormalButton.classList.add(
+          'active'
+        );
+
+        itemElement.classList.add(
+          'abnormal'
+        );
 
         if (status) {
           status.classList.add('bad');
-          status.textContent = 'ผิดปกติ';
+          status.textContent =
+            'ผิดปกติ';
         }
 
-        const textarea = itemEl.querySelector('textarea');
+        const textarea =
+          itemElement.querySelector(
+            'textarea'
+          );
+
         if (textarea) {
-          setTimeout(() => textarea.focus(), 80);
+          setTimeout(
+            () => textarea.focus(),
+            80
+          );
         }
       }
 
@@ -1442,64 +2012,95 @@ viewDoorLink: document.getElementById('viewDoorLink'),
     }
 
     function updateItemFinalText(index) {
-      const item = state.items[index];
-      if (!item) return;
+      const item =
+        state.items[index];
 
-      let text = item.value || '';
-
-      if (item.isAbnormal && item.detail) {
-        text += ' - ' + item.detail;
+      if (!item) {
+        return;
       }
 
-      item.finalText = normalizeTrueText(text);
+      let text =
+        item.value || '';
+
+      if (
+        item.isAbnormal &&
+        item.detail
+      ) {
+        text +=
+          ' - ' + item.detail;
+      }
+
+      item.finalText =
+        normalizeTrueText(text);
     }
 
     function setAllNormal() {
-      if (!state.items.length) return;
+      if (!state.items.length) {
+        return;
+      }
 
-      state.items.forEach((item, index) => {
-        setItemValue(index, 'normal');
-      });
+      state.items.forEach(
+        (item, index) => {
+          setItemValue(
+            index,
+            'normal'
+          );
+        }
+      );
 
       Swal.fire({
         toast: true,
         position: 'top-end',
         icon: 'success',
-        title: 'ตั้งค่าปกติทั้งหมดแล้ว',
+        title:
+          'ตั้งค่าปกติทั้งหมดแล้ว',
         showConfirmButton: false,
         timer: 1000
       });
     }
 
     function scrollToFirstMissing() {
-      const firstMissingIndex = state.items.findIndex(item => !item.value);
+      const firstMissingIndex =
+        state.items.findIndex(
+          item => !item.value
+        );
 
       if (firstMissingIndex < 0) {
         Swal.fire({
           toast: true,
           position: 'top-end',
           icon: 'success',
-          title: 'เลือกครบทุกข้อแล้ว',
+          title:
+            'เลือกครบทุกข้อแล้ว',
           showConfirmButton: false,
           timer: 1000
         });
+
         return;
       }
 
-      focusItem(firstMissingIndex);
+      focusItem(
+        firstMissingIndex
+      );
     }
 
     function resetForm() {
       Swal.fire({
         icon: 'question',
         title: 'ล้างฟอร์ม?',
-        text: 'ต้องการล้างรายการตรวจ หมายเลขซีล GPS และภาพหลักฐานหรือไม่',
+        text:
+          'ต้องการล้างรายการตรวจ ' +
+          'หมายเลขซีล GPS ' +
+          'และภาพหลักฐานหรือไม่',
         showCancelButton: true,
         confirmButtonText: 'ล้าง',
         cancelButtonText: 'ยกเลิก',
         reverseButtons: true
       }).then(result => {
-        if (!result.isConfirmed) return;
+        if (!result.isConfirmed) {
+          return;
+        }
+
         resetAfterSave();
       });
     }
@@ -1507,59 +2108,132 @@ viewDoorLink: document.getElementById('viewDoorLink'),
     async function requestGps() {
       if (!navigator.geolocation) {
         state.gps = null;
-        updateGpsStatus(false, 'อุปกรณ์นี้ไม่รองรับ GPS');
-        showWarn('อุปกรณ์นี้ไม่รองรับ GPS');
+
+        updateGpsStatus(
+          false,
+          'อุปกรณ์นี้ไม่รองรับ GPS'
+        );
+
+        showWarn(
+          'อุปกรณ์นี้ไม่รองรับ GPS'
+        );
+
         updateProgress();
+
         return null;
       }
 
-      updateGpsStatus(false, 'กำลังขอตำแหน่ง GPS...');
+      updateGpsStatus(
+        false,
+        'กำลังขอตำแหน่ง GPS...'
+      );
 
       try {
-        const position = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 20000,
-            maximumAge: 0
-          });
-        });
+        const position =
+          await new Promise(
+            (resolve, reject) => {
+              navigator.geolocation
+                .getCurrentPosition(
+                  resolve,
+                  reject,
+                  {
+                    enableHighAccuracy:
+                      true,
+                    timeout: 20000,
+                    maximumAge: 0
+                  }
+                );
+            }
+          );
 
-        const coords = position.coords || {};
-        const accuracy = Number(coords.accuracy || 0);
+        const coords =
+          position.coords || {};
+
+        const accuracy =
+          Number(
+            coords.accuracy || 0
+          );
 
         state.gps = {
-          lat: String(coords.latitude || ''),
-          lng: String(coords.longitude || ''),
-          accuracy: String(coords.accuracy || ''),
-          timestamp: formatDateTimeForPayload(new Date()),
-          status: accuracy && accuracy > 100 ? 'GPS_LOW_ACCURACY' : 'GPS_OK'
+          lat:
+            String(
+              coords.latitude || ''
+            ),
+
+          lng:
+            String(
+              coords.longitude || ''
+            ),
+
+          accuracy:
+            String(
+              coords.accuracy || ''
+            ),
+
+          timestamp:
+            formatDateTimeForPayload(
+              new Date()
+            ),
+
+          status:
+            accuracy &&
+            accuracy > 100
+              ? 'GPS_LOW_ACCURACY'
+              : 'GPS_OK'
         };
 
         updateGpsStatus(
           true,
-          accuracy && accuracy > 100
-            ? `เปิด GPS แล้ว | ความแม่นยำต่ำ ${Math.round(accuracy)} ม.`
-            : `เปิด GPS แล้ว | แม่นยำ ${Math.round(accuracy) || '-'} ม.`
+          accuracy &&
+          accuracy > 100
+            ? `เปิด GPS แล้ว | ความแม่นยำต่ำ ${
+                Math.round(accuracy)
+              } ม.`
+            : `เปิด GPS แล้ว | แม่นยำ ${
+                Math.round(accuracy) ||
+                '-'
+              } ม.`
         );
 
         updateProgress();
+
         return state.gps;
 
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error(error);
 
-        let message = 'ไม่สามารถเปิด GPS ได้';
+        let message =
+          'ไม่สามารถเปิด GPS ได้';
 
-        if (err && err.code === 1) {
-          message = 'ผู้ใช้งานปฏิเสธการเปิด GPS';
-        } else if (err && err.code === 2) {
-          message = 'ไม่สามารถระบุตำแหน่ง GPS ได้';
-        } else if (err && err.code === 3) {
-          message = 'ขอ GPS เกินเวลาที่กำหนด กรุณาลองใหม่';
+        if (
+          error &&
+          error.code === 1
+        ) {
+          message =
+            'ผู้ใช้งานปฏิเสธการเปิด GPS';
+
+        } else if (
+          error &&
+          error.code === 2
+        ) {
+          message =
+            'ไม่สามารถระบุตำแหน่ง GPS ได้';
+
+        } else if (
+          error &&
+          error.code === 3
+        ) {
+          message =
+            'ขอ GPS เกินเวลาที่กำหนด กรุณาลองใหม่';
         }
 
         state.gps = null;
-        updateGpsStatus(false, message);
+
+        updateGpsStatus(
+          false,
+          message
+        );
+
         updateProgress();
         showWarn(message);
 
@@ -1567,21 +2241,62 @@ viewDoorLink: document.getElementById('viewDoorLink'),
       }
     }
 
-    function updateGpsStatus(ok, text) {
-      el.gpsStatusBox.classList.toggle('ok', !!ok);
-      el.gpsStatusBox.classList.toggle('bad', !ok);
-      el.gpsStatusText.textContent = text || (ok ? 'พร้อมใช้งาน' : 'ยังไม่ได้เปิด GPS');
+    function updateGpsStatus(
+      ok,
+      text
+    ) {
+      el.gpsStatusBox.classList.toggle(
+        'ok',
+        Boolean(ok)
+      );
+
+      el.gpsStatusBox.classList.toggle(
+        'bad',
+        !ok
+      );
+
+      el.gpsStatusText.textContent =
+        text ||
+        (
+          ok
+            ? 'พร้อมใช้งาน'
+            : 'ยังไม่ได้เปิด GPS'
+        );
     }
 
-    function updateEvidenceStatus(ok, text) {
-      el.evidenceStatusBox.classList.toggle('ok', !!ok);
-      el.evidenceStatusBox.classList.toggle('bad', !ok);
-      el.evidenceStatusText.textContent = text || (ok ? 'มีภาพหลักฐานแล้ว' : 'ยังไม่มีภาพหลักฐาน');
+    function updateEvidenceStatus(
+      ok,
+      text
+    ) {
+      el.evidenceStatusBox.classList.toggle(
+        'ok',
+        Boolean(ok)
+      );
+
+      el.evidenceStatusBox.classList.toggle(
+        'bad',
+        !ok
+      );
+
+      el.evidenceStatusText.textContent =
+        text ||
+        (
+          ok
+            ? 'มีภาพหลักฐานแล้ว'
+            : 'ยังไม่มีภาพหลักฐาน'
+        );
     }
 
     async function openWebCamera() {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showWarn('เบราว์เซอร์นี้ไม่รองรับการเปิดกล้องในเว็บ ให้ใช้ปุ่ม “ใช้กล้องของอุปกรณ์”');
+      if (
+        !navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia
+      ) {
+        showWarn(
+          'เบราว์เซอร์นี้ไม่รองรับการเปิดกล้องในเว็บ ' +
+          'ให้ใช้ปุ่ม “ใช้กล้องของอุปกรณ์”'
+        );
+
         return;
       }
 
@@ -1589,24 +2304,42 @@ viewDoorLink: document.getElementById('viewDoorLink'),
         stopCamera();
 
         const video = {
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+          width: {
+            ideal: 1280
+          },
+          height: {
+            ideal: 720
+          }
         };
 
         if (state.selectedCameraId) {
-          video.deviceId = { exact: state.selectedCameraId };
+          video.deviceId = {
+            exact:
+              state.selectedCameraId
+          };
+
         } else {
-          video.facingMode = { ideal: 'environment' };
+          video.facingMode = {
+            ideal: 'environment'
+          };
         }
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video,
-          audio: false
-        });
+        const stream =
+          await navigator.mediaDevices
+            .getUserMedia({
+              video,
+              audio: false
+            });
 
-        state.cameraStream = stream;
-        el.cameraVideo.srcObject = stream;
-        el.cameraBox.classList.add('show');
+        state.cameraStream =
+          stream;
+
+        el.cameraVideo.srcObject =
+          stream;
+
+        el.cameraBox.classList.add(
+          'show'
+        );
 
         await el.cameraVideo.play();
         await loadCameraDevices();
@@ -1620,113 +2353,207 @@ viewDoorLink: document.getElementById('viewDoorLink'),
           timer: 1200
         });
 
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error(error);
         stopCamera();
 
         Swal.fire({
           icon: 'warning',
-          title: 'เปิดกล้องในเว็บไม่ได้',
-          text: 'ให้ลองกด “ใช้กล้องของอุปกรณ์” แทน',
+          title:
+            'เปิดกล้องในเว็บไม่ได้',
+          text:
+            'ให้ลองกด “ใช้กล้องของอุปกรณ์” แทน',
           confirmButtonText: 'ตกลง'
         });
       }
     }
 
     async function loadCameraDevices() {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+      if (
+        !navigator.mediaDevices ||
+        !navigator.mediaDevices.enumerateDevices
+      ) {
         return;
       }
 
       try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        state.cameras = devices.filter(device => device.kind === 'videoinput');
+        const devices =
+          await navigator.mediaDevices
+            .enumerateDevices();
 
-        const currentValue = el.cameraSelect.value || state.selectedCameraId || '';
+        state.cameras =
+          devices.filter(
+            device =>
+              device.kind ===
+              'videoinput'
+          );
 
-        el.cameraSelect.innerHTML = '<option value="">ใช้กล้องหลัง / กล้องหลัก</option>';
+        const currentValue =
+          el.cameraSelect.value ||
+          state.selectedCameraId ||
+          '';
 
-        state.cameras.forEach((camera, index) => {
-          const opt = document.createElement('option');
-          opt.value = camera.deviceId;
-          opt.textContent = camera.label || `กล้อง ${index + 1}`;
-          el.cameraSelect.appendChild(opt);
-        });
+        el.cameraSelect.innerHTML =
+          '<option value="">' +
+          'ใช้กล้องหลัง / กล้องหลัก' +
+          '</option>';
+
+        state.cameras.forEach(
+          (camera, index) => {
+            const option =
+              document.createElement(
+                'option'
+              );
+
+            option.value =
+              camera.deviceId;
+
+            option.textContent =
+              camera.label ||
+              `กล้อง ${index + 1}`;
+
+            el.cameraSelect.appendChild(
+              option
+            );
+          }
+        );
 
         if (currentValue) {
-          el.cameraSelect.value = currentValue;
+          el.cameraSelect.value =
+            currentValue;
         }
 
-      } catch (err) {
-        console.warn('loadCameraDevices failed', err);
+      } catch (error) {
+        console.warn(
+          'loadCameraDevices failed',
+          error
+        );
       }
     }
 
     async function capturePhotoFromVideo() {
-      if (!state.cameraStream || !el.cameraVideo.videoWidth) {
-        showWarn('กรุณาเปิดกล้องก่อนถ่ายภาพ');
+      if (
+        !state.cameraStream ||
+        !el.cameraVideo.videoWidth
+      ) {
+        showWarn(
+          'กรุณาเปิดกล้องก่อนถ่ายภาพ'
+        );
+
         return;
       }
 
       try {
-        const dataUrl = await compressVideoFrameToJpeg(el.cameraVideo, 1280, 0.76);
+        const dataUrl =
+          await compressVideoFrameToJpeg(
+            el.cameraVideo,
+            1280,
+            0.76
+          );
 
         state.evidenceImage = {
           base64: dataUrl,
           mimeType: 'image/jpeg',
-          filename: `fire_exit_evidence_${Date.now()}.jpg`
+          filename:
+            `fire_exit_evidence_${
+              Date.now()
+            }.jpg`
         };
 
-        el.evidencePreview.src = dataUrl;
-        el.evidencePreviewWrap.classList.add('show');
+        el.evidencePreview.src =
+          dataUrl;
 
-        updateEvidenceStatus(true, 'มีภาพหลักฐานแล้ว');
+        el.evidencePreviewWrap
+          .classList.add('show');
+
+        updateEvidenceStatus(
+          true,
+          'มีภาพหลักฐานแล้ว'
+        );
+
         updateProgress();
 
         Swal.fire({
           toast: true,
           position: 'top-end',
           icon: 'success',
-          title: 'ถ่ายภาพหลักฐานแล้ว',
+          title:
+            'ถ่ายภาพหลักฐานแล้ว',
           showConfirmButton: false,
           timer: 1200
         });
 
-      } catch (err) {
-        console.error(err);
-        showError(err.message || 'ถ่ายภาพไม่สำเร็จ');
+      } catch (error) {
+        console.error(error);
+
+        showError(
+          error.message ||
+          'ถ่ายภาพไม่สำเร็จ'
+        );
       }
     }
 
-    async function handleEvidenceFileInput(event) {
-      const file = event.target.files && event.target.files[0];
+    async function handleEvidenceFileInput(
+      event
+    ) {
+      const file =
+        event.target.files &&
+        event.target.files[0];
 
-      if (!file) return;
+      if (!file) {
+        return;
+      }
 
-      if (!String(file.type || '').startsWith('image/')) {
-        showWarn('กรุณาเลือกไฟล์รูปภาพเท่านั้น');
+      if (
+        !String(file.type || '')
+          .startsWith('image/')
+      ) {
+        showWarn(
+          'กรุณาเลือกไฟล์รูปภาพเท่านั้น'
+        );
+
         event.target.value = '';
         return;
       }
 
       try {
-        const dataUrl = await compressImageFileToJpeg(file, 1280, 0.76);
+        const dataUrl =
+          await compressImageFileToJpeg(
+            file,
+            1280,
+            0.76
+          );
 
         state.evidenceImage = {
           base64: dataUrl,
           mimeType: 'image/jpeg',
-          filename: `fire_exit_evidence_${Date.now()}.jpg`
+          filename:
+            `fire_exit_evidence_${
+              Date.now()
+            }.jpg`
         };
 
-        el.evidencePreview.src = dataUrl;
-        el.evidencePreviewWrap.classList.add('show');
+        el.evidencePreview.src =
+          dataUrl;
 
-        updateEvidenceStatus(true, 'มีภาพหลักฐานแล้ว');
+        el.evidencePreviewWrap
+          .classList.add('show');
+
+        updateEvidenceStatus(
+          true,
+          'มีภาพหลักฐานแล้ว'
+        );
+
         updateProgress();
 
-      } catch (err) {
-        console.error(err);
-        showError(err.message || 'เตรียมภาพหลักฐานไม่สำเร็จ');
+      } catch (error) {
+        console.error(error);
+
+        showError(
+          error.message ||
+          'เตรียมภาพหลักฐานไม่สำเร็จ'
+        );
+
       } finally {
         event.target.value = '';
       }
@@ -1734,210 +2561,523 @@ viewDoorLink: document.getElementById('viewDoorLink'),
 
     function stopCamera() {
       if (state.cameraStream) {
-        state.cameraStream.getTracks().forEach(track => {
-          try {
-            track.stop();
-          } catch (err) {}
-        });
+        state.cameraStream
+          .getTracks()
+          .forEach(track => {
+            try {
+              track.stop();
+            } catch (error) {}
+          });
       }
 
       state.cameraStream = null;
 
       if (el.cameraVideo) {
-        el.cameraVideo.srcObject = null;
+        el.cameraVideo.srcObject =
+          null;
       }
 
       if (el.cameraBox) {
-        el.cameraBox.classList.remove('show');
+        el.cameraBox.classList.remove(
+          'show'
+        );
       }
     }
 
-    function compressVideoFrameToJpeg(video, maxWidth, quality) {
-      return new Promise((resolve, reject) => {
-        try {
-          const sourceWidth = video.videoWidth;
-          const sourceHeight = video.videoHeight;
+    function compressVideoFrameToJpeg(
+      video,
+      maxWidth,
+      quality
+    ) {
+      return new Promise(
+        (resolve, reject) => {
+          try {
+            const sourceWidth =
+              video.videoWidth;
 
-          if (!sourceWidth || !sourceHeight) {
-            reject(new Error('ไม่พบภาพจากกล้อง'));
-            return;
+            const sourceHeight =
+              video.videoHeight;
+
+            if (
+              !sourceWidth ||
+              !sourceHeight
+            ) {
+              reject(
+                new Error(
+                  'ไม่พบภาพจากกล้อง'
+                )
+              );
+
+              return;
+            }
+
+            const scale =
+              Math.min(
+                1,
+                Number(
+                  maxWidth || 1280
+                ) / sourceWidth
+              );
+
+            const targetWidth =
+              Math.round(
+                sourceWidth * scale
+              );
+
+            const targetHeight =
+              Math.round(
+                sourceHeight * scale
+              );
+
+            const canvas =
+              document.createElement(
+                'canvas'
+              );
+
+            canvas.width =
+              targetWidth;
+
+            canvas.height =
+              targetHeight;
+
+            const context =
+              canvas.getContext('2d');
+
+            context.drawImage(
+              video,
+              0,
+              0,
+              targetWidth,
+              targetHeight
+            );
+
+            resolve(
+              canvas.toDataURL(
+                'image/jpeg',
+                Number(
+                  quality || 0.76
+                )
+              )
+            );
+
+          } catch (error) {
+            reject(error);
           }
-
-          const scale = Math.min(1, Number(maxWidth || 1280) / sourceWidth);
-          const targetWidth = Math.round(sourceWidth * scale);
-          const targetHeight = Math.round(sourceHeight * scale);
-
-          const canvas = document.createElement('canvas');
-          canvas.width = targetWidth;
-          canvas.height = targetHeight;
-
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(video, 0, 0, targetWidth, targetHeight);
-
-          resolve(canvas.toDataURL('image/jpeg', Number(quality || 0.76)));
-
-        } catch (err) {
-          reject(err);
         }
-      });
+      );
     }
 
-    function compressImageFileToJpeg(file, maxWidth, quality) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
+    function compressImageFileToJpeg(
+      file,
+      maxWidth,
+      quality
+    ) {
+      return new Promise(
+        (resolve, reject) => {
+          const image =
+            new Image();
 
-        img.onload = () => {
-          try {
-            const sourceWidth = img.naturalWidth || img.width;
-            const sourceHeight = img.naturalHeight || img.height;
+          image.onload = () => {
+            try {
+              const sourceWidth =
+                image.naturalWidth ||
+                image.width;
 
-            const scale = Math.min(1, Number(maxWidth || 1280) / sourceWidth);
-            const targetWidth = Math.round(sourceWidth * scale);
-            const targetHeight = Math.round(sourceHeight * scale);
+              const sourceHeight =
+                image.naturalHeight ||
+                image.height;
 
-            const canvas = document.createElement('canvas');
-            canvas.width = targetWidth;
-            canvas.height = targetHeight;
+              const scale =
+                Math.min(
+                  1,
+                  Number(
+                    maxWidth || 1280
+                  ) / sourceWidth
+                );
 
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+              const targetWidth =
+                Math.round(
+                  sourceWidth * scale
+                );
 
-            resolve(canvas.toDataURL('image/jpeg', Number(quality || 0.76)));
+              const targetHeight =
+                Math.round(
+                  sourceHeight * scale
+                );
 
-          } catch (err) {
-            reject(err);
-          } finally {
-            URL.revokeObjectURL(img.src);
-          }
-        };
+              const canvas =
+                document.createElement(
+                  'canvas'
+                );
 
-        img.onerror = () => reject(new Error('อ่านรูปภาพไม่สำเร็จ'));
-        img.src = URL.createObjectURL(file);
-      });
+              canvas.width =
+                targetWidth;
+
+              canvas.height =
+                targetHeight;
+
+              const context =
+                canvas.getContext('2d');
+
+              context.drawImage(
+                image,
+                0,
+                0,
+                targetWidth,
+                targetHeight
+              );
+
+              resolve(
+                canvas.toDataURL(
+                  'image/jpeg',
+                  Number(
+                    quality || 0.76
+                  )
+                )
+              );
+
+            } catch (error) {
+              reject(error);
+
+            } finally {
+              URL.revokeObjectURL(
+                image.src
+              );
+            }
+          };
+
+          image.onerror = () => {
+            reject(
+              new Error(
+                'อ่านรูปภาพไม่สำเร็จ'
+              )
+            );
+          };
+
+          image.src =
+            URL.createObjectURL(file);
+        }
+      );
     }
 
     async function saveInspection() {
-      const doorId = String(el.doorSelect.value || state.selectedDoorId || '').trim();
-      const location = String(el.locationInput.value || '').trim();
-      const sealNo = String(el.sealNoInput.value || '').trim();
-      const inspector = String(el.inspectorSelect.value || '').trim();
+      const doorId =
+        String(
+          el.doorSelect.value ||
+          state.selectedDoorId ||
+          ''
+        ).trim();
 
-      if (!state.gps || !state.gps.lat || !state.gps.lng) {
-        const gps = await requestGps();
+      const location =
+        String(
+          el.locationInput.value ||
+          ''
+        ).trim();
 
-        if (!gps || !gps.lat || !gps.lng) {
-          showMissingList(['เปิด GPS และอนุญาตตำแหน่งก่อนบันทึก']);
+      const sealNo =
+        String(
+          el.sealNoInput.value ||
+          ''
+        ).trim();
+
+      const inspector =
+        String(
+          el.inspectorSelect.value ||
+          ''
+        ).trim();
+
+      if (
+        !state.gps ||
+        !state.gps.lat ||
+        !state.gps.lng
+      ) {
+        const gps =
+          await requestGps();
+
+        if (
+          !gps ||
+          !gps.lat ||
+          !gps.lng
+        ) {
+          showMissingList([
+            'เปิด GPS และอนุญาตตำแหน่งก่อนบันทึก'
+          ]);
+
           return;
         }
       }
 
-      const missing = getFormMissingList();
+      const missing =
+        getFormMissingList();
 
       if (missing.length) {
         showMissingList(missing);
         return;
       }
 
-      const abnormalCount = state.items.filter(item => item.isAbnormal).length;
+      const abnormalCount =
+        state.items.filter(
+          item => item.isAbnormal
+        ).length;
 
-      const confirm = await Swal.fire({
-        icon: abnormalCount ? 'warning' : 'question',
-        title: 'ยืนยันบันทึกผลตรวจ?',
-        html: `
-          <div style="text-align:left;line-height:1.7;">
-            <b>ประตู:</b> ${escapeHtml(doorId)}<br>
-            <b>จุดติดตั้ง:</b> ${escapeHtml(location || '-')}<br>
-            <b>หมายเลขซีล:</b> ${escapeHtml(sealNo)}<br>
-            <b>ผู้บันทึก:</b> ${escapeHtml(inspector)}<br>
-            <b>ช่องทาง:</b> ${state.inspectSource === 'qr' ? 'QR Code' : 'หน้าหลัก'}<br>
-            <b>GPS:</b> ${escapeHtml(state.gps ? state.gps.status || 'พร้อม' : 'ไม่พร้อม')}<br>
-            <b>ภาพหลักฐาน:</b> ${state.evidenceImage ? 'มีแล้ว' : 'ไม่มี'}<br>
-            <b>ผิดปกติ:</b> ${abnormalCount} รายการ
-          </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'บันทึก',
-        cancelButtonText: 'ยกเลิก',
-        reverseButtons: true
-      });
+      const confirmation =
+        await Swal.fire({
+          icon:
+            abnormalCount
+              ? 'warning'
+              : 'question',
 
-      if (!confirm.isConfirmed) return;
+          title:
+            'ยืนยันบันทึกผลตรวจ?',
+
+          html: `
+            <div style="text-align:left;line-height:1.7;">
+              <b>ประตู:</b>
+              ${escapeHtml(doorId)}
+              <br>
+
+              <b>จุดติดตั้ง:</b>
+              ${escapeHtml(location || '-')}
+              <br>
+
+              <b>หมายเลขซีล:</b>
+              ${escapeHtml(sealNo)}
+              <br>
+
+              <b>ผู้บันทึก:</b>
+              ${escapeHtml(inspector)}
+              <br>
+
+              <b>ช่องทาง:</b>
+              ${
+                state.inspectSource === 'qr'
+                  ? 'QR Code'
+                  : 'หน้าหลัก'
+              }
+              <br>
+
+              <b>GPS:</b>
+              ${
+                escapeHtml(
+                  state.gps
+                    ? state.gps.status ||
+                      'พร้อม'
+                    : 'ไม่พร้อม'
+                )
+              }
+              <br>
+
+              <b>ภาพหลักฐาน:</b>
+              ${
+                state.evidenceImage
+                  ? 'มีแล้ว'
+                  : 'ไม่มี'
+              }
+              <br>
+
+              <b>ผิดปกติ:</b>
+              ${abnormalCount} รายการ
+            </div>
+          `,
+
+          showCancelButton: true,
+          confirmButtonText: 'บันทึก',
+          cancelButtonText: 'ยกเลิก',
+          reverseButtons: true
+        });
+
+      if (!confirmation.isConfirmed) {
+        return;
+      }
 
       const payload = {
         doorId,
         location,
         sealNo,
         inspector,
-        device: navigator.userAgent || '',
-        inspectSource: state.inspectSource,
+
+        device:
+          navigator.userAgent || '',
+
+        inspectSource:
+          state.inspectSource,
 
         gps: {
-          lat: state.gps.lat,
-          lng: state.gps.lng,
-          accuracy: state.gps.accuracy || '',
-          timestamp: state.gps.timestamp || formatDateTimeForPayload(new Date()),
-          status: state.gps.status || ''
+          lat:
+            state.gps.lat,
+
+          lng:
+            state.gps.lng,
+
+          accuracy:
+            state.gps.accuracy || '',
+
+          timestamp:
+            state.gps.timestamp ||
+            formatDateTimeForPayload(
+              new Date()
+            ),
+
+          status:
+            state.gps.status || ''
         },
 
         evidenceImage: {
-          base64: state.evidenceImage.base64,
-          mimeType: state.evidenceImage.mimeType || 'image/jpeg',
-          filename: state.evidenceImage.filename || `fire_exit_evidence_${Date.now()}.jpg`
+          base64:
+            state.evidenceImage.base64,
+
+          mimeType:
+            state.evidenceImage.mimeType ||
+            'image/jpeg',
+
+          filename:
+            state.evidenceImage.filename ||
+            `fire_exit_evidence_${
+              Date.now()
+            }.jpg`
         },
 
-        items: state.items.map(item => ({
-          no: item.no,
-          title: item.title,
-          value: item.value,
-          detail: item.detail || '',
-          finalText: item.finalText || item.value,
-          isAbnormal: !!item.isAbnormal
-        }))
+        items:
+          state.items.map(item => ({
+            no: item.no,
+            title: item.title,
+            value: item.value,
+            detail:
+              item.detail || '',
+            finalText:
+              item.finalText ||
+              item.value,
+            isAbnormal:
+              Boolean(
+                item.isAbnormal
+              )
+          }))
       };
 
       try {
-        if (!API || typeof API.saveInspection !== 'function') {
-          throw new Error('ไม่พบ API.saveInspection กรุณาตรวจสอบ api.js');
+        if (
+          !API ||
+          typeof API.saveInspection !==
+            'function'
+        ) {
+          throw new Error(
+            'ไม่พบ API.saveInspection ' +
+            'กรุณาตรวจสอบ api.js'
+          );
         }
 
         setFormDisabled(true);
-        setApiStatus('pending', 'กำลังบันทึกข้อมูลและอัปโหลดภาพหลักฐาน...');
+
+        setApiStatus(
+          'pending',
+          'กำลังบันทึกข้อมูลและอัปโหลดภาพหลักฐาน...'
+        );
 
         Swal.fire({
           title: 'กำลังบันทึก',
-          html: 'กำลังบันทึกผลตรวจ GPS และภาพหลักฐาน กรุณารอสักครู่...',
+          html:
+            'กำลังบันทึกผลตรวจ GPS ' +
+            'และภาพหลักฐาน กรุณารอสักครู่...',
           allowOutsideClick: false,
           allowEscapeKey: false,
-          didOpen: () => Swal.showLoading()
+          didOpen:
+            () => Swal.showLoading()
         });
 
-        const result = await API.saveInspection(payload);
+        const result =
+          await API.saveInspection(
+            payload
+          );
 
         stopCamera();
 
         await Swal.fire({
           icon: 'success',
           title: 'บันทึกสำเร็จ',
+
           html: `
             <div style="text-align:left;line-height:1.7;">
-              <b>ประตู:</b> ${escapeHtml(result.doorId || doorId)}<br>
-              <b>เวลา:</b> ${escapeHtml(result.timestamp || '-')}<br>
-              <b>ผลรวม:</b> ${escapeHtml(result.result || '-')}<br>
-              <b>GPS:</b> ${escapeHtml(result.gps && result.gps.status ? result.gps.status : 'บันทึกแล้ว')}<br>
-              <b>ช่องทาง:</b> ${escapeHtml(result.inspectSource || state.inspectSource)}<br>
-              <b>รูปหลักฐาน ID:</b> ${escapeHtml(result.evidence && result.evidence.fileId ? result.evidence.fileId : '-')}
+              <b>ประตู:</b>
+              ${
+                escapeHtml(
+                  result.doorId ||
+                  doorId
+                )
+              }
+              <br>
+
+              <b>เวลา:</b>
+              ${
+                escapeHtml(
+                  result.timestamp ||
+                  '-'
+                )
+              }
+              <br>
+
+              <b>ผลรวม:</b>
+              ${
+                escapeHtml(
+                  result.result ||
+                  '-'
+                )
+              }
+              <br>
+
+              <b>GPS:</b>
+              ${
+                escapeHtml(
+                  result.gps &&
+                  result.gps.status
+                    ? result.gps.status
+                    : 'บันทึกแล้ว'
+                )
+              }
+              <br>
+
+              <b>ช่องทาง:</b>
+              ${
+                escapeHtml(
+                  result.inspectSource ||
+                  state.inspectSource
+                )
+              }
+              <br>
+
+              <b>รูปหลักฐาน ID:</b>
+              ${
+                escapeHtml(
+                  result.evidence &&
+                  result.evidence.fileId
+                    ? result.evidence.fileId
+                    : '-'
+                )
+              }
             </div>
           `,
+
           confirmButtonText: 'ตกลง'
         });
 
         resetAfterSave();
-        setApiStatus('ok', 'บันทึกสำเร็จ');
 
-      } catch (err) {
-        console.error(err);
-        setApiStatus('danger', 'บันทึกไม่สำเร็จ');
-        showError(err.message || 'บันทึกไม่สำเร็จ');
+        setApiStatus(
+          'ok',
+          'บันทึกสำเร็จ'
+        );
+
+      } catch (error) {
+        console.error(error);
+
+        setApiStatus(
+          'danger',
+          'บันทึกไม่สำเร็จ'
+        );
+
+        showError(
+          error.message ||
+          'บันทึกไม่สำเร็จ'
+        );
 
       } finally {
         setFormDisabled(false);
@@ -1948,49 +3088,112 @@ viewDoorLink: document.getElementById('viewDoorLink'),
     function getFormMissingList() {
       const missing = [];
 
-      const doorId = String(el.doorSelect.value || state.selectedDoorId || '').trim();
-      const inspector = String(el.inspectorSelect.value || '').trim();
-      const sealNo = String(el.sealNoInput.value || '').trim();
+      const doorId =
+        String(
+          el.doorSelect.value ||
+          state.selectedDoorId ||
+          ''
+        ).trim();
 
-      if (!doorId) missing.push('เลือกหมายเลขประตูหนีไฟ');
-      if (!inspector) missing.push('เลือกชื่อผู้บันทึก');
-      if (!sealNo) missing.push('กรอกหมายเลขซีล');
+      const inspector =
+        String(
+          el.inspectorSelect.value ||
+          ''
+        ).trim();
 
-      if (sealNo && !/^[0-9]+$/.test(sealNo)) {
-        missing.push('หมายเลขซีลต้องเป็นตัวเลขเท่านั้น');
+      const sealNo =
+        String(
+          el.sealNoInput.value ||
+          ''
+        ).trim();
+
+      if (!doorId) {
+        missing.push(
+          'เลือกหมายเลขประตูหนีไฟ'
+        );
       }
 
-      if (!state.gps || !state.gps.lat || !state.gps.lng) {
-        missing.push('เปิด GPS และอนุญาตตำแหน่ง');
+      if (!inspector) {
+        missing.push(
+          'เลือกชื่อผู้บันทึก'
+        );
       }
 
-      if (!state.evidenceImage || !state.evidenceImage.base64) {
-        missing.push('ถ่ายภาพหลักฐาน QR Code / ประตู / หมายเลขซีล อย่างน้อย 1 ภาพ');
+      if (!sealNo) {
+        missing.push(
+          'กรอกหมายเลขซีล'
+        );
       }
 
-      const validation = validateItems();
+      if (
+        sealNo &&
+        !/^[0-9]+$/.test(sealNo)
+      ) {
+        missing.push(
+          'หมายเลขซีลต้องเป็นตัวเลขเท่านั้น'
+        );
+      }
+
+      if (
+        !state.gps ||
+        !state.gps.lat ||
+        !state.gps.lng
+      ) {
+        missing.push(
+          'เปิด GPS และอนุญาตตำแหน่ง'
+        );
+      }
+
+      if (
+        !state.evidenceImage ||
+        !state.evidenceImage.base64
+      ) {
+        missing.push(
+          'ถ่ายภาพหลักฐาน QR Code / ประตู / หมายเลขซีล อย่างน้อย 1 ภาพ'
+        );
+      }
+
+      const validation =
+        validateItems();
 
       if (!validation.ok) {
-        missing.push(validation.message);
+        missing.push(
+          validation.message
+        );
       }
 
       return missing;
     }
 
     function showMissingList(items) {
-      const list = Array.isArray(items) ? items.filter(Boolean) : [];
+      const list =
+        Array.isArray(items)
+          ? items.filter(Boolean)
+          : [];
 
       Swal.fire({
         icon: 'warning',
         title: 'ยังบันทึกไม่ได้',
+
         html: `
           <div style="text-align:left;line-height:1.65">
-            <div style="margin-bottom:8px;">กรุณาดำเนินการให้ครบก่อนบันทึก:</div>
+            <div style="margin-bottom:8px;">
+              กรุณาดำเนินการให้ครบก่อนบันทึก:
+            </div>
+
             <ul style="margin:0;padding-left:20px;">
-              ${list.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+              ${
+                list.map(
+                  item =>
+                    `<li>${
+                      escapeHtml(item)
+                    }</li>`
+                ).join('')
+              }
             </ul>
           </div>
         `,
+
         confirmButtonText: 'ตกลง'
       });
     }
@@ -2010,11 +3213,20 @@ viewDoorLink: document.getElementById('viewDoorLink'),
       state.gps = null;
       state.evidenceImage = null;
 
-      updateGpsStatus(false, 'ยังไม่ได้เปิด GPS');
-      updateEvidenceStatus(false, 'ยังไม่มีภาพหลักฐาน');
+      updateGpsStatus(
+        false,
+        'ยังไม่ได้เปิด GPS'
+      );
+
+      updateEvidenceStatus(
+        false,
+        'ยังไม่มีภาพหลักฐาน'
+      );
 
       el.evidencePreview.src = '';
-      el.evidencePreviewWrap.classList.remove('show');
+
+      el.evidencePreviewWrap
+        .classList.remove('show');
 
       renderChecklist();
       updateProgress();
@@ -2025,131 +3237,319 @@ viewDoorLink: document.getElementById('viewDoorLink'),
       if (!state.items.length) {
         return {
           ok: false,
-          message: 'ไม่พบรายการตรวจ',
+          message:
+            'ไม่พบรายการตรวจ',
           index: -1
         };
       }
 
-      for (let i = 0; i < state.items.length; i++) {
-        const item = state.items[i];
+      for (
+        let index = 0;
+        index < state.items.length;
+        index++
+      ) {
+        const item =
+          state.items[index];
 
         if (!item.value) {
           return {
             ok: false,
-            message: `กรุณาเลือกผลตรวจข้อ ${item.no || i + 1}: ${item.title}`,
-            index: i
+            message:
+              `กรุณาเลือกผลตรวจข้อ ${
+                item.no || index + 1
+              }: ${item.title}`,
+            index
           };
         }
 
-        if (item.isAbnormal && item.requireDetail && !String(item.detail || '').trim()) {
+        if (
+          item.isAbnormal &&
+          item.requireDetail &&
+          !String(
+            item.detail || ''
+          ).trim()
+        ) {
           return {
             ok: false,
-            message: `กรุณาระบุรายละเอียดผิดปกติข้อ ${item.no || i + 1}: ${item.title}`,
-            index: i
+            message:
+              `กรุณาระบุรายละเอียดผิดปกติข้อ ${
+                item.no || index + 1
+              }: ${item.title}`,
+            index
           };
         }
       }
 
-      return { ok: true };
+      return {
+        ok: true
+      };
     }
 
     function focusItem(index) {
-      if (index < 0) return;
+      if (index < 0) {
+        return;
+      }
 
-      const itemEl = el.checklistWrap.querySelector(`.check-item[data-index="${index}"]`);
-      if (!itemEl) return;
+      const itemElement =
+        el.checklistWrap.querySelector(
+          `.check-item[data-index="${index}"]`
+        );
 
-      itemEl.scrollIntoView({
+      if (!itemElement) {
+        return;
+      }
+
+      itemElement.scrollIntoView({
         behavior: 'smooth',
         block: 'center'
       });
 
-      const textarea = itemEl.querySelector('textarea');
-      if (textarea && state.items[index].isAbnormal) {
-        setTimeout(() => textarea.focus(), 350);
+      const textarea =
+        itemElement.querySelector(
+          'textarea'
+        );
+
+      if (
+        textarea &&
+        state.items[index].isAbnormal
+      ) {
+        setTimeout(
+          () => textarea.focus(),
+          350
+        );
       }
     }
 
     function updateProgress() {
-      const doorReady = !!String(el.doorSelect.value || state.selectedDoorId || '').trim();
-      const gpsReady = !!(state.gps && state.gps.lat && state.gps.lng);
-      const evidenceReady = !!(state.evidenceImage && state.evidenceImage.base64);
+      const doorReady =
+        Boolean(
+          String(
+            el.doorSelect.value ||
+            state.selectedDoorId ||
+            ''
+          ).trim()
+        );
 
-      const total = state.items.length;
-      const checked = state.items.filter(item => !!item.value).length;
+      const gpsReady =
+        Boolean(
+          state.gps &&
+          state.gps.lat &&
+          state.gps.lng
+        );
+
+      const evidenceReady =
+        Boolean(
+          state.evidenceImage &&
+          state.evidenceImage.base64
+        );
+
+      const total =
+        state.items.length;
+
+      const checked =
+        state.items.filter(
+          item => Boolean(item.value)
+        ).length;
 
       const parts = [
-        `ประตู ${doorReady ? '✓' : '✕'}`,
-        `GPS ${gpsReady ? '✓' : '✕'}`,
-        `ภาพ ${evidenceReady ? '✓' : '✕'}`,
-        `ตรวจ ${checked}/${total || 0}`
+        `ประตู ${
+          doorReady ? '✓' : '✕'
+        }`,
+
+        `GPS ${
+          gpsReady ? '✓' : '✕'
+        }`,
+
+        `ภาพ ${
+          evidenceReady ? '✓' : '✕'
+        }`,
+
+        `ตรวจ ${
+          checked
+        }/${
+          total || 0
+        }`
       ];
 
-      el.progressLine.textContent = parts.join(' | ');
+      el.progressLine.textContent =
+        parts.join(' | ');
 
-      const ready = doorReady && gpsReady && evidenceReady && total > 0 && checked === total;
-      el.btnSave.classList.toggle('ready', ready);
+      const ready =
+        doorReady &&
+        gpsReady &&
+        evidenceReady &&
+        total > 0 &&
+        checked === total;
+
+      el.btnSave.classList.toggle(
+        'ready',
+        ready
+      );
     }
 
     function setFormDisabled(disabled) {
-      el.inspectorSelect.disabled = disabled;
-      el.doorSelect.disabled = disabled || state.isQrMode;
-      el.locationInput.disabled = disabled;
-      el.sealNoInput.disabled = disabled;
-      el.btnSave.disabled = disabled;
-      el.btnReset.disabled = disabled;
-      el.btnSetAllNormalTop.disabled = disabled;
-      el.btnScrollToMissing.disabled = disabled;
-      el.btnRequestGps.disabled = disabled;
-      el.btnOpenCamera.disabled = disabled;
-      el.btnCapturePhoto.disabled = disabled;
-      el.btnUseDeviceCamera.disabled = disabled;
-      el.cameraSelect.disabled = disabled;
+      el.inspectorSelect.disabled =
+        disabled;
+
+      el.doorSelect.disabled =
+        disabled ||
+        state.isQrMode;
+
+      el.locationInput.disabled =
+        disabled;
+
+      el.sealNoInput.disabled =
+        disabled;
+
+      el.btnSave.disabled =
+        disabled;
+
+      el.btnReset.disabled =
+        disabled;
+
+      el.btnSetAllNormalTop.disabled =
+        disabled;
+
+      el.btnScrollToMissing.disabled =
+        disabled;
+
+      el.btnRequestGps.disabled =
+        disabled;
+
+      el.btnOpenCamera.disabled =
+        disabled;
+
+      el.btnCapturePhoto.disabled =
+        disabled;
+
+      el.btnUseDeviceCamera.disabled =
+        disabled;
+
+      el.cameraSelect.disabled =
+        disabled;
     }
 
-    function setApiStatus(type, text) {
-      el.apiStatusDot.className = `status-dot ${type}`;
-      el.apiStatusText.textContent = text;
+    function setApiStatus(
+      type,
+      text
+    ) {
+      el.apiStatusDot.className =
+        `status-dot ${type}`;
+
+      el.apiStatusText.textContent =
+        text;
     }
 
     function normalizeTrueText(value) {
-      const s = String(value ?? '').trim();
+      const text =
+        String(
+          value ?? ''
+        ).trim();
 
-      if (s.toUpperCase() === 'TRUE') return '✓';
-      if (s.toUpperCase() === 'FALSE') return '';
+      if (
+        text.toUpperCase() === 'TRUE'
+      ) {
+        return '✓';
+      }
 
-      return s;
+      if (
+        text.toUpperCase() === 'FALSE'
+      ) {
+        return '';
+      }
+
+      return text;
     }
 
-    function normalizeInspectSourceForCheck(value) {
-      const text = String(value || '').trim().toLowerCase();
+    function normalizeInspectSourceForCheck(
+      value
+    ) {
+      const text =
+        String(value || '')
+          .trim()
+          .toLowerCase();
 
-      if (text === 'qr' || text === 'qrcode' || text === 'qr_code') return 'qr';
-      if (text === 'home' || text === 'index' || text === 'dashboard') return 'home';
+      if (
+        text === 'qr' ||
+        text === 'qrcode' ||
+        text === 'qr_code'
+      ) {
+        return 'qr';
+      }
+
+      if (
+        text === 'home' ||
+        text === 'index' ||
+        text === 'dashboard'
+      ) {
+        return 'home';
+      }
+
+      if (text === 'manual') {
+        return 'manual';
+      }
 
       return text || 'home';
     }
 
-    function formatDateTimeForPayload(date) {
-      const d = date || new Date();
+    function formatDateTimeForPayload(
+      date
+    ) {
+      const value =
+        date || new Date();
 
-      const dd = String(d.getDate()).padStart(2, '0');
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const yyyy = String(d.getFullYear());
+      const day =
+        String(
+          value.getDate()
+        ).padStart(2, '0');
 
-      const hh = String(d.getHours()).padStart(2, '0');
-      const mi = String(d.getMinutes()).padStart(2, '0');
-      const ss = String(d.getSeconds()).padStart(2, '0');
+      const month =
+        String(
+          value.getMonth() + 1
+        ).padStart(2, '0');
 
-      return `${dd}/${mm}/${yyyy} ${hh}:${mi}:${ss}`;
+      const year =
+        String(
+          value.getFullYear()
+        );
+
+      const hour =
+        String(
+          value.getHours()
+        ).padStart(2, '0');
+
+      const minute =
+        String(
+          value.getMinutes()
+        ).padStart(2, '0');
+
+      const second =
+        String(
+          value.getSeconds()
+        ).padStart(2, '0');
+
+      return (
+        `${day}/${month}/${year} ` +
+        `${hour}:${minute}:${second}`
+      );
     }
 
     function updateFooterTime() {
-      const now = new Date();
-      el.footerTime.textContent = now.toLocaleString('th-TH', {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-      });
+      const now =
+        new Date();
+
+      el.footerTime.textContent =
+        now.toLocaleString(
+          'th-TH',
+          {
+            timeZone:
+              'Asia/Bangkok',
+            dateStyle:
+              'medium',
+            timeStyle:
+              'short'
+          }
+        );
     }
 
     function showWarn(message) {
@@ -2164,23 +3564,45 @@ viewDoorLink: document.getElementById('viewDoorLink'),
     function showError(message) {
       Swal.fire({
         icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
+        title:
+          'เกิดข้อผิดพลาด',
         text: message,
         confirmButtonText: 'ตกลง'
       });
     }
 
     function escapeHtml(value) {
-      return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+      return String(
+        value ?? ''
+      )
+        .replace(
+          /&/g,
+          '&amp;'
+        )
+        .replace(
+          /</g,
+          '&lt;'
+        )
+        .replace(
+          />/g,
+          '&gt;'
+        )
+        .replace(
+          /"/g,
+          '&quot;'
+        )
+        .replace(
+          /'/g,
+          '&#039;'
+        );
     }
 
     function escapeAttr(value) {
-      return escapeHtml(value).replace(/`/g, '&#096;');
+      return escapeHtml(value)
+        .replace(
+          /`/g,
+          '&#096;'
+        );
     }
   </script>
 </body>
