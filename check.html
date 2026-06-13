@@ -559,9 +559,20 @@
     }
 
     .quick-nav {
-      display: none;
-    }
+  display: none;
+}
 
+/*
+ * ซ่อนองค์ประกอบนำทางเฉพาะเมื่อเปิดจาก QR Code
+ * ไม่กระทบปุ่ม GPS กล้อง Checklist บันทึก และล้างแบบฟอร์ม
+ */
+[data-hide-in-qr] {
+  display: revert;
+}
+
+body.qr-entry-mode [data-hide-in-qr] {
+  display: none !important;
+}
     .swal2-popup {
       border-radius: 18px !important;
     }
@@ -946,11 +957,23 @@
         </button>
       </div>
 
-      <div class="quick-nav">
-        <a class="page-link-btn" href="index.html">หน้าหลัก</a>
-        <a id="viewDoorLink" class="page-link-btn" href="view.html">ดูผลประตู</a>
-        <a class="page-link-btn" href="report.html">รายงาน</a>
-      </div>
+     <div id="quickNav" class="quick-nav" data-hide-in-qr>
+  <a class="page-link-btn" href="index.html">
+    หน้าหลัก
+  </a>
+
+  <a
+    id="viewDoorLink"
+    class="page-link-btn"
+    href="view.html"
+  >
+    ดูผลประตู
+  </a>
+
+  <a class="page-link-btn" href="report.html">
+    รายงาน
+  </a>
+</div>
     </section>
 
     <footer class="app-footer">
@@ -1003,7 +1026,8 @@
       btnReset: document.getElementById('btnReset'),
 
       progressLine: document.getElementById('progressLine'),
-      viewDoorLink: document.getElementById('viewDoorLink'),
+quickNav: document.getElementById('quickNav'),
+viewDoorLink: document.getElementById('viewDoorLink'),
 
       gpsStatusBox: document.getElementById('gpsStatusBox'),
       gpsStatusText: document.getElementById('gpsStatusText'),
@@ -1170,24 +1194,75 @@
       }
     }
 
-    function applyEntryModeUI() {
-      if (state.isQrMode) {
-        el.doorSelect.disabled = true;
-        el.doorSelect.classList.add('locked-by-qr');
+   function applyEntryModeUI() {
+  const isQrMode =
+    state.isQrMode === true &&
+    String(state.selectedDoorId || '').trim() !== '';
 
-        el.sourcePill.className = 'source-pill qr';
-        el.sourcePill.textContent = `ช่องทาง: QR Code | ล็อกประตู ${state.selectedDoorId || '-'}`;
+  /*
+   * เพิ่ม class ที่ body เพื่อควบคุมองค์ประกอบทั้งหมด
+   * ที่กำหนด data-hide-in-qr
+   */
+  document.body.classList.toggle(
+    'qr-entry-mode',
+    isQrMode
+  );
 
-      } else {
-        el.doorSelect.disabled = false;
-        el.doorSelect.classList.remove('locked-by-qr');
+  /*
+   * ป้องกันกรณี browser หรือ CSS ภายนอกทำให้เมนูกลับมาแสดง
+   */
+  document
+    .querySelectorAll('[data-hide-in-qr]')
+    .forEach(element => {
+      element.hidden = isQrMode;
+      element.setAttribute(
+        'aria-hidden',
+        isQrMode ? 'true' : 'false'
+      );
+    });
 
-        el.sourcePill.className = 'source-pill home';
-        el.sourcePill.textContent = 'ช่องทาง: หน้าหลัก / เลือกประตูเอง';
-      }
+  if (isQrMode) {
+    /*
+     * โหมดสแกน QR:
+     * - ล็อกประตู
+     * - ซ่อนปุ่มไปหน้าอื่น
+     * - คงปุ่มตรวจและบันทึกทั้งหมด
+     */
+    el.doorSelect.value =
+      state.selectedDoorId;
 
-      updateProgress();
-    }
+    el.doorSelect.disabled = true;
+    el.doorSelect.classList.add(
+      'locked-by-qr'
+    );
+
+    el.sourcePill.className =
+      'source-pill qr';
+
+    el.sourcePill.textContent =
+      `ช่องทาง: QR Code | ล็อกประตู ${
+        state.selectedDoorId || '-'
+      }`;
+
+  } else {
+    /*
+     * โหมดเข้าจากหน้าหลัก:
+     * แสดงปุ่มและใช้งานตามเดิมทั้งหมด
+     */
+    el.doorSelect.disabled = false;
+    el.doorSelect.classList.remove(
+      'locked-by-qr'
+    );
+
+    el.sourcePill.className =
+      'source-pill home';
+
+    el.sourcePill.textContent =
+      'ช่องทาง: หน้าหลัก / เลือกประตูเอง';
+  }
+
+  updateProgress();
+}
 
     function renderNames() {
       if (!state.names.length) {
